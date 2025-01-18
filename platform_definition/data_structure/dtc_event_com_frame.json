@@ -1,0 +1,9 @@
+{
+    "package": "srp.platform.diag",
+    "data_structure": {
+        "DtcEventComDataStructure": {
+            "dtc_id": "uint32",
+            "status": "uint8"
+        }
+    }
+}
