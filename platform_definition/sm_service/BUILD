@@ -8,7 +8,7 @@ filegroup(
     name = "sm_diag",
     srcs = [
         "sm_did.json",
-        "@srp_platform//deployment/system_definition/diag/global:diag_dids",
+        "@srp_platform//platform_definition/diag/global:diag_dids",
     ],
     visibility = ["//visibility:public"],
 )

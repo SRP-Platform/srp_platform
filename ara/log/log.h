@@ -16,42 +16,42 @@ namespace log {
 /// @brief Create a stream for fatal logs
 /// @returns Fatal log stream in the current context
 /// @see WithLevel
-static LogStream LogFatal() {
+static LogStream __attribute__((unused)) LogFatal() {
   return LoggingMenager::GetInstance()->CreateLogger("APP-").LogFatal();
 }
 
 /// @brief Create a stream for error logs
 /// @returns Error log stream in the current context
 /// @see WithLevel
-static LogStream LogError() {
+static LogStream __attribute__((unused)) LogError() {
   return LoggingMenager::GetInstance()->CreateLogger("APP-").LogError();
 }
 
 /// @brief Create a stream for warning logs
 /// @returns Warning log stream in the current context
 /// @see WithLevel
-static LogStream LogWarn() {
+static LogStream __attribute__((unused)) LogWarn() {
   return LoggingMenager::GetInstance()->CreateLogger("APP-").LogWarn();
 }
 
 /// @brief Create a stream for information logs
 /// @returns Information log stream in the current context
 /// @see WithLevel
-static LogStream LogInfo() {
+static LogStream __attribute__((unused)) LogInfo() {
   return LoggingMenager::GetInstance()->CreateLogger("APP-").LogInfo();
 }
 
 /// @brief Create a stream for debug logs
 /// @returns Debug log stream in the current context
 /// @see WithLevel
-static LogStream LogDebug() {
+static LogStream __attribute__((unused)) LogDebug() {
   return LoggingMenager::GetInstance()->CreateLogger("APP-").LogDebug();
 }
 
 /// @brief Create a stream for verbose logs
 /// @returns Verbose log stream in the current context
 /// @see WithLevel
-static LogStream LogVerbose() {
+static LogStream __attribute__((unused)) LogVerbose() {
   return LoggingMenager::GetInstance()->CreateLogger("APP-").LogVerbose();
 }
 }  // namespace log

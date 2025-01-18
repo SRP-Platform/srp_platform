@@ -1,0 +1,65 @@
+{
+    "package": "srp.platform.sm",
+    "states": {
+        "Startup": {
+            "AfterFinish": {
+                "switch": "Startup2"
+            },
+            "Error": {
+                "switch": "Startup2"
+            },
+            "mode": {
+                "reset": false,
+                "shutdown": false
+            }
+        },
+        "Startup2": {
+            "AfterFinish": {
+                "switch": "Running"
+            },
+            "Error": {
+                "switch": "Platform"
+            },
+            "mode": {
+                "reset": false,
+                "shutdown": false
+            }
+        },
+        "Platform": {
+            "Error": {
+                "switch": "SafetyMode"
+            },
+            "mode": {
+                "reset": true,
+                "shutdown": true
+            }
+        },
+        "Running": {
+            "DiD": {
+                "0x01": {
+                    "switch": "SafetyMode"
+                }
+            },
+            "Error": {
+                "switch": "SafetyMode",
+                "dtc":true
+            },
+            "mode": {
+                "reset": true,
+                "shutdown": true
+            }
+        },
+        "SafetyMode": {
+            "DiD": {
+                "0x02": {
+                    "switch": "Platform"
+                }
+            },
+            "mode": {
+                "reset": false,
+                "shutdown": true
+            }
+        }
+    },
+    "startup":"Startup"
+}
