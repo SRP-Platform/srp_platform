@@ -495,10 +495,10 @@ class SomeipExtractor:
                 file+="""        break;\n"""
             file+="""    }\n"""
             file+="""  }\n"""
-            file+="@srp_platform// METHOD SECTION\n"
+            file+="// METHOD SECTION\n"
             for m in service.methods:
                 file+="""  """+service.name.replace(".","::")+"::"+m.name+"""Proxy """+m.name+"""{};\n"""
-            file+="@srp_platform// EVENT SECTION\n"
+            file+="// EVENT SECTION\n"
             for m in service.events:
                 file+="""  """+service.name.replace(".","::")+"::"+m.name+"""EventProxy """+m.name+"""{};\n"""
             file+="\n"

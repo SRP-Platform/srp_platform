@@ -1,5 +1,5 @@
 load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
-load("@srp_platform//deployment/bazel:connect_tar.bzl", "connect_tar")
+load("@srp_platform//tools/common:connect_tar.bzl", "connect_tar")
 
 def _impl(ctx):
     # The list of arguments we pass to the script.
@@ -24,7 +24,7 @@ rename = rule(
             executable = True,
             cfg = "exec",
             allow_files = True,
-            default = Label("@srp_platform//deployment/bazel:rename_sh"),
+            default = Label("@srp_platform//tools/common:rename_sh"),
         ),
     },
 )
