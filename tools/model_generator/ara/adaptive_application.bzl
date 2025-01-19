@@ -1,17 +1,19 @@
 load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
 load("@srp_platform//tools/common:connect_tar.bzl", "connect_tar")
 
+
+
 def _impl(ctx):
     # The list of arguments we pass to the script.
     out = ctx.actions.declare_file(ctx.attr.out_name)
     args = [out.path] + [f.path for f in ctx.files.src]
-
     # Action to call the script.
     ctx.actions.run(
         inputs = ctx.files.src,
         outputs = [out],
         arguments = args,
         executable = ctx.executable.tool,
+        env = ctx.var,
     )
     return [DefaultInfo(files = depset([out]))]
 
@@ -40,6 +42,7 @@ def ara_json2config_impl(ctx):
         outputs = [out],
         arguments = args,
         executable = ctx.executable.tool,
+        env = ctx.var,
     )
 
     return [DefaultInfo(files = depset(direct = [out]))]
@@ -68,6 +71,7 @@ def ara_json2runtime_env_impl(ctx):
         outputs = [out],
         arguments = args,
         executable = ctx.executable.tool,
+        env = ctx.var,
     )
 
     return [DefaultInfo(files = depset([out]))]
@@ -89,13 +93,13 @@ def ara_json2someip_lib_impl(ctx):
     # The list of arguments we pass to the script.
     out = ctx.actions.declare_directory("someip_lib.h")
     args = [out.path, ctx.files.src[0].path]
-
     # Action to call the script.
     ctx.actions.run(
         inputs = ctx.files.src,
         outputs = [out],
         arguments = args,
         executable = ctx.executable.tool,
+        env = ctx.var,
     )
 
     return [DefaultInfo(files = depset([out]))]
@@ -119,7 +123,7 @@ def ara_someip_lib(name, model_src, visibility = []):
         src = model_src,
         visibility = ["//visibility:private"],
     )
-
+    
     native.cc_library(
         name = name,
         deps = ["@srp_platform//ara/com:com_error_domain", "@srp_platform//ara/core:Result", "@srp_platform//ara/com/someip:someip_lib","@srp_platform//core/data:data_conv_lib"],

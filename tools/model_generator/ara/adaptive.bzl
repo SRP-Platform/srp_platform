@@ -10,6 +10,7 @@ def ara_json2sm_lib_impl(ctx):
         outputs = [out, out2],
         arguments = args,
         executable = ctx.executable.tool,
+        env = ctx.var,
     )
 
     return [DefaultInfo(files = depset([out, out2]))]
@@ -38,6 +39,7 @@ def ara_json2sm_config_impl(ctx):
         outputs = [out],
         arguments = args,
         executable = ctx.executable.tool,
+        env = ctx.var,
     )
 
     return [DefaultInfo(files = depset([out]))]

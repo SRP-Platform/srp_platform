@@ -1,6 +1,6 @@
 {
     "include": [
-        "platform_definition/diag/jobs/read_vin.json"
+        "@(srp_platform)/platform_definition/diag/jobs/read_vin.json"
     ],
     "package": "srp.platform",
     "adaptive_application": {

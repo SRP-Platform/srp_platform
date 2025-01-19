@@ -1,7 +1,7 @@
 {
     "include": [
-        "platform_definition/sm_service/sm_service.json",
-        "platform_definition/sm_service/sm_did.json"
+        "@(srp_platform)/platform_definition/sm_service/sm_service.json",
+        "@(srp_platform)/platform_definition/sm_service/sm_did.json"
     ],
     "package": "srp.platform",
     "adaptive_application": {
