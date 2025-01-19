@@ -26,7 +26,7 @@ class ShmBufforProxyTest : public ::testing::Test {
     // Helper method to create shared memory for testing
     template <std::size_t BUFFER_SIZE>
     void createSharedMemory(const ara::core::InstanceSpecifier& instanceSpec) {
-        ara::com::shm::ShmBufforSkeleton<BUFFER_SIZE> skeleton(instanceSpec);
+        srp::bindings::com::shm::ShmBufforSkeleton<BUFFER_SIZE> skeleton(instanceSpec);
         auto result = skeleton.OfferService();
         ASSERT_TRUE(result.HasValue());
     }
@@ -39,7 +39,7 @@ TEST_F(ShmBufforProxyTest, FindServiceSuccess) {
     // First create shared memory
     createSharedMemory<BUFFER_SIZE>(instanceSpec);
     // Then try to find service
-    ara::com::shm::ShmBufforProxy<BUFFER_SIZE> proxy(instanceSpec);
+    srp::bindings::com::shm::ShmBufforProxy<BUFFER_SIZE> proxy(instanceSpec);
     auto result = proxy.FindService();
     EXPECT_FALSE(result.HasValue());
 }
@@ -48,7 +48,7 @@ TEST_F(ShmBufforProxyTest, FindServiceSuccess) {
 TEST_F(ShmBufforProxyTest, FindServiceFailure) {
     constexpr std::size_t BUFFER_SIZE = 512;
     auto instanceSpec = createUniqueInstanceSpec();
-    ara::com::shm::ShmBufforProxy<BUFFER_SIZE> proxy(instanceSpec);
+    srp::bindings::com::shm::ShmBufforProxy<BUFFER_SIZE> proxy(instanceSpec);
     auto result = proxy.FindService();
     EXPECT_FALSE(result.HasValue());
 }
@@ -56,7 +56,7 @@ TEST_F(ShmBufforProxyTest, FindServiceFailure) {
 TEST_F(ShmBufforProxyTest, GetNewSamplesPointer) {
     constexpr std::size_t BUFFER_SIZE = 512;
     auto instanceSpec = createUniqueInstanceSpec();
-    ara::com::shm::ShmBufforProxy<BUFFER_SIZE> proxy(instanceSpec);
+    srp::bindings::com::shm::ShmBufforProxy<BUFFER_SIZE> proxy(instanceSpec);
     uint8_t* val = proxy.GetNewSamplesPointer();
     EXPECT_TRUE(val == nullptr);
 }
@@ -68,21 +68,21 @@ TEST_F(ShmBufforProxyTest, DifferentBufferSizes) {
         constexpr std::size_t BUFFER_SIZE = 128;
         auto instanceSpec = createUniqueInstanceSpec();
         createSharedMemory<BUFFER_SIZE>(instanceSpec);
-        ara::com::shm::ShmBufforProxy<BUFFER_SIZE> proxy(instanceSpec);
+        srp::bindings::com::shm::ShmBufforProxy<BUFFER_SIZE> proxy(instanceSpec);
         EXPECT_FALSE(proxy.FindService().HasValue());
     }
     {
         constexpr std::size_t BUFFER_SIZE = 1024;
         auto instanceSpec = createUniqueInstanceSpec();
         createSharedMemory<BUFFER_SIZE>(instanceSpec);
-        ara::com::shm::ShmBufforProxy<BUFFER_SIZE> proxy(instanceSpec);
+        srp::bindings::com::shm::ShmBufforProxy<BUFFER_SIZE> proxy(instanceSpec);
         EXPECT_FALSE(proxy.FindService().HasValue());
     }
     {
         constexpr std::size_t BUFFER_SIZE = 4096;
         auto instanceSpec = createUniqueInstanceSpec();
         createSharedMemory<BUFFER_SIZE>(instanceSpec);
-        ara::com::shm::ShmBufforProxy<BUFFER_SIZE> proxy(instanceSpec);
+        srp::bindings::com::shm::ShmBufforProxy<BUFFER_SIZE> proxy(instanceSpec);
         EXPECT_FALSE(proxy.FindService().HasValue());
     }
 }
@@ -95,11 +95,11 @@ TEST_F(ShmBufforProxyTest, CleanupTest) {
     createSharedMemory<BUFFER_SIZE>(instanceSpec);
     {
         // Scope block to ensure destructor is called
-        ara::com::shm::ShmBufforProxy<BUFFER_SIZE> proxy(instanceSpec);
+        srp::bindings::com::shm::ShmBufforProxy<BUFFER_SIZE> proxy(instanceSpec);
         EXPECT_FALSE(proxy.FindService().HasValue());
     }
     // Try to create new proxy
-    ara::com::shm::ShmBufforProxy<BUFFER_SIZE> newProxy(instanceSpec);
+    srp::bindings::com::shm::ShmBufforProxy<BUFFER_SIZE> newProxy(instanceSpec);
     auto result = newProxy.FindService();
     EXPECT_FALSE(result.HasValue());
 }
