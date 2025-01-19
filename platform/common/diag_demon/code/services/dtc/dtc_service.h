@@ -22,7 +22,7 @@ namespace diag_demon {
 namespace dtc {
 class DtcService : public IDtcService {
  private:
-  const std::unique_ptr<ara::com::ProccessSocket> sock_;
+  const std::unique_ptr<srp::bindings::com::ProccessSocket> sock_;
   const ara::log::Logger& logger_;
 
   void RXCallback(const uint32_t peerid, const std::vector<uint8_t>& pyload);

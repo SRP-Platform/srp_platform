@@ -23,7 +23,8 @@
 
 #include "ara/core/result.h"
 #include "bindings/common/socket/Isocket_stream.h"
-namespace ara {
+namespace srp {
+namespace bindings {
 namespace com {
 namespace soc {
 class SocketStreamMock : public ISocketStream {
@@ -63,6 +64,7 @@ class FacadeSocketStream : public ISocketStream {
 
 }  // namespace soc
 }  // namespace com
-}  // namespace ara
+}  // namespace bindings
+}  // namespace srp
 
 #endif  // BINDINGS_COMMON_SOCKET_MOCK_SOCKET_STREAM_MOCK_H_"

@@ -18,7 +18,7 @@ namespace platform {
 namespace diag_demon {
 namespace dtc {
 DtcService::DtcService(/* args */)
-    : sock_{std::make_unique<ara::com::ProccessSocket>("SRP.ARA.DTC")},
+    : sock_{std::make_unique<srp::bindings::com::ProccessSocket>("SRP.ARA.DTC")},
       logger_{ara::log::LoggingMenager::GetInstance()->CreateLogger(
           "dtcs", "", ara::log::LogLevel::kDebug)} {}
 

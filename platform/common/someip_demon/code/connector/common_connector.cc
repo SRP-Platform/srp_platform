@@ -14,7 +14,7 @@ namespace srp {
 namespace someip_demon {
 namespace connectors {
 void CommonConnector::RegisterSockets(
-    std::shared_ptr<ara::com::ProccessSocket> ipc_soc,
+    std::shared_ptr<srp::bindings::com::ProccessSocket> ipc_soc,
     std::shared_ptr<common::soc::UdpSocket> udp_sock) {
   this->ipc_soc_ = ipc_soc;
   this->udp_sock_ = udp_sock;

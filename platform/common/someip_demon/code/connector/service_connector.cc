@@ -90,7 +90,7 @@ void ServiceConnector::Init() noexcept {
   }
   if (ipc_soc_ == nullptr) {
     ipc_soc_ =
-        std::make_shared<ara::com::ProccessSocket>(std::to_string(port_));
+        std::make_shared<srp::bindings::com::ProccessSocket>(std::to_string(port_));
 
     ipc_soc_->SetCallback(std::bind(&ServiceConnector::IpcRxCallback, this,
                                     std::placeholders::_1,

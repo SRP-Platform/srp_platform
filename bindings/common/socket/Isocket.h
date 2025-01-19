@@ -8,8 +8,8 @@
  * @copyright Copyright (c) 2023
  *
  */
-#ifndef COMMUNICATION_CORE_SOCKETS_ISOCKET_H_
-#define COMMUNICATION_CORE_SOCKETS_ISOCKET_H_
+#ifndef BINDINGS_COMMON_SOCKET_ISOCKET_H_
+#define BINDINGS_COMMON_SOCKET_ISOCKET_H_
 #include <cstdint>
 #include <functional>
 #include <string>
@@ -59,4 +59,4 @@ class ISocket {
 }  // namespace com
 }  // namespace bindings
 }  // namespace srp
-#endif  // COMMUNICATION_CORE_SOCKETS_ISOCKET_H_
+#endif  // BINDINGS_COMMON_SOCKET_ISOCKET_H_

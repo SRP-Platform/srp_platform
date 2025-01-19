@@ -31,7 +31,7 @@ ara::core::Result<void> ComController::Init() noexcept {
     return MakeErrorCode(ComOfferErrc::kAlreadyOffered,
                          "Controller already Started");
   }
-  ipc_soc_ = std::make_unique<ProccessSocket>(app_id_);
+  ipc_soc_ = std::make_unique<srp::bindings::com::ProccessSocket>(app_id_);
 
   ipc_soc_->SetCallback(std::bind(&ComController::IpcRxCallback, this,
                                   std::placeholders::_1,

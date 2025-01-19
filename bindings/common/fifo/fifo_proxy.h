@@ -1,12 +1,12 @@
 /**
  * @file fifo_proxy.h
  * @author Bartosz Snieg (snieg45@gmail.com)
- * @brief 
+ * @brief
  * @version 0.1
  * @date 2024-09-15
- * 
+ *
  * @copyright Copyright (c) 2024
- * 
+ *
  */
 #ifndef BINDINGS_COMMON_FIFO_FIFO_PROXY_H_
 #define BINDINGS_COMMON_FIFO_FIFO_PROXY_H_
@@ -17,16 +17,17 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <vector>
 
 #include <array>
+#include <vector>
 
 #include "ara/com/com_error_domain.h"
-#include "core/data/type_converter.h"
 #include "ara/core/instance_specifier.h"
 #include "ara/core/result.h"
+#include "core/data/type_converter.h"
 
-namespace ara {
+namespace srp {
+namespace bindings {
 namespace com {
 namespace fifo {
 template <typename fifo_type>
@@ -43,8 +44,7 @@ class FifoProxy {
   }
   ara::core::Result<void> StopOfferService() { return {}; }
   ara::core::Result<fifo_type> GetNewSamples() {
-    int fd =
-        open(("/tmp/" + instance_.ToString()).c_str(), O_RDONLY);
+    int fd = open(("/tmp/" + instance_.ToString()).c_str(), O_RDONLY);
     if (fd < 0) {
       return ara::com::MakeErrorCode(ara::com::ComErrc::kIllegalUseOfAllocate,
                                      "fifo not exist!");
@@ -59,13 +59,16 @@ class FifoProxy {
       if (data.has_value()) {
         return data.value();
       }
-      return ara::com::MakeErrorCode(ara::com::ComErrc::kPeerIsUnreachable, " Error 1");
+      return ara::com::MakeErrorCode(ara::com::ComErrc::kPeerIsUnreachable,
+                                     " Error 1");
     }
-    return ara::com::MakeErrorCode(ara::com::ComErrc::kCommunicationStackError, " Error 2");
+    return ara::com::MakeErrorCode(ara::com::ComErrc::kCommunicationStackError,
+                                   " Error 2");
   }
 };
 }  // namespace fifo
 }  // namespace com
-}  // namespace ara
+}  // namespace bindings
+}  // namespace srp
 
 #endif  // BINDINGS_COMMON_FIFO_FIFO_PROXY_H_

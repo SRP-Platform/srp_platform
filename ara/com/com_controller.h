@@ -28,7 +28,7 @@ class ComController {
       handlers_{};
   const uint32_t app_id_;
 
-  std::unique_ptr<ProccessSocket> ipc_soc_;
+  std::unique_ptr<srp::bindings::com::ProccessSocket> ipc_soc_;
   void IpcRxCallback(const uint32_t pid, const std::vector<uint8_t>& payload);
   bool SendCallback(uint32_t pid, const std::vector<uint8_t>& payload,
                     IComClient::MsgType type);

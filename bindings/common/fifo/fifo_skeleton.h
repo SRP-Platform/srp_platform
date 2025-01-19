@@ -1,12 +1,12 @@
 /**
  * @file fifo_skeleton.h
  * @author Bartosz Snieg (snieg45@gmail.com)
- * @brief 
+ * @brief
  * @version 0.1
  * @date 2024-09-15
- * 
+ *
  * @copyright Copyright (c) 2024
- * 
+ *
  */
 #ifndef BINDINGS_COMMON_FIFO_FIFO_SKELETON_H_
 #define BINDINGS_COMMON_FIFO_FIFO_SKELETON_H_
@@ -18,11 +18,12 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "core/data/type_converter.h"
 #include "ara/core/instance_specifier.h"
 #include "ara/core/result.h"
+#include "core/data/type_converter.h"
 
-namespace ara {
+namespace srp {
+namespace bindings {
 namespace com {
 namespace fifo {
 template <typename fifo_type>
@@ -51,6 +52,7 @@ class FifoSkeleton {
 };
 }  // namespace fifo
 }  // namespace com
-}  // namespace ara
+}  // namespace bindings
+}  // namespace srp
 
 #endif  // BINDINGS_COMMON_FIFO_FIFO_SKELETON_H_

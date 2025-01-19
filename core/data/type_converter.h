@@ -8,8 +8,8 @@
  * @copyright Copyright (c) 2024
  *
  */
-#ifndef DATA_TYPE_CONVERTER_H_
-#define DATA_TYPE_CONVERTER_H_
+#ifndef CORE_DATA_TYPE_CONVERTER_H_
+#define CORE_DATA_TYPE_CONVERTER_H_
 
 #include <algorithm>
 #include <array>
@@ -246,4 +246,4 @@ struct EndianConvert {
 
 }  // namespace data
 }  // namespace srp
-#endif  // DATA_TYPE_CONVERTER_H_
+#endif  // CORE_DATA_TYPE_CONVERTER_H_

@@ -24,7 +24,8 @@
 
 #include "ara/core/result.h"
 
-namespace ara {
+namespace srp {
+namespace bindings {
 namespace com {
 class ProccessSocket {
  public:
@@ -56,6 +57,7 @@ class ProccessSocket {
 };
 
 }  // namespace com
-}  // namespace ara
+}  // namespace bindings
+}  // namespace srp
 
 #endif  // BINDINGS_COMMON_SOCKET_PROCCESS_SOCKET_H_
