@@ -3,9 +3,9 @@ cc_binary(
     srcs = [
         "main.cc",
     ],
-    visibility = ["//platform/common/logger:__subpackages__"],
+    visibility = ["@srp_platform//platform/common/logger:__subpackages__"],
     deps = [
-        "//platform/common/logger/model:ara",
-        "//platform/common/logger/code/application:dlt_service_lib",
+        "@srp_platform//platform/common/logger/model:ara",
+        "@srp_platform//platform/common/logger/code/application:dlt_service_lib",
     ],
 )

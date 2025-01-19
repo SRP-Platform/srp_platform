@@ -8,12 +8,12 @@ cc_library(
         "uds_server.h",
         "validator_controller.h",
     ],
-    visibility = ["//platform/common/diag_demon/code:__subpackages__"],
+    visibility = ["@srp_platform//platform/common/diag_demon/code:__subpackages__"],
     deps = [
         "@srp_platform//ara/log",
-        "//libdoip/libdoipserver",
-        "//platform/common/diag_demon/code/services:uds_data_types",
-        "//platform/common/diag_demon/code/services:uds_interfaces",
+        "@srp_platform//libdoip/libdoipserver",
+        "@srp_platform//platform/common/diag_demon/code/services:uds_data_types",
+        "@srp_platform//platform/common/diag_demon/code/services:uds_interfaces",
         "@srp_platform//bindings/common/socket:stream_socket_ipc",
     ],
 )
@@ -21,7 +21,7 @@ cc_library(
 cc_library(
     name = "example_did",
     hdrs = ["example_did.h"],
-    visibility = ["//platform/common/diag_demon/code:__subpackages__"],
+    visibility = ["@srp_platform//platform/common/diag_demon/code:__subpackages__"],
     deps = [
         "@srp_platform//ara/log",
         "@srp_platform//ara/diag:uds_lib",
@@ -34,12 +34,12 @@ cc_library(
         "uds_nrc_codes.h",
         "uds_request.h",
     ],
-    visibility = ["//platform/common/diag_demon/code:__subpackages__"],
+    visibility = ["@srp_platform//platform/common/diag_demon/code:__subpackages__"],
 )
 
 cc_library(
     name = "uds_interfaces",
     hdrs = ["i_validator.h"],
-    visibility = ["//platform/common/diag_demon/code:__subpackages__"],
+    visibility = ["@srp_platform//platform/common/diag_demon/code:__subpackages__"],
     deps = [":uds_data_types"],
 )

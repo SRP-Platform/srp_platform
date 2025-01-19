@@ -10,12 +10,12 @@ cc_library(
     ],
     data = [],
     visibility = [
-        "//platform/common/logger/code/application:__subpackages__",
-        "//platform/common/someip_demon/code:__subpackages__",
+        "@srp_platform//platform/common/logger/code/application:__subpackages__",
+        "@srp_platform//platform/common/someip_demon/code:__subpackages__",
     ],
     deps = [
         "@srp_platform//ara/log",
-        "//core/common:common_types",
+        "@srp_platform//core/common:common_types",
     ],
 )
 
@@ -27,7 +27,7 @@ cc_library(
         "i_network_controller.h",
         "network_controller.h",
     ],
-    visibility = ["//platform/common/someip_demon/code:__subpackages__"],
+    visibility = ["@srp_platform//platform/common/someip_demon/code:__subpackages__"],
     deps = [
         "@srp_platform//ara/com/someip:someip_data",
         "@srp_platform//ara/core:Result",

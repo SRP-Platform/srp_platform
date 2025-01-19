@@ -5,5 +5,5 @@ cc_library(
         "find_service_item.h",
         "service_item.h",
     ],
-    visibility = ["//platform/common/someip_demon/code:__subpackages__"],
+    visibility = ["@srp_platform//platform/common/someip_demon/code:__subpackages__"],
 )

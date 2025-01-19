@@ -7,6 +7,6 @@ cc_library(
         "idlt_arg.h",
         "idlt_frame.h",
     ],
-    visibility = ["//platform/common/logger/code:__subpackages__"],
+    visibility = ["@srp_platform//platform/common/logger/code:__subpackages__"],
     deps = [],
 )

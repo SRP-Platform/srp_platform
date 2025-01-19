@@ -8,11 +8,11 @@ cc_library(
         "em_service.h",
         "json_parser.h",
     ],
-    visibility = ["//platform/common/em/code:__subpackages__"],
+    visibility = ["@srp_platform//platform/common/em/code:__subpackages__"],
     deps = [
         ":em_db",
         "@srp_platform//ara/log",
-        "//core/json:simba_json",
+        "@srp_platform//core/json:simba_json",
     ],
 )
 
@@ -25,6 +25,6 @@ cc_library(
         "i_app_db.h",
     ],
     visibility = [
-        "//mw/em/code/services/exec:__subpackages__",
+        "@srp_platform//mw/em/code/services/exec:__subpackages__",
     ],
 )

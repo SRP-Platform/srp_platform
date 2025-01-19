@@ -9,6 +9,6 @@ cc_library(
         "./include",
     ],
     visibility = ["//visibility:public"],
-    deps = ["//libdoip/libdoipcommon"],
+    deps = ["@srp_platform//libdoip/libdoipcommon"],
 )
 

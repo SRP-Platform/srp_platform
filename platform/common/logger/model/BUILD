@@ -2,7 +2,7 @@ load("@srp_platform//tools/model_generator/ara:adaptive_application.bzl", "adapt
 
 ara_runtime_lib(
     name = "ara",
-    model_src = ["//platform/common/logger/model:instance"],
+    model_src = ["@srp_platform//platform/common/logger/model:instance"],
     visibility = ["//visibility:public"],
 )
 
@@ -11,12 +11,12 @@ filegroup(
     srcs = [
         "logger_app.json",
     ],
-    visibility = ["//example_adaptive/ExampleApp/code:__subpackages__"],
+    visibility = ["@srp_platform//example_adaptive/ExampleApp/code:__subpackages__"],
 )
 
 adaptive_application(
     name = "logger",
-    bin = "//platform/common/logger/code:logger",
-    model_src = ["//platform/common/logger/model:instance"],
+    bin = "@srp_platform//platform/common/logger/code:logger",
+    model_src = ["@srp_platform//platform/common/logger/model:instance"],
     visibility = ["//visibility:public"],
 )
