@@ -36,7 +36,7 @@ class IPCSkeletonBindings : public CommonBindings {
  protected:
   void SocketLoop();
   const ara::core::StringView main_path_;
-  ara::com::shm::ShmBufforSkeleton<1024> buffor_;
+  srp::bindings::com::shm::ShmBufforSkeleton<1024> buffor_;
   ara::core::ConditionVariableSkeleton cv_;
   std::unique_ptr<srp::bindings::com::soc::ISocketStream> stream_sock_;
 
@@ -59,7 +59,7 @@ class IPCProxyBindings : public CommonBindings {
   uint16_t msg_id{0U};
   const ara::core::StringView main_path_;
   void ShmLoop(std::stop_token token);
-  ara::com::shm::ShmBufforProxy<1024> buffor_;
+  srp::bindings::com::shm::ShmBufforProxy<1024> buffor_;
   ara::core::ConditionVariableProxy cv_;
   std::unique_ptr<std::jthread> shm_loop_thread_;
   std::unique_ptr<srp::bindings::com::soc::StreamIpcSocket> stream_sock_;

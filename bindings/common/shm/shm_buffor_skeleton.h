@@ -27,7 +27,8 @@
 #include "ara/core/instance_specifier.h"
 #include "ara/core/result.h"
 
-namespace ara {
+namespace srp {
+namespace bindings {
 namespace com {
 namespace shm {
 template <std::size_t buff_size>
@@ -77,5 +78,6 @@ class ShmBufforSkeleton final {
 };
 }  // namespace shm
 }  // namespace com
-}  // namespace ara
+}  // namespace bindings
+}  // namespace srp
 #endif  // BINDINGS_COMMON_SHM_SHM_BUFFOR_SKELETON_H_

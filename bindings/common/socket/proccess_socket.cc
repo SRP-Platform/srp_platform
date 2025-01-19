@@ -27,16 +27,17 @@
 
 #include "ara/com/com_error_domain.h"
 
-namespace ara {
+namespace srp {
+namespace bindings {
 namespace com {
 ProccessSocket::ProccessSocket(/* args */)
     : local_pid_{static_cast<uint32_t>(getpid())},
       local_soc_{"/run/p-" + std::to_string(local_pid_)} {}
 ProccessSocket::ProccessSocket(const uint32_t app_id)
-    : local_pid_{app_id},
-      local_soc_{"/run/p-" + std::to_string(local_pid_)} {}
+    : local_pid_{app_id}, local_soc_{"/run/p-" + std::to_string(local_pid_)} {}
 ProccessSocket::ProccessSocket(const std::string& sock_path_)
-    : local_pid_{static_cast<uint32_t>(getpid())}, local_soc_{"/run/" + sock_path_} {}
+    : local_pid_{static_cast<uint32_t>(getpid())},
+      local_soc_{"/run/" + sock_path_} {}
 
 ProccessSocket::~ProccessSocket() {}
 
@@ -47,7 +48,7 @@ void ProccessSocket::SetCallback(RxCallback&& callback) {
 ara::core::Result<void> ProccessSocket::Offer() noexcept {
   const char* sock_path = local_soc_.c_str();
   if (remove(sock_path) == -1 && errno != ENOENT) {
-    return MakeErrorCode(ComErrc::kUnsetFailure, "Error: remove failed");
+    return ara::com::MakeErrorCode(ara::com::ComErrc::kUnsetFailure, "Error: remove failed");
   }
 
   memset(&addr_, 0x0, sizeof(struct sockaddr_un));
@@ -56,20 +57,20 @@ ara::core::Result<void> ProccessSocket::Offer() noexcept {
 
   sfd_ = ::socket(AF_UNIX, SOCK_DGRAM, 0);
   if (sfd_ == -1) {
-    return MakeErrorCode(ComErrc::kUnsetFailure, "Error: socket failed");
+    return ara::com::MakeErrorCode(ara::com::ComErrc::kUnsetFailure, "Error: socket failed");
   }
   {
     int reuse = 1;
 
     if (setsockopt(sfd_, SOL_SOCKET, SO_REUSEADDR, (char*)&reuse,  // NOLINT
                    sizeof(reuse)) < 0) {
-      return MakeErrorCode(ComErrc::kUnsetFailure,
+      return ara::com::MakeErrorCode(ara::com::ComErrc::kUnsetFailure,
                            "Error: setsockopt failed (SO_REUSEADDR)");
     }
   }
   if (bind(sfd_, (struct sockaddr*)&addr_, sizeof(struct sockaddr_un)) == -1) {
     close(sfd_);
-    return MakeErrorCode(ComErrc::kUnsetFailure, "Error: bind failed");
+    return ara::com::MakeErrorCode(ara::com::ComErrc::kUnsetFailure, "Error: bind failed");
   }
   rx_thread_ = std::make_unique<std::jthread>(
       [this](std::stop_token token) { this->RxLoop(token); });
@@ -77,7 +78,7 @@ ara::core::Result<void> ProccessSocket::Offer() noexcept {
 }
 ara::core::Result<void> ProccessSocket::StopOffer() noexcept {
   if (rx_thread_ == nullptr) {
-    return MakeErrorCode(ComErrc::kServiceNotOffered, "");
+    return ara::com::MakeErrorCode(ara::com::ComErrc::kServiceNotOffered, "");
   }
   rx_thread_.release();
   close(sfd_);
@@ -106,7 +107,7 @@ ara::core::Result<void> ProccessSocket::Transmit(
                          (struct sockaddr*)&remote, sizeof(remote));
   delete[] buffor;
   if (rc == -1) {
-    return MakeErrorCode(ComErrc::kServiceNotOffered, "Sanding Failed");
+    return ara::com::MakeErrorCode(ara::com::ComErrc::kServiceNotOffered, "Sanding Failed");
   }
   return {};
 }
@@ -140,4 +141,5 @@ void ProccessSocket::RxLoop(std::stop_token token) noexcept {
   }
 }
 }  // namespace com
-}  // namespace ara
+}  // namespace bindings
+}  // namespace srp

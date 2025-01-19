@@ -39,7 +39,7 @@ class ConditionVariableProxy final {
   };
   const InstanceSpecifier instance_;
   ConditionVariableProxy::shm_object_t* shm_object_;
-  ara::com::shm::ShmProxy<ConditionVariableProxy::shm_object_t> shm_;
+  srp::bindings::com::shm::ShmProxy<ConditionVariableProxy::shm_object_t> shm_;
 
  public:
   ConditionVariableProxy(const InstanceSpecifier& instance);
@@ -83,7 +83,7 @@ class ConditionVariableSkeleton final {
   ConditionVariableSkeleton::shm_object_t* shm_object_;
   pthread_mutexattr_t attrmutex;
   pthread_condattr_t attrcond;
-  ara::com::shm::ShmSkeleton<ConditionVariableSkeleton::shm_object_t> shm_;
+  srp::bindings::com::shm::ShmSkeleton<ConditionVariableSkeleton::shm_object_t> shm_;
 
  public:
   ConditionVariableSkeleton(const InstanceSpecifier& instance);

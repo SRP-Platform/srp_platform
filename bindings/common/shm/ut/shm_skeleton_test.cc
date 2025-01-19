@@ -27,8 +27,8 @@ class ShmSkeletonTest : public ::testing::Test {
     // Cleanup method to ensure shared memory is properly removed
     void TearDown() override {
         // Attempt to unlink any leftover shared memory segments
-        system("ipcs -m | grep $(whoami) | awk '{print $2}' | xargs -I {} ipcrm -m {}");
-        system("ipcs -m | grep $(whoami) | awk '{print $2}' | xargs -I {} ipcrm -m {}");
+        std::ignore = system("ipcs -m | grep $(whoami) | awk '{print $2}' | xargs -I {} ipcrm -m {}");
+        std::ignore = system("ipcs -m | grep $(whoami) | awk '{print $2}' | xargs -I {} ipcrm -m {}");
     }
 };
 
@@ -37,18 +37,18 @@ TEST_F(ShmSkeletonTest, ConstructorTest) {
     auto instanceSpec = createUniqueInstanceSpecifier();
     // Verify constructor accepts instance specifier
     ASSERT_NO_THROW({
-        ara::com::shm::ShmSkeleton<int> skeleton(instanceSpec);
+        srp::bindings::com::shm::ShmSkeleton<int> skeleton(instanceSpec);
     });
 
     // Verify move and copy constructors are deleted
-    ASSERT_FALSE(std::is_copy_constructible<ara::com::shm::ShmSkeleton<int>>::value);
-    ASSERT_FALSE(std::is_move_constructible<ara::com::shm::ShmSkeleton<int>>::value);
+    ASSERT_FALSE(std::is_copy_constructible<srp::bindings::com::shm::ShmSkeleton<int>>::value);
+    ASSERT_FALSE(std::is_move_constructible<srp::bindings::com::shm::ShmSkeleton<int>>::value);
 }
 
 // Test OfferService method
 TEST_F(ShmSkeletonTest, OfferServiceTest) {
     auto instanceSpec = createUniqueInstanceSpecifier();
-    ara::com::shm::ShmSkeleton<int> skeleton(instanceSpec);
+    srp::bindings::com::shm::ShmSkeleton<int> skeleton(instanceSpec);
 
     // First offer service should succeed
     auto result1 = skeleton.OfferService();
@@ -63,7 +63,7 @@ TEST_F(ShmSkeletonTest, OfferServiceTest) {
 TEST_F(ShmSkeletonTest, DifferentDataTypesTest) {
     auto instanceSpec = createUniqueInstanceSpecifier();
     // Test with double type
-    ara::com::shm::ShmSkeleton<double> doubleSkeleton(instanceSpec);
+    srp::bindings::com::shm::ShmSkeleton<double> doubleSkeleton(instanceSpec);
     doubleSkeleton.OfferService();
     auto doubleResult = doubleSkeleton.Send(3.14159);
     ASSERT_TRUE(doubleResult.HasValue());
@@ -75,7 +75,7 @@ TEST_F(ShmSkeletonTest, DifferentDataTypesTest) {
     };
 
     auto structInstanceSpec = createUniqueInstanceSpecifier();
-    ara::com::shm::ShmSkeleton<TestStruct> structSkeleton(structInstanceSpec);
+    srp::bindings::com::shm::ShmSkeleton<TestStruct> structSkeleton(structInstanceSpec);
     structSkeleton.OfferService();
     TestStruct testData{42, 'A'};
     auto structResult = structSkeleton.Send(testData);

@@ -36,7 +36,7 @@ class ServiceConnector {
   const std::uint16_t port_;
   const ara::log::Logger& logger_;
   std::shared_ptr<srp::common::soc::UdpSocket> udp_sock_;
-  std::shared_ptr<ara::com::ProccessSocket> ipc_soc_;
+  std::shared_ptr<srp::bindings::com::ProccessSocket> ipc_soc_;
 
   std::shared_ptr<connectors::IConnector> sd_connector_;
   std::shared_ptr<connectors::IConnector> skeleton_connector_;

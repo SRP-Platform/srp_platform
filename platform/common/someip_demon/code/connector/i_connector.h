@@ -22,7 +22,7 @@ namespace connectors {
 class IConnector {
  public:
   virtual void RegisterSockets(
-      std::shared_ptr<ara::com::ProccessSocket> ipc_soc,
+      std::shared_ptr<srp::bindings::com::ProccessSocket> ipc_soc,
       std::shared_ptr<srp::common::soc::UdpSocket> udp_sock) = 0;
   virtual void ProcessFrame(uint32_t pid,
                             ara::com::someip::SomeipFrame&& frame) noexcept = 0;

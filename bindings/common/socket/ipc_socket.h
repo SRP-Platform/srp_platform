@@ -8,8 +8,8 @@
  * @copyright Copyright (c) 2023
  *
  */
-#ifndef COMMUNICATION_CORE_SOCKETS_IPC_SOCKET_H_
-#define COMMUNICATION_CORE_SOCKETS_IPC_SOCKET_H_
+#ifndef BINDINGS_COMMON_SOCKET_IPC_SOCKET_H_
+#define BINDINGS_COMMON_SOCKET_IPC_SOCKET_H_
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -76,4 +76,4 @@ class IpcSocket : public ISocket {
 }  // namespace bindings
 }  // namespace srp
 
-#endif  // COMMUNICATION_CORE_SOCKETS_IPC_SOCKET_H_
+#endif  // BINDINGS_COMMON_SOCKET_IPC_SOCKET_H_

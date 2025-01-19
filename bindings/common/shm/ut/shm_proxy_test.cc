@@ -32,7 +32,7 @@ class ShmProxyTest : public ::testing::Test {
         if (shm_fd == -1) {
             throw std::runtime_error("Failed to create shared memory");
         }
-        if (ftruncate(shm_fd, sizeof(typename ara::com::shm::ShmProxy<TestData>)) == -1) {
+        if (ftruncate(shm_fd, sizeof(typename srp::bindings::com::shm::ShmProxy<TestData>)) == -1) {
             close(shm_fd);
             throw std::runtime_error("Failed to truncate shared memory");
         }
@@ -48,7 +48,7 @@ TEST_F(ShmProxyTest, FindServiceSuccess) {
     int shm_fd = createSharedMemory(instanceSpec.ToString());
     close(shm_fd);
     // Create ShmProxy
-    ara::com::shm::ShmProxy<TestData> proxy(instanceSpec);
+    srp::bindings::com::shm::ShmProxy<TestData> proxy(instanceSpec);
     // Test FindService
     auto result = proxy.FindService();
     EXPECT_TRUE(result.HasValue());
@@ -58,7 +58,7 @@ TEST_F(ShmProxyTest, FindServiceSuccess) {
 TEST_F(ShmProxyTest, FindServiceFailure) {
     // Use a non-existent shared memory name
     ara::core::InstanceSpecifier instanceSpec("/non_existent_shm");
-    ara::com::shm::ShmProxy<TestData> proxy(instanceSpec);
+    srp::bindings::com::shm::ShmProxy<TestData> proxy(instanceSpec);
     // Test FindService
     auto result = proxy.FindService();
     EXPECT_FALSE(result.HasValue());
@@ -67,7 +67,7 @@ TEST_F(ShmProxyTest, FindServiceFailure) {
 // Test GetNewSamples without FindService called first
 TEST_F(ShmProxyTest, GetNewSamplesWithoutFindService) {
     auto instanceSpec = createUniqueInstanceSpec();
-    ara::com::shm::ShmProxy<TestData> proxy(instanceSpec);
+    srp::bindings::com::shm::ShmProxy<TestData> proxy(instanceSpec);
     auto result = proxy.GetNewSamples();
     EXPECT_FALSE(result.HasValue());
 }
@@ -81,7 +81,7 @@ TEST_F(ShmProxyTest, GetNewSamplesPointer) {
     close(shm_fd);
 
     // Create ShmProxy
-    ara::com::shm::ShmProxy<TestData> proxy(instanceSpec);
+    srp::bindings::com::shm::ShmProxy<TestData> proxy(instanceSpec);
     // Find service first
     ASSERT_TRUE(proxy.FindService().HasValue());
     // Get pointer to shared memory
@@ -107,7 +107,7 @@ TEST_F(ShmProxyTest, MultithreadedAccess) {
     close(shm_fd);
 
     // Create ShmProxy
-    ara::com::shm::ShmProxy<TestData> proxy(instanceSpec);
+    srp::bindings::com::shm::ShmProxy<TestData> proxy(instanceSpec);
     // Find service first
     ASSERT_TRUE(proxy.FindService().HasValue());
     // Thread-safe test
@@ -143,7 +143,7 @@ TEST_F(ShmProxyTest, CleanupTest) {
     auto instanceSpec = createUniqueInstanceSpec();
     {
         // Scope block to ensure destructor is called
-        ara::com::shm::ShmProxy<TestData> proxy(instanceSpec);
+        srp::bindings::com::shm::ShmProxy<TestData> proxy(instanceSpec);
         EXPECT_FALSE(proxy.FindService().HasValue());
     }
     // Try to open the shared memory - it should fail

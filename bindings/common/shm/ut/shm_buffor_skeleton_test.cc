@@ -27,7 +27,7 @@ class ShmBufforSkeletonTest : public ::testing::Test {
 TEST_F(ShmBufforSkeletonTest, OfferServiceSuccess) {
     constexpr std::size_t BUFFER_SIZE = 1024;
     auto instanceSpec = createUniqueInstanceSpec();
-    ara::com::shm::ShmBufforSkeleton<BUFFER_SIZE> skeleton(instanceSpec);
+    srp::bindings::com::shm::ShmBufforSkeleton<BUFFER_SIZE> skeleton(instanceSpec);
     // Test OfferService
     auto result = skeleton.OfferService();
     EXPECT_TRUE(result.HasValue());
@@ -39,13 +39,13 @@ TEST_F(ShmBufforSkeletonTest, MultipleOfferService) {
     auto instanceSpec = createUniqueInstanceSpec();
     // First offer
     {
-        ara::com::shm::ShmBufforSkeleton<BUFFER_SIZE> skeleton1(instanceSpec);
+        srp::bindings::com::shm::ShmBufforSkeleton<BUFFER_SIZE> skeleton1(instanceSpec);
         auto result1 = skeleton1.OfferService();
         EXPECT_TRUE(result1.HasValue());
     }
     // Second offer (should overwrite previous)
     {
-        ara::com::shm::ShmBufforSkeleton<BUFFER_SIZE> skeleton2(instanceSpec);
+        srp::bindings::com::shm::ShmBufforSkeleton<BUFFER_SIZE> skeleton2(instanceSpec);
         auto result2 = skeleton2.OfferService();
         EXPECT_TRUE(result2.HasValue());
     }
@@ -55,7 +55,7 @@ TEST_F(ShmBufforSkeletonTest, MultipleOfferService) {
 TEST_F(ShmBufforSkeletonTest, GetNewSamplesPointer) {
     constexpr std::size_t BUFFER_SIZE = 256;
     auto instanceSpec = createUniqueInstanceSpec();
-    ara::com::shm::ShmBufforSkeleton<BUFFER_SIZE> skeleton(instanceSpec);
+    srp::bindings::com::shm::ShmBufforSkeleton<BUFFER_SIZE> skeleton(instanceSpec);
     // Offer service first
     ASSERT_TRUE(skeleton.OfferService().HasValue());
     // Get pointer
@@ -72,15 +72,15 @@ TEST_F(ShmBufforSkeletonTest, GetNewSamplesPointer) {
 TEST_F(ShmBufforSkeletonTest, DifferentBufferSizes) {
     // Test multiple buffer sizes
     {
-        ara::com::shm::ShmBufforSkeleton<128> skeleton1(createUniqueInstanceSpec());
+        srp::bindings::com::shm::ShmBufforSkeleton<128> skeleton1(createUniqueInstanceSpec());
         EXPECT_TRUE(skeleton1.OfferService().HasValue());
     }
     {
-        ara::com::shm::ShmBufforSkeleton<1024> skeleton2(createUniqueInstanceSpec());
+        srp::bindings::com::shm::ShmBufforSkeleton<1024> skeleton2(createUniqueInstanceSpec());
         EXPECT_TRUE(skeleton2.OfferService().HasValue());
     }
     {
-        ara::com::shm::ShmBufforSkeleton<4096> skeleton3(createUniqueInstanceSpec());
+        srp::bindings::com::shm::ShmBufforSkeleton<4096> skeleton3(createUniqueInstanceSpec());
         EXPECT_TRUE(skeleton3.OfferService().HasValue());
     }
 }
@@ -89,7 +89,7 @@ TEST_F(ShmBufforSkeletonTest, DifferentBufferSizes) {
 TEST_F(ShmBufforSkeletonTest, MultithreadedAccess) {
     constexpr std::size_t BUFFER_SIZE = 1024;
     auto instanceSpec = createUniqueInstanceSpec();
-    ara::com::shm::ShmBufforSkeleton<BUFFER_SIZE> skeleton(instanceSpec);
+    srp::bindings::com::shm::ShmBufforSkeleton<BUFFER_SIZE> skeleton(instanceSpec);
     ASSERT_TRUE(skeleton.OfferService().HasValue());
     std::atomic<bool> thread1Done{false};
     std::atomic<bool> thread2Done{false};
@@ -123,11 +123,11 @@ TEST_F(ShmBufforSkeletonTest, CleanupTest) {
     auto instanceSpec = createUniqueInstanceSpec();
     {
         // Scope block to ensure destructor is called
-        ara::com::shm::ShmBufforSkeleton<BUFFER_SIZE> skeleton(instanceSpec);
+        srp::bindings::com::shm::ShmBufforSkeleton<BUFFER_SIZE> skeleton(instanceSpec);
         ASSERT_TRUE(skeleton.OfferService().HasValue());
     }
     // Try to open the shared memory - it should fail or be recreatable
-    ara::com::shm::ShmBufforSkeleton<BUFFER_SIZE> newSkeleton(instanceSpec);
+    srp::bindings::com::shm::ShmBufforSkeleton<BUFFER_SIZE> newSkeleton(instanceSpec);
     auto result = newSkeleton.OfferService();
     EXPECT_TRUE(result.HasValue());
 }
