@@ -11,7 +11,8 @@
                     "Startup2",
                     "Platform",
                     "Running",
-                    "SafetyMode"
+                    "SafetyMode",
+                    "MW"
                 ],
                 "parms": "",
                 "logger": {

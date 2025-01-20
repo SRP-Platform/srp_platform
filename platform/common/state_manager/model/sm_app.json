@@ -12,14 +12,15 @@
                     "Startup2",
                     "Platform",
                     "Running",
-                    "SafetyMode"
+                    "SafetyMode",
+                    "MW"
                 ],
                 "parms": "",
                 "logger": {
                     "app_id": "SM--",
                     "app_des": "State Manager",
                     "log_level": "kInfo",
-                    "log_mode": "kRemote|kConsole"
+                    "log_mode": "kRemote"
                 }
             },
             "provide": [
