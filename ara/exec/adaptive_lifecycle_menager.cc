@@ -68,8 +68,8 @@ AdaptiveLifecycleMenager::AdaptiveLifecycleMenager(
     int argc, char const *argv[], std::unique_ptr<AdaptiveApplication> app,
     bool controll)
     : app_{std::move(app)},
-      exec_logger{
-          ara::log::LoggingMenager::GetInstance()->CreateLogger("exec", "")} {
+      exec_logger{ara::log::LoggingMenager::GetInstance()->CreateLogger(
+          "exec", "", ara::log::LogLevel::kWarn)} {
   const auto help_path = ara::core::StringView{argv[0]};
   const auto app_path = help_path.substr(0, help_path.find_last_of("/") - 3);
 

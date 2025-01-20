@@ -17,7 +17,7 @@ namespace com {
 
 static const ara::log::Logger& CreateComLoggerInstance() {
   const auto& logger = ara::log::LoggingMenager::GetInstance()->CreateLogger(
-      "acom", "Default ctx for ara::com", ara::log::LogLevel::kVerbose);
+      "acom", "Default ctx for ara::com", ara::log::LogLevel::kInfo);
   return logger;
 }
 /// @brief Create a stream for fatal logs
