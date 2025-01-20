@@ -15,6 +15,18 @@
         },
         "Startup2": {
             "AfterFinish": {
+                "switch": "MW"
+            },
+            "Error": {
+                "switch": "Platform"
+            },
+            "mode": {
+                "reset": false,
+                "shutdown": false
+            }
+        },
+        "MW": {
+            "AfterFinish": {
                 "switch": "Running"
             },
             "Error": {
