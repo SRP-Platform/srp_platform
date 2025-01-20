@@ -60,9 +60,8 @@ int StateManager::Run(const std::stop_token& token) {
         handler->CurrentState.Subscribe(1, [this, handler](const auto) {
           handler->CurrentState.SetReceiveHandler([this, handler]() {
             const auto val = handler->CurrentState.GetNewSamples();
-            ara::log::LogInfo() << " SM d1";
             if (val.HasValue()) {
-              ara::log::LogInfo() << "Event Value: " << val.Value();
+              ara::log::LogDebug() << "Event Value: " << val.Value();
               this->state_con_->StatusUpdateEvent({val.Value(), 0});
             }
           });
