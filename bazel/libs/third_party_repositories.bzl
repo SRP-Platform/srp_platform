@@ -2,7 +2,7 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 all_content = """filegroup(name = "all", srcs = glob(["**"]), visibility = ["//visibility:public"])"""
 
-def include_spdlog():
+def include_lib():
     http_archive(
         name = "com_json",
         strip_prefix = "json-3.11.3",
@@ -27,4 +27,9 @@ def include_spdlog():
     )
 
 
-    
+def include_qemu_image():
+        http_archive(
+        name = "qemu_image",
+        build_file = "@srp_platform//bazel/libs:qemu_image.BUILD",
+        urls = ["https://github.com/SRP-Platform/srp-poky/releases/download/0.1.0/qemu_image.zip"],
+    )

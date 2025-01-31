@@ -8,8 +8,9 @@ register_all_toolchains()
 load("@srp_platform//third_party:deps.bzl", "deps")
 deps()
 
-load("@srp_platform//bazel/libs:third_party_repositories.bzl", "include_spdlog")
-include_spdlog()
+load("@srp_platform//bazel/libs:third_party_repositories.bzl", "include_lib","include_qemu_image")
+include_lib()
+include_qemu_image()
 
 http_archive(
     name = "com_github_nelhage_rules_boost",
