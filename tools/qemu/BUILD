@@ -10,6 +10,17 @@ sh_binary(
     srcs = ["remove_network_configure.sh"],
 )
 
+sh_binary(
+    name = "no_root_network_configure",
+    srcs = ["no_root_network_configure.sh"],
+)
+
+sh_binary(
+    name = "no_root_remove_network_configure",
+    srcs = ["no_root_remove_network_configure.sh"],
+)
+
+
 run_qemu(
     name="qemu",
     file_ext4 = ["@qemu_image//:ext4"],
