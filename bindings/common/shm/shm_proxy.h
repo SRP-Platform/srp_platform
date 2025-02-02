@@ -19,9 +19,9 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "ara/com/com_error_domain.h"
-#include "ara/core/instance_specifier.h"
-#include "ara/core/result.h"
+#include "platform/com/com_error_domain.h"
+#include "platform/core/instance_specifier.h"
+#include "platform/core/result.h"
 
 namespace srp {
 namespace bindings {
@@ -30,7 +30,7 @@ namespace shm {
 template <typename shm_type_t>
 class ShmProxy final {
  private:
-  const ara::core::InstanceSpecifier instance_specifier_;
+  const platform::core::InstanceSpecifier instance_specifier_;
   int shm_des{0};
   const int mode = S_IRWXU | S_IRWXG;
   struct shm_handler_t {
@@ -41,7 +41,7 @@ class ShmProxy final {
   shm_handler_t* handler = nullptr;
 
  public:
-  explicit ShmProxy(const ara::core::InstanceSpecifier& instance_specifier)
+  explicit ShmProxy(const platform::core::InstanceSpecifier& instance_specifier)
       : instance_specifier_{instance_specifier} {}
 
   ShmProxy(ShmProxy&) = delete;
@@ -49,38 +49,38 @@ class ShmProxy final {
   ShmProxy& operator=(ShmProxy&) = delete;
   ShmProxy& operator=(ShmProxy&&) = delete;
 
-  ara::core::Result<void> FindService() noexcept {
+  platform::core::Result<void> FindService() noexcept {
     shm_des = shm_open(instance_specifier_.ToString().c_str(), O_RDWR, mode);
     if (shm_des <= 0) {
-      return MakeErrorCode(ara::com::ComErrc::kNetworkBindingFailure, "");
+      return MakeErrorCode(platform::com::ComErrc::kNetworkBindingFailure, "");
     }
     if (ftruncate(shm_des, sizeof(shm_handler_t)) == -1) {
-      return MakeErrorCode(ara::com::ComErrc::kFieldValueIsNotValid, "");
+      return MakeErrorCode(platform::com::ComErrc::kFieldValueIsNotValid, "");
     }
     handler = reinterpret_cast<shm_handler_t*>(mmap(NULL, sizeof(shm_handler_t),
                                                     PROT_READ | PROT_WRITE,
                                                     MAP_SHARED, shm_des, 0));
     if (handler == MAP_FAILED) {
-      return MakeErrorCode(ara::com::ComErrc::kIllegalUseOfAllocate, "");
+      return MakeErrorCode(platform::com::ComErrc::kIllegalUseOfAllocate, "");
     }
     return {};
   }
 
-  ara::core::Result<shm_type_t*> GetNewSamplesPointer() {
+  platform::core::Result<shm_type_t*> GetNewSamplesPointer() {
     if (shm_des <= 0) {
-      return MakeErrorCode(ara::com::ComErrc::kSetHandlerNotSet, "");
+      return MakeErrorCode(platform::com::ComErrc::kSetHandlerNotSet, "");
     }
     if (handler == nullptr) {
-      return MakeErrorCode(ara::com::ComErrc::kFieldValueIsNotValid, "");
+      return MakeErrorCode(platform::com::ComErrc::kFieldValueIsNotValid, "");
     }
     return &this->handler->data;
   }
-  ara::core::Result<shm_type_t> GetNewSamples() {
+  platform::core::Result<shm_type_t> GetNewSamples() {
     if (shm_des <= 0) {
-      return MakeErrorCode(ara::com::ComErrc::kSetHandlerNotSet, "");
+      return MakeErrorCode(platform::com::ComErrc::kSetHandlerNotSet, "");
     }
     if (handler == nullptr) {
-      return MakeErrorCode(ara::com::ComErrc::kFieldValueIsNotValid, "");
+      return MakeErrorCode(platform::com::ComErrc::kFieldValueIsNotValid, "");
     }
 
     pthread_mutex_lock(&handler->mutex_);

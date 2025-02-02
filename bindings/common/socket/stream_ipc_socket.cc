@@ -20,7 +20,7 @@
 #include <utility>
 #include <vector>
 
-#include "ara/com/com_error_domain.h"
+#include "platform/com/com_error_domain.h"
 
 namespace srp {
 namespace bindings {
@@ -31,11 +31,11 @@ bool StreamIpcSocket::SocketExist(const std::string path) {
   return (stat(path.c_str(), &buffer) == 0);
 }
 
-ara::core::Result<void> StreamIpcSocket::Init(const std::string& socket_path) {
+platform::core::Result<void> StreamIpcSocket::Init(const std::string& socket_path) {
   memset(&server_sockaddr, 0, sizeof(struct sockaddr_un));
   server_sock = socket(AF_UNIX, SOCK_STREAM, 0);
   if (server_sock == -1) {
-    return ara::com::MakeErrorCode(ara::com::ComErrc::kCommunicationStackError,
+    return platform::com::MakeErrorCode(platform::com::ComErrc::kCommunicationStackError,
                                    "");
   }
   umask(0);

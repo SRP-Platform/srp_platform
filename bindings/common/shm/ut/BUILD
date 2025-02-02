@@ -8,7 +8,7 @@ cc_test(
     ],
     features = ["test_target"],
     deps = [
-        "@srp_platform//ara/core:instance_specifier",
+        "@srp_platform//platform/core:instance_specifier",
         "@srp_platform//bindings/common/shm:shm_buffor_lib",
         "@srp_platform//bindings/common/shm:shm_lib",
         "@com_google_googletest//:gtest_main",

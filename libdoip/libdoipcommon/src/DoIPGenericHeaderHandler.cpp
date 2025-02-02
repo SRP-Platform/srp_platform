@@ -6,8 +6,8 @@ using namespace std;
 
 /**
  * Checks if the received Generic Header is valid
- * @param data          message which was received
- * @param dataLenght    length of the message
+ * @pplatformm data          message which was received
+ * @pplatformm dataLenght    length of the message
  * @return              Returns a GenericHeaderAction struct, which stores the
  *                      payload type and a byte for further message processing
  */
@@ -137,8 +137,8 @@ GenericHeaderAction parseGenericHeader(unsigned char* data, int dataLenght) {
 
 /**
  * Creates a generic header
- * @param type      payload type which will be filled in the header
- * @param length    length of the payload type specific message
+ * @pplatformm type      payload type which will be filled in the header
+ * @pplatformm length    length of the payload type specific message
  * @return          header array
  */
 unsigned char* createGenericHeader(PayloadType type, uint32_t length) {

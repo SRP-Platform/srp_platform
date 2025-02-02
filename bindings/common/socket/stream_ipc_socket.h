@@ -44,22 +44,22 @@ class StreamIpcSocket : public ISocketStream {
   /**
    * @brief Socket init function
    *
-   * @param config Config file
+   * @pplatformm config Config file
    * @return srp::core::ErrorCode initialiaze status
    */
-  ara::core::Result<void> Init(const std::string& socket_path) override;
+  platform::core::Result<void> Init(const std::string& socket_path) override;
   /**
    * @brief Setter for rx callback
    *
-   * @param callback
+   * @pplatformm callback
    */
   void SetRXCallback(RXCallbackStream&& callback) override;
   /**
    * @brief Function to send data by socket
    *
-   * @param ip target ip or path
-   * @param port target port or 0 for ipcs
-   * @param payload payload to send
+   * @pplatformm ip target ip or path
+   * @pplatformm port target port or 0 for ipcs
+   * @pplatformm payload payload to send
    * @return std::optional<std::vector<uint8_t>> response
    */
   std::optional<std::vector<uint8_t>> Transmit(

@@ -21,5 +21,11 @@ def download():
         strip_prefix = "rules_python-0.26.0",
         url = "https://github.com/bazelbuild/rules_python/releases/download/0.26.0/rules_python-0.26.0.tar.gz",
     )
+    http_archive(
+    name = "com_github_nelhage_rules_boost",
+    url = "https://github.com/nelhage/rules_boost/archive/refs/heads/master.zip",
+    strip_prefix = "rules_boost-master",
+    # When you first run this tool, it'll recommend a sha256 hash to put here with a message like: "DEBUG: Rule 'com_github_nelhage_rules_boost' indicated that a canonical reproducible form can be obtained by modifying arguments sha256 = ..."
+    )
     include_lib()
     include_qemu_image()

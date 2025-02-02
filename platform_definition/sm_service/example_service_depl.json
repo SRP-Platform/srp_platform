@@ -1,0 +1,24 @@
+{
+    "package": "srp.platform.sm",
+    "include": ["platform_definition/sm_service/sm_service.json"],
+    "deployment": {
+        "interface": {
+            "srp.platform.sm.StateManager as StateManagerDepl": {
+                "ServiceId": 1,
+                "methods": {
+                    "SetState": {
+                        "EndpointId": 1
+                    },
+                    "GetState": {
+                        "EndpointId": 2
+                    }
+                },
+                "broadcasts": {
+                    "CurrentState": {
+                        "EndpointId": 32769
+                    }
+                }
+            }
+        }
+    }
+}

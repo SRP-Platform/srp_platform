@@ -23,9 +23,9 @@
 
 #include <bit>
 
-#include "ara/com/com_error_domain.h"
-#include "ara/core/instance_specifier.h"
-#include "ara/core/result.h"
+#include "platform/com/com_error_domain.h"
+#include "platform/core/instance_specifier.h"
+#include "platform/core/result.h"
 
 namespace srp {
 namespace bindings {
@@ -34,14 +34,14 @@ namespace shm {
 template <std::size_t buff_size>
 class ShmBufforSkeleton final {
  private:
-  const ara::core::InstanceSpecifier instance_specifier_;
+  const platform::core::InstanceSpecifier instance_specifier_;
   int shm_des{0};
   const int mode = S_IRWXU | S_IRWXG;
   uint8_t* handler = nullptr;
 
  public:
   explicit ShmBufforSkeleton(
-      const ara::core::InstanceSpecifier& instance_specifier)
+      const platform::core::InstanceSpecifier& instance_specifier)
       : instance_specifier_{instance_specifier} {
     shm_unlink(instance_specifier_.ToString().c_str());
   }
@@ -51,19 +51,19 @@ class ShmBufforSkeleton final {
   ShmBufforSkeleton& operator=(ShmBufforSkeleton&) = delete;
   ShmBufforSkeleton& operator=(ShmBufforSkeleton&&) = delete;
 
-  ara::core::Result<void> OfferService() noexcept {
+  platform::core::Result<void> OfferService() noexcept {
     shm_des = shm_open(instance_specifier_.ToString().c_str(),
                        O_CREAT | O_RDWR | O_TRUNC, mode);
     if (shm_des <= 0) {
-      return MakeErrorCode(ara::com::ComErrc::kNetworkBindingFailure, "");
+      return MakeErrorCode(platform::com::ComErrc::kNetworkBindingFailure, "");
     }
     if (ftruncate(shm_des, buff_size) == -1) {
-      return MakeErrorCode(ara::com::ComErrc::kFieldValueIsNotValid, "");
+      return MakeErrorCode(platform::com::ComErrc::kFieldValueIsNotValid, "");
     }
     handler = reinterpret_cast<uint8_t*>(
         mmap(NULL, buff_size, PROT_READ | PROT_WRITE, MAP_SHARED, shm_des, 0));
     if (handler == MAP_FAILED) {
-      return MakeErrorCode(ara::com::ComErrc::kIllegalUseOfAllocate, "");
+      return MakeErrorCode(platform::com::ComErrc::kIllegalUseOfAllocate, "");
     }
 
     return {};

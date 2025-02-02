@@ -9,7 +9,7 @@ from someipy.service_discovery import construct_service_discovery
 from someipy.server_service_instance import construct_server_service_instance
 from someipy.logging import set_someipy_log_level
 from someipy.serialization import Sint32
-from addition_method_parameters import Addends, Sum
+from addition_method_pplatformmeters import Addends, Sum
 
 SD_MULTICAST_GROUP = "224.224.224.245"
 SD_PORT = 30490

@@ -11,6 +11,7 @@
 #include "bindings/common/socket/proccess_socket.h"
 
 #include <errno.h>
+#include <pthread.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
@@ -25,7 +26,7 @@
 #include <future>  // NOLINT
 #include <utility>
 
-#include "ara/com/com_error_domain.h"
+#include "platform/com/com_error_domain.h"
 
 namespace srp {
 namespace bindings {
@@ -45,10 +46,11 @@ void ProccessSocket::SetCallback(RxCallback&& callback) {
   callback_ = std::move(callback);
 }
 
-ara::core::Result<void> ProccessSocket::Offer() noexcept {
+platform::core::Result<void> ProccessSocket::Offer() noexcept {
   const char* sock_path = local_soc_.c_str();
   if (remove(sock_path) == -1 && errno != ENOENT) {
-    return ara::com::MakeErrorCode(ara::com::ComErrc::kUnsetFailure, "Error: remove failed");
+    return platform::com::MakeErrorCode(platform::com::ComErrc::kUnsetFailure,
+                                        "Error: remove failed");
   }
 
   memset(&addr_, 0x0, sizeof(struct sockaddr_un));
@@ -57,39 +59,44 @@ ara::core::Result<void> ProccessSocket::Offer() noexcept {
 
   sfd_ = ::socket(AF_UNIX, SOCK_DGRAM, 0);
   if (sfd_ == -1) {
-    return ara::com::MakeErrorCode(ara::com::ComErrc::kUnsetFailure, "Error: socket failed");
+    return platform::com::MakeErrorCode(platform::com::ComErrc::kUnsetFailure,
+                                        "Error: socket failed");
   }
   {
     int reuse = 1;
 
     if (setsockopt(sfd_, SOL_SOCKET, SO_REUSEADDR, (char*)&reuse,  // NOLINT
                    sizeof(reuse)) < 0) {
-      return ara::com::MakeErrorCode(ara::com::ComErrc::kUnsetFailure,
-                           "Error: setsockopt failed (SO_REUSEADDR)");
+      return platform::com::MakeErrorCode(
+          platform::com::ComErrc::kUnsetFailure,
+          "Error: setsockopt failed (SO_REUSEADDR)");
     }
   }
   if (bind(sfd_, (struct sockaddr*)&addr_, sizeof(struct sockaddr_un)) == -1) {
     close(sfd_);
-    return ara::com::MakeErrorCode(ara::com::ComErrc::kUnsetFailure, "Error: bind failed");
+    return platform::com::MakeErrorCode(platform::com::ComErrc::kUnsetFailure,
+                                        "Error: bind failed");
   }
   rx_thread_ = std::make_unique<std::jthread>(
       [this](std::stop_token token) { this->RxLoop(token); });
+  pthread_setname_np(rx_thread_->native_handle(), "PROCESS_SOCK");
   return {};
 }
-ara::core::Result<void> ProccessSocket::StopOffer() noexcept {
+platform::core::Result<void> ProccessSocket::StopOffer() noexcept {
   if (rx_thread_ == nullptr) {
-    return ara::com::MakeErrorCode(ara::com::ComErrc::kServiceNotOffered, "");
+    return platform::com::MakeErrorCode(
+        platform::com::ComErrc::kServiceNotOffered, "");
   }
   rx_thread_.release();
   close(sfd_);
   return {};
 }
-ara::core::Result<void> ProccessSocket::TransmitToPid(
-    uint16_t dest_pid, const std::vector<uint8_t>& payload) noexcept {
+platform::core::Result<void> ProccessSocket::TransmitToPid(
+    uint32_t dest_pid, const std::vector<uint8_t>& payload) noexcept {
   return this->Transmit(std::string{"p-" + std::to_string(dest_pid)}, payload);
 }
 
-ara::core::Result<void> ProccessSocket::Transmit(
+platform::core::Result<void> ProccessSocket::Transmit(
     const std::string& path, const std::vector<uint8_t>& payload) noexcept {
   const std::lock_guard<std::mutex> lock{sending_m_};
   struct sockaddr_un remote;
@@ -107,7 +114,8 @@ ara::core::Result<void> ProccessSocket::Transmit(
                          (struct sockaddr*)&remote, sizeof(remote));
   delete[] buffor;
   if (rc == -1) {
-    return ara::com::MakeErrorCode(ara::com::ComErrc::kServiceNotOffered, "Sanding Failed");
+    return platform::com::MakeErrorCode(
+        platform::com::ComErrc::kServiceNotOffered, "Sanding Failed");
   }
   return {};
 }
@@ -120,16 +128,16 @@ void ProccessSocket::RxLoop(std::stop_token token) noexcept {
     int bytes_rec =
         read(sfd_, reinterpret_cast<char*>(&buffor), 256 * 2);  // NOLINT
     if (bytes_rec > 0) {
-      if (bytes_rec >= static_cast<int>(sizeof(int))) {
-        int pid{0};
-        std::memcpy(&pid, buffor.data(), sizeof(int));
+      if (bytes_rec >= static_cast<int>(sizeof(uint32_t))) {
+        uint32_t pid{0};
+        std::memcpy(&pid, buffor.data(), sizeof(uint32_t));
         if (this->callback_) {
           if (buffor.size() > 0) {
             std::ignore = std::async(
                 std::launch::async, [this, &pid, &buffor, &bytes_rec]() {
-                  this->callback_(
-                      pid, std::vector<uint8_t>{buffor.begin() + sizeof(int),
-                                                buffor.begin() + (bytes_rec)});
+                  this->callback_(pid, std::vector<uint8_t>{
+                                           buffor.begin() + sizeof(uint32_t),
+                                           buffor.begin() + (bytes_rec)});
                 });
           }
         }

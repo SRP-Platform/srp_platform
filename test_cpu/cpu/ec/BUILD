@@ -1,5 +1,5 @@
 load("@srp_platform//tools/common:cpu_def.bzl", "cpu_def")
-load("@srp_platform//tools/model_generator/ara:adaptive.bzl", "ara_json2sm_config")
+load("@srp_platform//tools/model_generator/platform:adaptive.bzl", "platform_json2sm_config")
 load("@srp_platform//tools/common:flash_ecu.bzl", "flash_ecu")
 
 flash_ecu(
@@ -9,7 +9,7 @@ flash_ecu(
     user_name = "root",
 )
 
-ara_json2sm_config(
+platform_json2sm_config(
     name = "sm_config",
     src = "//platform_definition/sm:example_config",
 )
@@ -26,11 +26,13 @@ cpu_def(
         "platform_config.json",
     ],
     srp_components = [
-        "//platform/common/diag_demon/model:diag_demon",
-        "//platform/common/em/model:em",
-        "//platform/common/logger/model:logger",
-        "//platform/common/someip_demon/model:someip_demon",
-        "//platform/common/state_manager/model:state_manager",
+        # "//platform/common/diag_demon/model:diag_demon",
+        "//apps/common/em/model:em",
+        "//apps/common/logger/model:logger",
+        "//apps/common/ipc_service_discover/model:ipc_service_discover",
+        "//example/model:example_app",
+        # "//platform/common/someip_demon/model:someip_demon",
+        "//apps/common/state_manager/model:state_manager",
         # "//deployment/example_adaptive/ExampleApp2",
     ],
 )
