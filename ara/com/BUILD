@@ -36,6 +36,12 @@ cc_library(
 )
 
 cc_library(
+    name = "msg_type",
+    hdrs = ["msg_type.h"],
+    visibility = ["//visibility:public"],
+)
+
+cc_library(
     name = "com_controller",
     srcs = ["com_controller.cc"],
     hdrs = [
@@ -46,8 +52,8 @@ cc_library(
     deps = [
         "@srp_platform//ara/com:com_error_domain",
         "@srp_platform//ara/com:com_log",
-        "@srp_platform//bindings/common/socket:ipc_socket",
         "@srp_platform//ara/core:Result",
+        "@srp_platform//bindings/common/socket:ipc_socket",
     ],
 )
 
@@ -55,4 +61,11 @@ cc_library(
     name = "types",
     hdrs = ["types.h"],
     visibility = ["@srp_platform//ara/com:__subpackages__"],
+)
+
+cc_library(
+    name = "instance_identifier_container",
+    hdrs = ["instance_identifier_container.h"],
+    visibility = ["//ara/com:__subpackages__"],
+    deps = ["//ara/com/model"],
 )

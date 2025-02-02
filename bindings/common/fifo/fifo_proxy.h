@@ -49,9 +49,9 @@ class FifoProxy {
       return ara::com::MakeErrorCode(ara::com::ComErrc::kIllegalUseOfAllocate,
                                      "fifo not exist!");
     }
-    std::array<uint8_t, 1025> buffor{};
+    std::array<uint8_t, sizeof(fifo_type)> buffor{};
     // const auto data = srp::data::Convert2Vector<fifo_type>::Conv(value);
-    const auto res = read(fd, buffor.data(), 1025);
+    const auto res = read(fd, buffor.data(), sizeof(fifo_type));
     close(fd);
     if (res > 0) {
       const auto data = srp::data::Convert<fifo_type>::Conv(
