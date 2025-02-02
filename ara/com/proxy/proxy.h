@@ -33,7 +33,7 @@ class Proxy {
   Proxy operator=(Proxy&) = delete;
   Proxy operator=(Proxy&&) = delete;
 
-  ~IProxy() noexcept {}
+  ~Proxy() noexcept {}
 
   /**
    * @brief This method will trigger finding loop

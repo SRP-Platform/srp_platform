@@ -120,15 +120,15 @@ void ProccessSocket::RxLoop(std::stop_token token) noexcept {
     int bytes_rec =
         read(sfd_, reinterpret_cast<char*>(&buffor), 256 * 2);  // NOLINT
     if (bytes_rec > 0) {
-      if (bytes_rec >= static_cast<int>(sizeof(int))) {
-        int pid{0};
-        std::memcpy(&pid, buffor.data(), sizeof(int));
+      if (bytes_rec >= static_cast<int>(sizeof(uint32_t))) {
+        uint32_t pid{0};
+        std::memcpy(&pid, buffor.data(), sizeof(uint32_t));
         if (this->callback_) {
           if (buffor.size() > 0) {
             std::ignore = std::async(
                 std::launch::async, [this, &pid, &buffor, &bytes_rec]() {
                   this->callback_(
-                      pid, std::vector<uint8_t>{buffor.begin() + sizeof(int),
+                      pid, std::vector<uint8_t>{buffor.begin() + sizeof(uint32_t),
                                                 buffor.begin() + (bytes_rec)});
                 });
           }
