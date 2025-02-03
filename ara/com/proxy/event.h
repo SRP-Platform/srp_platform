@@ -43,7 +43,8 @@ class Event : public interpreter::EventPacketInterpreter<DataType> {
 
   void SetNewSubscriptionState(
       const ara::com::SubscriptionState& new_state_) noexcept override {
-    if (new_state_ != s_state_) {
+    if (new_state_ != s_state_ &&
+        s_state_ == ara::com::SubscriptionState::kSubscriptionPending) {
       s_state_ = new_state_;
       if (s_handler_) {
         s_handler_();
@@ -67,11 +68,34 @@ class Event : public interpreter::EventPacketInterpreter<DataType> {
     }
   }
 
-  void Unsubscribe() noexcept {}
+  void Unsubscribe() noexcept {
+    this->s_state_ = ara::com::SubscriptionState::kNotSubscribed;
+    ara::com::IpcMsg msg{ara::com::IpcMsgType::kStopSubscribe,
+                         0x00,
+                         0x00,
+                         0x00,
+                         0x00,
+                         0x00,
+                         0x00,
+                         {}};
+    this->TransmitPacket(std::move(msg));
+  }
 
   ara::core::Result<void> Subscribe(
       ara::com::SubscriptionStateChangeHandler&& handler,
       size_t maxSampleCount) noexcept {
+    this->s_handler_ = handler;
+    this->s_state_ = ara::com::SubscriptionState::kSubscriptionPending;
+
+    ara::com::IpcMsg msg{ara::com::IpcMsgType::kSubscribe,
+                         0x00,
+                         0x00,
+                         0x00,
+                         0x00,
+                         0x00,
+                         0x00,
+                         {}};
+    this->TransmitPacket(std::move(msg));
     return {};
   }
 
@@ -81,12 +105,21 @@ class Event : public interpreter::EventPacketInterpreter<DataType> {
 
   ara::core::Result<void> SetReceiveHandler(
       ara::com::EventReceiveHandler&& handler) noexcept {
+    r_handler_ = std::move(handler);
     return {};
   }
 
   ara::core::Result<size_t> GetNewSamples(
-      GetNewSampleHandler<DataType*>&& handler,
+      GetNewSampleHandler<DataType>&& handler,
       size_t maxNumberOfSamples) noexcept {
+    const auto h = std::move(handler);
+    if (this->sample_ != nullptr) {
+      if (h) {
+        h(this->sample_);
+        delete this->sample_;
+        this->sample_ = nullptr;
+      }
+    }
     return {0U};
   }
 };

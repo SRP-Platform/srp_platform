@@ -23,6 +23,10 @@ namespace com {
 namespace proxy {
 namespace interpreter {
 class ProxyPacketInterpreter {
+ private:
+  std::shared_ptr<wrapper::IProxyComWrapper> com_wrapper_;
+  void ProceedFrame(const ara::com::IpcMsg&& msg) noexcept;
+
  protected:
   std::unordered_map<uint16_t, ara::com::proxy::interpreter::PacketInterpreter&>
       interpreters_list_{};
@@ -36,7 +40,10 @@ class ProxyPacketInterpreter {
   explicit ProxyPacketInterpreter(
       const ara::com::InstanceIdentifierContainer container,
       std::shared_ptr<wrapper::IProxyComWrapper> com_wrapper)
-      : container_{container} {}
+      : com_wrapper_{com_wrapper}, container_{container} {
+    com_wrapper_->SetProceedFrameCallback(std::bind(
+        &ProxyPacketInterpreter::ProceedFrame, this, std::placeholders::_1));
+  }
   virtual ~ProxyPacketInterpreter() = default;
 
   friend class ara::com::proxy::interpreter::PacketInterpreter;

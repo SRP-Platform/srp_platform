@@ -23,7 +23,7 @@ namespace interpreter {
 class ProxyPacketInterpreter;
 
 template <typename DataType>
-class EventPacketInterpreter : ara::com::proxy::interpreter::PacketInterpreter {
+class EventPacketInterpreter : protected ara::com::proxy::interpreter::PacketInterpreter {
  protected:
   void ProceedPacket(const ara::com::IpcMsg& msg) noexcept override {
     if (msg.msg_type_ == ara::com::IpcMsgType::kSubscribeAck) {
