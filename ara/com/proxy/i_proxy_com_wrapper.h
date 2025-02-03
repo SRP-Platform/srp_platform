@@ -11,6 +11,8 @@
 
 #ifndef ARA_COM_PROXY_I_PROXY_COM_WRAPPER_H_
 #define ARA_COM_PROXY_I_PROXY_COM_WRAPPER_H_
+#include <functional>
+
 #include "ara/com/msg_type.h"
 
 namespace ara {
@@ -19,8 +21,10 @@ namespace proxy {
 namespace wrapper {
 class IProxyComWrapper {
  public:
+ using ProceedFrameCallback = std::function<void(const ara::com::IpcMsg&&)>;
   virtual void ProceedFrame(const ara::com::IpcMsg& msg) noexcept = 0;
   virtual void TransmitFrame(const ara::com::IpcMsg& msg) noexcept = 0;
+  virtual void SetProceedFrameCallback(const ProceedFrameCallback&& callback) noexcept = 0;
   virtual ~IProxyComWrapper() = default;
 };
 }  // namespace wrapper

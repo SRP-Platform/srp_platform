@@ -29,8 +29,6 @@ class Method {
   Method operator=(Method&&) = delete;
 
   ~Method() noexcept {}
-
-
 };
 }  // namespace proxy
 }  // namespace com

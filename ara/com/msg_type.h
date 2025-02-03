@@ -16,12 +16,13 @@
 
 namespace ara {
 namespace com {
-enum class IpcMsgType : int8_t {
+enum class IpcMsgType : uint8_t {
   kRequest = 0x01U,
   kResponse = 0x02U,
   kEvent = 0x03U,
   kSubscribe = 0x04U,
-  kSubscribeAck = 0x05
+  kSubscribeAck = 0x05,
+  kStopSubscribe = 0x06U,
 };
 struct IpcMsg {
   IpcMsgType msg_type_;
@@ -32,6 +33,19 @@ struct IpcMsg {
   uint16_t session_id_;
   uint32_t length_;
   std::vector<uint8_t> payload_;
+
+  bool operator==(const IpcMsg& other) const {
+    bool flag = true;
+    flag |= (msg_type_ == other.msg_type_);
+    flag |= (service_id_ == other.service_id_);
+    flag |= (instance_id_ == other.instance_id_);
+    flag |= (method_id_ == other.method_id_);
+    flag |= (app_id_ == other.app_id_);
+    flag |= (session_id_ == other.session_id_);
+    flag |= (length_ == other.length_);
+    flag |= (payload_ == other.payload_);
+    return flag;
+  }
 };
 
 }  // namespace com

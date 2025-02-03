@@ -12,19 +12,46 @@
 #define ARA_COM_PROXY_FIELDS_H_
 
 #include "ara/com/msg_type.h"
+#include "ara/com/proxy/event.h"
 #include "ara/com/types.h"
 #include "ara/core/instance_specifier.h"
 #include "ara/core/result.h"
+#include "ara/com/proxy/method.h"
 
 namespace ara {
 namespace com {
 namespace proxy {
 template <typename T>
-class Fields {
+class EmptyFields : public ara::com::proxy::Event<T> {
  private:
-
  public:
-  explicit Fields(const ara::core::InstanceSpecifier& instance) noexcept {}
+  explicit Fields(const std::string name,
+                  interpreter::ProxyPacketInterpreter& handler)
+      : ara::com::proxy::Event<T> {
+    name, handler
+  } noexcept
+  {
+  }
+
+  explicit Fields(Fields&&) = delete;
+  explicit Fields(Fields&) = delete;
+  Fields operator=(Fields&) = delete;
+  Fields operator=(Fields&&) = delete;
+
+  ~Fields() noexcept {}
+};
+
+template <typename T>
+class SetterFields : public ara::com::proxy::Event<T> {
+ private:
+ public:
+  explicit Fields(const std::string name,
+                  interpreter::ProxyPacketInterpreter& handler)
+      : ara::com::proxy::Event<T> {
+    name, handler
+  } noexcept
+  {
+  }
 
   explicit Fields(Fields&&) = delete;
   explicit Fields(Fields&) = delete;
@@ -33,19 +60,49 @@ class Fields {
 
   ~Fields() noexcept {}
 
-  void Unsubscribe() noexcept {}
+  ara::core::Result<void> Set(const T& val) const noexcept {}
+};
 
-  ara::core::Result<void> Subscribe(
-      ara::com::SubscriptionStateChangeHandler&& handler,
-      size_t maxSampleCount) noexcept {}
+template <typename T>
+class GetterFields : public ara::com::proxy::Event<T> {
+ private:
+ public:
+  explicit Fields(const std::string name,
+                  interpreter::ProxyPacketInterpreter& handler)
+      : ara::com::proxy::Event<T> {
+    name, handler
+  } noexcept
+  {
+  }
 
-  ara::com::SubscriptionState GetSubscriptionState() const {}
+  explicit Fields(Fields&&) = delete;
+  explicit Fields(Fields&) = delete;
+  Fields operator=(Fields&) = delete;
+  Fields operator=(Fields&&) = delete;
 
-  ara::core::Result<void> SetReceiveHandler(
-      ara::com::FieldsReceiveHandler&& handler) noexcept {}
+  ~Fields() noexcept {}
 
-  ara::core::Result<size_t> GetNewSamples(GetNewSampleHandler<T>&& handler,
-                                          size_t maxNumberOfSamples) noexcept {}
+  ara::core::Result<T> Get() const noexcept {}
+};
+
+template <typename T>
+class Fields : public ara::com::proxy::Event<T> {
+ private:
+ public:
+  explicit Fields(const std::string name,
+                  interpreter::ProxyPacketInterpreter& handler)
+      : ara::com::proxy::Event<T> {
+    name, handler
+  } noexcept
+  {
+  }
+
+  explicit Fields(Fields&&) = delete;
+  explicit Fields(Fields&) = delete;
+  Fields operator=(Fields&) = delete;
+  Fields operator=(Fields&&) = delete;
+
+  ~Fields() noexcept {}
 
   ara::core::Result<T> Get() const noexcept {}
   ara::core::Result<void> Set(const T& val) const noexcept {}

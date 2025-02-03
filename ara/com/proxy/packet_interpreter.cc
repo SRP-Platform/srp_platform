@@ -19,7 +19,7 @@ namespace proxy {
 namespace interpreter {
 void PacketInterpreter::TransmitPacket(ara::com::IpcMsg&& packet) noexcept {
   ara::com::IpcMsg packet_ = std::move(packet);
-
+  packet.method_id_ = this->endpoint_id_;
   handler_.TransmitPacket(std::move(packet_));
 }
 
@@ -28,7 +28,7 @@ PacketInterpreter::PacketInterpreter(const std::string endpoint_name,
     : endpoint_id_{handler.container_.endpoints_.at(endpoint_name)
                        .endpoint_id_},
       handler_{handler} {
-  handler_.RegisterInterpreter(0x01U, *this);
+  handler_.RegisterInterpreter(endpoint_id_, *this);
 }
 
 }  // namespace interpreter
