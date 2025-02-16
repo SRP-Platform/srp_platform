@@ -6,7 +6,36 @@ from tools.model_generator.ara.common.singleton_lib import SingletonMeta
 class DataStructureDB(metaclass=SingletonMeta):
     def __init__(self) -> None:
         self.data_structure: dict[str,data_type] = {}
-        
+    def ConvertVariable(v_type:str) -> data_type:
+        if v_type == "uint8":
+            return Uint8(v_type)
+        elif v_type == "uint16":
+            return Uint16(v_type)
+        elif v_type == "uint32":
+            return Uint32(v_type)
+        elif v_type == "uint64":
+            return Uint64(v_type)
+        elif v_type == "int8":
+            return Int8(v_type)
+        elif v_type == "int16":
+            return Int16(v_type)
+        elif v_type == "int32":
+            return Int32(v_type)
+        elif v_type == "int64":
+            return Int64(v_type)
+        elif v_type == "float32":
+            return Float32(v_type)
+        elif v_type == "float64":
+            return Float64(v_type)
+        elif v_type == "bool":
+            return Bool(v_type)
+        elif v_type == "string":
+            return String(v_type)
+        elif v_type == "void":
+            return Void(v_type)
+        else:
+            return None
+
     def CreateVariable(self,name:str,package:str,v_type:str) -> data_type:
         if v_type == "uint8":
             return Uint8(name)

@@ -14,9 +14,9 @@ namespace ara {
 namespace core {
 
 template <>
-std::optional<model::ModelSomeIp> ModelItem::GetValue() const {
+std::optional<model::ModelCom> ModelItem::GetValue() const {
   if (value_.index() == 0) {
-    return std::get<model::ModelSomeIp>(value_);
+    return std::get<model::ModelCom>(value_);
   }
   return std::nullopt;
 }

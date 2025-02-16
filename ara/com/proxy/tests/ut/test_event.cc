@@ -1,16 +1,18 @@
 /**
  * @file test_event.cc
  * @author Bartosz Snieg (snieg45@gmail.com)
- * @brief 
+ * @brief
  * @version 0.1
  * @date 2025-02-03
- * 
+ *
  * @copyright Copyright (c) 2025
- * 
+ *
  */
 #include <gtest/gtest.h>
 
 #include <memory>
+#include <string>
+#include <vector>
 
 #include "ara/com/instance_identifier_container.h"
 #include "ara/com/proxy/event.h"

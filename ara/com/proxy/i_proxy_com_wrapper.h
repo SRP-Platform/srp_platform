@@ -21,10 +21,11 @@ namespace proxy {
 namespace wrapper {
 class IProxyComWrapper {
  public:
- using ProceedFrameCallback = std::function<void(const ara::com::IpcMsg&&)>;
+  using ProceedFrameCallback = std::function<void(const ara::com::IpcMsg&&)>;
   virtual void ProceedFrame(const ara::com::IpcMsg& msg) noexcept = 0;
-  virtual void TransmitFrame(const ara::com::IpcMsg& msg) noexcept = 0;
-  virtual void SetProceedFrameCallback(const ProceedFrameCallback&& callback) noexcept = 0;
+  virtual bool TransmitFrame(const ara::com::IpcMsg& msg) noexcept = 0;
+  virtual void SetProceedFrameCallback(
+      const ProceedFrameCallback&& callback) noexcept = 0;
   virtual ~IProxyComWrapper() = default;
 };
 }  // namespace wrapper

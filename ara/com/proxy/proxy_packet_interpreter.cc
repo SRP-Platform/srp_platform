@@ -11,6 +11,7 @@
 #include "ara/com/proxy/proxy_packet_interpreter.h"
 
 #include <unordered_map>
+#include <utility>
 
 #include "ara/com/proxy/packet_interpreter.h"
 #include "ara/com/types.h"
@@ -21,10 +22,8 @@ namespace proxy {
 namespace interpreter {
 void ProxyPacketInterpreter::ProceedFrame(
     const ara::com::IpcMsg&& msg) noexcept {
-
   const auto& endpoint = this->interpreters_list_.find(msg.method_id_);
   if (this->interpreters_list_.end() != endpoint) {
-     
     endpoint->second.ProceedPacket(std::move(msg));
   }
 }
@@ -33,12 +32,12 @@ bool ProxyPacketInterpreter::RegisterInterpreter(
     ara::com::proxy::interpreter::PacketInterpreter& handler_) noexcept {
   return this->interpreters_list_.insert({id, handler_}).second;
 }
-void ProxyPacketInterpreter::TransmitPacket(
+bool ProxyPacketInterpreter::TransmitPacket(
     ara::com::IpcMsg&& packet) noexcept {
   ara::com::IpcMsg packet_ = std::move(packet);
   packet_.service_id_ = this->container_.service_model_.service_id_;
   packet_.instance_id_ = this->container_.service_model_.instance_id_;
-  this->com_wrapper_->TransmitFrame(packet_);
+  return this->com_wrapper_->TransmitFrame(packet_);
 }
 }  // namespace interpreter
 }  // namespace proxy

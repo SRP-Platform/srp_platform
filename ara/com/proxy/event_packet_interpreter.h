@@ -12,6 +12,8 @@
 #ifndef ARA_COM_PROXY_EVENT_PACKET_INTERPRETER_H_
 #define ARA_COM_PROXY_EVENT_PACKET_INTERPRETER_H_
 
+#include <string>
+
 #include "ara/com/proxy/packet_interpreter.h"
 #include "ara/com/types.h"
 #include "core/data/type_converter.h"
@@ -23,7 +25,8 @@ namespace interpreter {
 class ProxyPacketInterpreter;
 
 template <typename DataType>
-class EventPacketInterpreter : protected ara::com::proxy::interpreter::PacketInterpreter {
+class EventPacketInterpreter
+    : protected ara::com::proxy::interpreter::PacketInterpreter {
  protected:
   void ProceedPacket(const ara::com::IpcMsg& msg) noexcept override {
     if (msg.msg_type_ == ara::com::IpcMsgType::kSubscribeAck) {
@@ -40,8 +43,8 @@ class EventPacketInterpreter : protected ara::com::proxy::interpreter::PacketInt
       const ara::com::SubscriptionState& new_state_) noexcept = 0;
 
  public:
-  EventPacketInterpreter(const std::string endpoint_name,
-                         ProxyPacketInterpreter& handler)
+  EventPacketInterpreter(const std::string& endpoint_name,
+                         ProxyPacketInterpreter& handler)  // NOLINT
       : ara::com::proxy::interpreter::PacketInterpreter(endpoint_name,
                                                         handler) {}
   virtual ~EventPacketInterpreter() = default;

@@ -15,12 +15,12 @@
 namespace ara {
 namespace core {
 
-class ModelItemTest : public ::testing::TestWithParam<model::ModelSomeIp> {};
+class ModelItemTest : public ::testing::TestWithParam<model::ModelCom> {};
 
-TEST_P(ModelItemTest, GetValueReturnsModelSomeIpWhenSetCorrectly) {
+TEST_P(ModelItemTest, GetValueReturnsModelComWhenSetCorrectly) {
   const auto& expected_value = GetParam();
   ModelItem item{expected_value};
-  auto result = item.GetValue<model::ModelSomeIp>();
+  auto result = item.GetValue<model::ModelCom>();
   ASSERT_TRUE(result.has_value());
   const auto& mod = result.value();
   EXPECT_EQ(mod.com_id_, expected_value.com_id_);
@@ -32,20 +32,20 @@ TEST_P(ModelItemTest, GetValueReturnsModelSomeIpWhenSetCorrectly) {
 }
 
 INSTANTIATE_TEST_SUITE_P(
-    ModelSomeIpValues,
+    ModelComValues,
     ModelItemTest,
     ::testing::Values(
-        model::ModelSomeIp{"12", 1, 2, 3, 4, model::ModelSomeIp::kIn},
-        model::ModelSomeIp{"34", 12, 89, 36, 18, model::ModelSomeIp::kOut},
-        model::ModelSomeIp{"56", 56, 56, 56, 56, model::ModelSomeIp::kIn},
-        model::ModelSomeIp{"", 0, 0, 0, 0, model::ModelSomeIp::kIn},
-        model::ModelSomeIp{"asfdfisadf", 255, 255, 255, 255, model::ModelSomeIp::kOut},
-        model::ModelSomeIp{"instance", 28, 586, 35, 226, model::ModelSomeIp::kIn}));
+        model::ModelCom{"12", 1, 2, 3, 4, model::ModelCom::kIn},
+        model::ModelCom{"34", 12, 89, 36, 18, model::ModelCom::kOut},
+        model::ModelCom{"56", 56, 56, 56, 56, model::ModelCom::kIn},
+        model::ModelCom{"", 0, 0, 0, 0, model::ModelCom::kIn},
+        model::ModelCom{"asfdfisadf", 255, 255, 255, 255, model::ModelCom::kOut},
+        model::ModelCom{"instance", 28, 586, 35, 226, model::ModelCom::kIn}));
 
 TEST(ModelItemTest, GetValueReturnsNullOption) {
   model::ModelDtc dtc("", 12, "");
   ModelItem item{dtc};
-  auto result = item.GetValue<model::ModelSomeIp>();
+  auto result = item.GetValue<model::ModelCom>();
   ASSERT_FALSE(result.has_value());
 }
 
@@ -73,7 +73,7 @@ INSTANTIATE_TEST_SUITE_P(
         model::ModelUds{255, 255, "asdofuhasoufdh", ara::core::model::ModelUds::Direction::kOut}));
 
 TEST(ModelUDSItemTest, GetValueReturnsNullOption) {
-  model::ModelSomeIp model{"12", 1, 2, 3, 4, model::ModelSomeIp::kIn};
+  model::ModelCom model{"12", 1, 2, 3, 4, model::ModelCom::kIn};
   ModelItem item{model};
   auto result = item.GetValue<model::ModelUds>();
   ASSERT_FALSE(result.has_value());

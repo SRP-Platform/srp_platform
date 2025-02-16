@@ -1,0 +1,39 @@
+{
+    "package": "srp.example",
+    "include": ["tools/model_generator/v2/example/example_service_depl.json"],
+    "component": {
+        "ExampleApp": {
+            "functional_groups": [
+                "Startup",
+                "Startup2",
+                "Platform",
+                "Running",
+                "SafetyMode",
+                "MW"
+            ],
+            "parms": "",
+            "reporting_mode": "NoReporting",
+            "logger": {
+                "app_id": "EM--",
+                "app_des": "EM server",
+                "log_level": "kInfo",
+                "log_mode": "kRemote|kConsole",
+                "ctx": []
+            },
+            "provide": {
+                "srp.example.ExampleService as ExampleServicePPort": {
+                    "using": "srp.example.ExampleServiceDepl",
+                    "instanceID": 1,
+                    "on": "IPC"
+                }
+            },
+            "require": {
+                "srp.example.ExampleService as ExampleServiceRPort": {
+                    "using": "srp.example.ExampleServiceDepl",
+                    "instanceID": 1,
+                    "on": "IPC"
+                }
+            }
+        }
+    }
+}

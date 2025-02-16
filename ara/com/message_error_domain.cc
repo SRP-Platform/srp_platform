@@ -8,7 +8,7 @@
  * @copyright Copyright (c) 2024
  *
  */
-#include "ara/com/someip_error.h"
+#include "ara/com/message_error_domain.h"
 
 #include <unordered_map>
 
@@ -16,51 +16,51 @@
 
 namespace ara {
 namespace com {
-namespace someip {
+namespace internal {
 namespace {
 std::unordered_map<ara::core::ErrorDomain::CodeType, ara::core::StringView>
     kKeyList{{static_cast<ara::core::ErrorDomain::CodeType>(
-                  someip::MessageCode::kENotOk),
+                  MessageErrorDomain::Errc::kENotOk),
               "kENotOk"},
              {static_cast<ara::core::ErrorDomain::CodeType>(
-                  someip::MessageCode::kEUnknownService),
+                  MessageErrorDomain::Errc::kEUnknownService),
               "kEUnknownService"},
              {static_cast<ara::core::ErrorDomain::CodeType>(
-                  someip::MessageCode::kEUnknownMethod),
+                  MessageErrorDomain::Errc::kEUnknownMethod),
               "kEUnknownMethod"},
              {static_cast<ara::core::ErrorDomain::CodeType>(
-                  someip::MessageCode::kENotReady),
+                  MessageErrorDomain::Errc::kENotReady),
               "kENotReady"},
              {static_cast<ara::core::ErrorDomain::CodeType>(
-                  someip::MessageCode::kENotReachable),
+                  MessageErrorDomain::Errc::kENotReachable),
               "kENotReachable"},
              {static_cast<ara::core::ErrorDomain::CodeType>(
-                  someip::MessageCode::kETimeout),
+                  MessageErrorDomain::Errc::kETimeout),
               "kETimeout"},
              {static_cast<ara::core::ErrorDomain::CodeType>(
-                  someip::MessageCode::kEWrongProtocolVersion),
+                  MessageErrorDomain::Errc::kEWrongProtocolVersion),
               "kEWrongProtocolVersion"},
              {static_cast<ara::core::ErrorDomain::CodeType>(
-                  someip::MessageCode::kEWrongInterfaceVersion),
+                  MessageErrorDomain::Errc::kEWrongInterfaceVersion),
               "kEWrongInterfaceVersion"},
              {static_cast<ara::core::ErrorDomain::CodeType>(
-                  someip::MessageCode::kEMalformedMessage),
+                  MessageErrorDomain::Errc::kEMalformedMessage),
               "kEMalformedMessage"}};
-const SomeIpErrorDomain domain_;
+const MessageErrorDomain domain_;
 }  // namespace
 
-SomeIpErrorDomain::SomeIpErrorDomain() noexcept
+MessageErrorDomain::MessageErrorDomain() noexcept
     : ara::core::ErrorDomain{0x8900000000001267} {}
-const std::string SomeIpErrorDomain::Name() const noexcept {
-  return ara::core::StringView{"SomeIpErrorDomain"};
+const std::string MessageErrorDomain::Name() const noexcept {
+  return ara::core::StringView{"MessageErrorDomain"};
 }
-const std::string SomeIpErrorDomain::Message(
+const std::string MessageErrorDomain::Message(
     ara::core::ErrorDomain::CodeType errorCode) const noexcept {
   return kKeyList[errorCode];
 }
 
 ara::core::ErrorCode MakeErrorCode(
-    SomeIpErrorDomain::Errc code,
+    MessageErrorDomain::Errc code,
     ara::core::ErrorDomain::SupportDataType data) noexcept {
   return ara::core::ErrorCode{
       static_cast<ara::core::ErrorDomain::CodeType>(code), GetComDomain(),
@@ -68,6 +68,6 @@ ara::core::ErrorCode MakeErrorCode(
 }
 
 const ara::core::ErrorDomain& GetComDomain() noexcept { return domain_; }
-}  // namespace someip
+}  // namespace internal
 }  // namespace com
 }  // namespace ara

@@ -25,9 +25,10 @@ py_library(
     srcs = ["common_parser.py"],
     visibility = ["@srp_platform//tools/model_generator/ara:__subpackages__"],
     deps = [
-        "@srp_platform//tools/model_generator/ara/app:app_lib",
+        "@srp_platform//tools/model_generator/ara/component",
         "@srp_platform//tools/model_generator/ara/common:data_structure_lib",
+        "@srp_platform//tools/model_generator/ara/deployment",
         "@srp_platform//tools/model_generator/ara/diag:diag_lib",
-        "@srp_platform//tools/model_generator/ara/someip/lib:someip_lib",
+        "@srp_platform//tools/model_generator/ara/interface",
     ],
 )

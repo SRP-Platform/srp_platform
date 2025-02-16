@@ -9,6 +9,7 @@ py_library(
     deps = [
         requirement("pyfranca"),
         requirement("ply"),
+        requirement("jsonpickle"),
     ],
 )
 py_library(

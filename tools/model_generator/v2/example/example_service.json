@@ -1,0 +1,38 @@
+{
+    "package": "srp.example",
+    "include": [],
+    "data_structure": {
+        "ExampleStructure": {
+            "dtc_id": "uint32",
+            "type": "uint8",
+            "parm": "uint8"
+        }
+    },
+    "interface": {
+        "ExampleService": {
+            "major_version": 1,
+            "minor_version": 0,
+            "methods": {
+                "TestMethod": {
+                    "in": "srp.example.ExampleStructure",
+                    "out": "srp.example.ExampleStructure"
+                }
+            },
+            "broadcasts": {
+                "ExampleEvent": {
+                    "out": "srp.example.ExampleStructure"
+                }
+            },
+            "attributes": {
+                "ExampleField": {
+                    "out": "uint16",
+                    "readonly": true
+                },
+                "ExampleField2": {
+                    "out": "srp.example.ExampleStructure",
+                    "readonly": false
+                }
+            }
+        }
+    }
+}

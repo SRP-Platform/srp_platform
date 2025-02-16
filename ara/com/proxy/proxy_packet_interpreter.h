@@ -33,8 +33,9 @@ class ProxyPacketInterpreter {
   const ara::com::InstanceIdentifierContainer container_;
   bool RegisterInterpreter(
       const uint16_t& id,
-      ara::com::proxy::interpreter::PacketInterpreter& handler_) noexcept;
-  void TransmitPacket(ara::com::IpcMsg&& packet) noexcept;
+      ara::com::proxy::interpreter::PacketInterpreter&  // NOLINT
+          handler_) noexcept;
+  bool TransmitPacket(ara::com::IpcMsg&& packet) noexcept;  // NOLINT
 
  public:
   explicit ProxyPacketInterpreter(

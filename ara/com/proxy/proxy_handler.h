@@ -8,8 +8,11 @@
  * @copyright Copyright (c) 2025
  *
  */
-#ifndef ARA_COM_ProxyHandler_ProxyHandler_H_
-#define ARA_COM_ProxyHandler_ProxyHandler_H_
+#ifndef ARA_COM_PROXY_PROXY_HANDLER_H_
+#define ARA_COM_PROXY_PROXY_HANDLER_H_
+
+#include <memory>
+#include <utility>
 
 #include "ara/com/instance_identifier_container.h"
 #include "ara/com/proxy/i_proxy_com_wrapper.h"
@@ -40,4 +43,4 @@ class ProxyHandler
 }  // namespace com
 }  // namespace ara
 
-#endif  // ARA_COM_ProxyHandler_ProxyHandler_H_
+#endif  // ARA_COM_PROXY_PROXY_HANDLER_H_

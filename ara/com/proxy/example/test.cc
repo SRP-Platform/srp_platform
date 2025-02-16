@@ -1,1 +1,0 @@
-#include "ara/com/proxy/example/example_proxy.h"

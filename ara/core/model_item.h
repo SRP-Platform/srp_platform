@@ -20,7 +20,7 @@ namespace ara {
 namespace core {
 class ModelItem {
  private:
-  std::variant<model::ModelSomeIp, model::ModelDtc, model::ModelUds> value_;
+  std::variant<model::ModelCom, model::ModelDtc, model::ModelUds> value_;
 
  public:
   template <typename T>

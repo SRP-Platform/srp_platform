@@ -1,18 +1,16 @@
 load("@rules_python//python:defs.bzl", "py_library")
 
 py_library(
-    name = "someip_lib",
+    name = "deployment",
     srcs = [
-        "service.py",
-        "someip_db.py",
-        "someip_extractor.py",
-        "someip_parser.py",
-        "someip_runtime_env.py",
+        "deployment_db.py",
+        "deployment_parser.py",
+        "interface.py",
     ],
+    tags = ["no-cache"],
     visibility = ["@srp_platform//tools/model_generator/ara:__subpackages__"],
     deps = [
         "@srp_platform//tools/model_generator/ara/common:common_lib",
         "@srp_platform//tools/model_generator/ara/common:data_structure_lib",
     ],
-    tags = ["no-cache"],
 )

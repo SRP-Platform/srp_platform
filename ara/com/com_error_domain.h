@@ -12,7 +12,6 @@
 #define ARA_COM_COM_ERROR_DOMAIN_H_
 #include <string>
 
-#include "ara/com/someip/message_code.h"
 #include "ara/core/error_code.h"
 #include "ara/core/error_domain.h"
 
@@ -57,11 +56,6 @@ class ComErrorDomain final : public ara::core::ErrorDomain {
 ara::core::ErrorCode MakeErrorCode(
     ComErrc code, ara::core::ErrorDomain::SupportDataType data) noexcept;
 
-ara::core::ErrorCode MakeErrorCode(
-    ComOfferErrc code, ara::core::ErrorDomain::SupportDataType data) noexcept;
-ara::core::ErrorCode MakeErrorCode(
-    ara::com::someip::MessageCode code,
-    ara::core::ErrorDomain::SupportDataType data) noexcept;
 const ara::core::ErrorDomain& GetComDomain() noexcept;
 }  // namespace com
 }  // namespace ara
