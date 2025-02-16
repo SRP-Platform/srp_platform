@@ -11,6 +11,9 @@
 #ifndef ARA_COM_PROXY_EVENT_H_
 #define ARA_COM_PROXY_EVENT_H_
 
+#include <string>
+#include <utility>
+
 #include "ara/com/proxy/event_packet_interpreter.h"
 #include "ara/com/types.h"
 #include "ara/core/result.h"
@@ -18,9 +21,6 @@
 namespace ara {
 namespace com {
 namespace proxy {
-namespace interpreter {
-class ProxyPacketInterpreter;
-}  // namespace interpreter
 
 template <typename DataType>
 class Event : public interpreter::EventPacketInterpreter<DataType> {
@@ -53,8 +53,9 @@ class Event : public interpreter::EventPacketInterpreter<DataType> {
   }
 
  public:
-  explicit Event(const std::string name,
-                 interpreter::ProxyPacketInterpreter& handler) noexcept
+  explicit Event(
+      const std::string& name,
+      interpreter::ProxyPacketInterpreter& handler) noexcept  // NOLINT
       : interpreter::EventPacketInterpreter<DataType>(name, handler) {}
 
   explicit Event(Event&&) = delete;

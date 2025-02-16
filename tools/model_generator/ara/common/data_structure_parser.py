@@ -22,7 +22,5 @@ class DataStructureParser:
         for v_name,type in json_obj["data_structure"][temp_list[0]].items():
             temp_struct.AddVariable(v_name,db_.CreateVariable(v_name,json_obj["package"],type))
         if name not in db_.data_structure:
-            db_.data_structure[name] = temp_struct
-        else:
-            raise Exception(f"Data Structure ({name}) already exist")
+            db_.data_structure["/"+name.replace(".","/")] = temp_struct
         

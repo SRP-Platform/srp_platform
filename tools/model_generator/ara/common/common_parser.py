@@ -3,9 +3,10 @@ import json
 import os
 import re 
 from tools.model_generator.ara.common.data_structure_parser import DataStructureParser
-from tools.model_generator.ara.someip.lib.someip_parser import SomeIpParser
-from tools.model_generator.ara.app.adaptive_application_parser import AdaptiveApplicationParser
 from tools.model_generator.ara.diag.diag_parser import DiagParser
+from tools.model_generator.ara.interface.interface_parser import InterfaceParser
+from tools.model_generator.ara.deployment.deployment_parser import DeploymentParser
+from tools.model_generator.ara.component.component_parser import ComponentParser
 class CommonParser:
     def PathR(path) -> str:
         if "@" in path:
@@ -31,12 +32,12 @@ class CommonParser:
                     
             if "data_structure" in json_object:
                 DataStructureParser.LoadDataStructure(json_object)
-                
-            if "someip" in json_object:
-                SomeIpParser.ParseJson(json_object)
-                
-            if "adaptive_application" in json_object:
-                AdaptiveApplicationParser.ParseJson(json_object)
+            if "interface" in json_object:
+                InterfaceParser.Parser(json_object)
+            if "deployment" in json_object:
+                DeploymentParser.Parser(json_object)
+            if "component" in json_object:
+                ComponentParser.Parser(json_object)   
             
-            if "diag" in json_object:
-                DiagParser.ParseJson(json_object)
+            # if "diag" in json_object:
+            #     DiagParser.ParseJson(json_object)

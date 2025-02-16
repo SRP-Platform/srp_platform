@@ -13,46 +13,22 @@
 
 #include <string>
 
+#include "ara/com/instance_identifier_container.h"
 #include "ara/core/result.h"
+
 namespace ara {
 namespace core {
 namespace model {
 
-class ModelSomeIp {
+class ModelCom {
  public:
-  enum Direction { kIn = 0, kOut = 1 };
-  const std::string com_id_;
-  const std::uint32_t port_;
+  const ara::com::InstanceIdentifierContainer container_;
   const std::uint16_t instance_;
-  const std::uint8_t major_version_;
-  const std::uint32_t minor_version_;
-  const Direction dir_;
 
  public:
-  ModelSomeIp(const std::string& com_id, const std::uint32_t port,
-              const std::uint16_t instance, const std::uint8_t major_version,
-              const std::uint32_t minor_version, const Direction dir)
-      : com_id_{com_id},
-        port_{port},
-        instance_{instance},
-        major_version_{major_version},
-        minor_version_{minor_version},
-        dir_{dir} {}
-
-  static core::Result<ModelSomeIp> CreatProxyItem(
-      const std::string& com_id, const std::uint32_t port,
-      const std::uint16_t instance, const std::uint8_t major_version,
-      const std::uint32_t minor_version) {
-    return ModelSomeIp(com_id, port, instance, major_version, minor_version,
-                       ara::core::model::ModelSomeIp::Direction::kIn);
-  }
-  static core::Result<ModelSomeIp> CreatSkeletonItem(
-      const std::string& com_id, const std::uint32_t port,
-      const std::uint16_t instance, const std::uint8_t major_version,
-      const std::uint32_t minor_version) {
-    return ModelSomeIp(com_id, port, instance, major_version, minor_version,
-                       ara::core::model::ModelSomeIp::Direction::kOut);
-  }
+  ModelCom(const ara::com::InstanceIdentifierContainer& container,
+           std::uint16_t instance)
+      : container_{container}, instance_{instance} {}
 };
 }  // namespace model
 }  // namespace core

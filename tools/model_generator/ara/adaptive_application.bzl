@@ -1,12 +1,11 @@
 load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
 load("@srp_platform//tools/common:connect_tar.bzl", "connect_tar")
 
-
-
 def _impl(ctx):
     # The list of arguments we pass to the script.
     out = ctx.actions.declare_file(ctx.attr.out_name)
     args = [out.path] + [f.path for f in ctx.files.src]
+
     # Action to call the script.
     ctx.actions.run(
         inputs = ctx.files.src,
@@ -93,6 +92,7 @@ def ara_json2someip_lib_impl(ctx):
     # The list of arguments we pass to the script.
     out = ctx.actions.declare_directory("someip_lib.h")
     args = [out.path, ctx.files.src[0].path]
+
     # Action to call the script.
     ctx.actions.run(
         inputs = ctx.files.src,
@@ -117,18 +117,77 @@ ara_json2someip_lib = rule(
     },
 )
 
-def ara_someip_lib(name, model_src, visibility = []):
-    ara_json2someip_lib(
-        name = "someip_src",
-        src = model_src,
+def json2model_impl(ctx):
+    # The list of arguments we pass to the script.
+    out = ctx.actions.declare_file("metadata_model.json")
+    args = ["/" + ctx.attr.component_name.replace(".", "/"), out.path, ctx.files.src[0].path]
+
+    # Action to call the script.
+    ctx.actions.run(
+        inputs = ctx.files.src,
+        outputs = [out],
+        arguments = args,
+        executable = ctx.executable.tool,
+        env = ctx.var,
+    )
+
+    return [DefaultInfo(files = depset([out]))]
+
+json2model = rule(
+    implementation = json2model_impl,
+    attrs = {
+        "src": attr.label_list(mandatory = True, allow_files = True),
+        "tool": attr.label(
+            executable = True,
+            cfg = "exec",
+            allow_files = True,
+            default = Label("@srp_platform//tools/model_generator/ara:json2model"),
+        ),
+        "component_name": attr.string(mandatory = False, default = "NONE"),
+    },
+)
+
+def model2com_impl(ctx):
+    # The list of arguments we pass to the script.
+    out = ctx.actions.declare_directory("com_lib.h")
+    args = [out.path, ctx.files.src[0].path]
+
+    # Action to call the script.
+    ctx.actions.run(
+        inputs = [ctx.files.src[0]],
+        outputs = [out],
+        arguments = args,
+        executable = ctx.executable.tool,
+        env = ctx.configuration.default_shell_env,
+    )
+
+    return [DefaultInfo(files = depset([out]))]
+
+_model2com = rule(
+    implementation = model2com_impl,
+    attrs = {
+        "src": attr.label(mandatory = True, allow_files = True),
+        "tool": attr.label(
+            executable = True,
+            cfg = "exec",
+            allow_files = True,
+            default = Label("@srp_platform//tools/model_generator/ara:model2com"),
+        ),
+    },
+)
+
+def model2json(name, src, visibility = []):
+    # Tworzenie unikalnej nazwy dla pliku źródłowego
+    _model2com(
+        name = name+".src",
+        src = src,
         visibility = ["//visibility:private"],
     )
-    
     native.cc_library(
         name = name,
-        deps = ["@srp_platform//ara/com:com_error_domain", "@srp_platform//ara/core:Result", "@srp_platform//ara/com/someip:someip_lib","@srp_platform//core/data:data_conv_lib"],
-        srcs = [":someip_src"],
-        includes = ["./someip_lib.h"],
+        deps = ["@srp_platform//ara/com/proxy"],
+        srcs = [":"+name+".src"],
+        includes = ["./com_lib.h"], 
         visibility = visibility,
     )
 
@@ -147,7 +206,7 @@ def ara_runtime_lib(name, model_src, visibility = []):
         visibility = visibility,
     )
 
-def adaptive_application(name, model_src, bin, etcs = [], visibility = [], tar_path="opt/"):
+def adaptive_application(name, model_src, bin, etcs = [], visibility = [], tar_path = "opt/"):
     ara_json2config(
         name = "config",
         src = model_src,
@@ -161,7 +220,7 @@ def adaptive_application(name, model_src, bin, etcs = [], visibility = [], tar_p
     )
     pkg_tar(
         name = "config_files",
-        package_dir =  tar_path + name,
+        package_dir = tar_path + name,
         srcs = [":config"] + etcs,
         visibility = ["//visibility:private"],
     )

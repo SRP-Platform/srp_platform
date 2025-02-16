@@ -12,6 +12,7 @@
 #define ARA_COM_PROXY_PACKET_INTERPRETER_H_
 #include <string>
 
+#include "ara/com/model/endpoint_model.h"
 #include "ara/com/msg_type.h"
 
 namespace ara {
@@ -22,13 +23,14 @@ class ProxyPacketInterpreter;
 class PacketInterpreter {
  protected:
   const uint16_t endpoint_id_;
+  const ara::com::model::EndpointMode mode_;
   virtual void ProceedPacket(const ara::com::IpcMsg& msg) noexcept = 0;
   ProxyPacketInterpreter& handler_;
-  void TransmitPacket(ara::com::IpcMsg&& packet) noexcept;
+  bool TransmitPacket(ara::com::IpcMsg&& packet) noexcept;
 
  public:
-  PacketInterpreter(const std::string endpoint_name,
-                    ProxyPacketInterpreter& handler);
+  PacketInterpreter(const std::string& endpoint_name,
+                    ProxyPacketInterpreter& handler);  // NOLINT
   virtual ~PacketInterpreter() = default;
   friend class ProxyPacketInterpreter;
 };

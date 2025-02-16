@@ -2,15 +2,14 @@ cc_library(
     name = "com_error_domain",
     srcs = [
         "com_error_domain.cc",
-        "someip_error.cc",
+        "message_error_domain.cc",
     ],
     hdrs = [
         "com_error_domain.h",
-        "someip_error.h",
+        "message_error_domain.h",
     ],
     visibility = ["//visibility:public"],
     deps = [
-        "@srp_platform//ara/com/someip:someip_enums",
         "@srp_platform//ara/core:error_lib",
     ],
 )

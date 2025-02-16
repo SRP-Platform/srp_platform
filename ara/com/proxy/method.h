@@ -11,24 +11,49 @@
 #ifndef ARA_COM_PROXY_METHOD_H_
 #define ARA_COM_PROXY_METHOD_H_
 
+#include <atomic>
+#include <chrono>              // NOLINT
+#include <condition_variable>  // NOLINT
+#include <mutex>               // NOLINT
+#include <string>
+#include <vector>
+
+#include "ara/com/message_error_domain.h"
+#include "ara/com/proxy/packet_interpreter.h"
 #include "ara/com/types.h"
-#include "ara/core/instance_specifier.h"
 
 namespace ara {
 namespace com {
 namespace proxy {
-class Method {
+
+using namespace std::chrono_literals; // NOLINT
+
+class Method : protected ara::com::proxy::interpreter::PacketInterpreter {
  private:
-  /* data */
+  std::mutex m_;
+  std::condition_variable cv_;
+  std::atomic<bool> msg_rx;
+  static constexpr auto timeout = 2000ms;
+
+ protected:
+  void ProceedPacket(const ara::com::IpcMsg &msg) noexcept override;
+  virtual void ProceedResponse(
+      const std::vector<uint8_t> &payload) noexcept = 0;
+  virtual void ProceedAck() noexcept = 0;
+  virtual void ProceedError(const uint8_t error_code) noexcept = 0;
+  void SendRequest(const std::vector<uint8_t> &payload,
+                   const bool no_blocking = false) noexcept;
+
  public:
-  explicit Method(const ara::core::InstanceSpecifier& instance) noexcept {}
+  Method(const std::string &name,
+         interpreter::ProxyPacketInterpreter &handler) noexcept;  // NOLINT
 
-  explicit Method(Method&&) = delete;
-  explicit Method(Method&) = delete;
-  Method operator=(Method&) = delete;
-  Method operator=(Method&&) = delete;
+  explicit Method(Method &&) = delete;
+  explicit Method(Method &) = delete;
+  Method operator=(Method &) = delete;
+  Method operator=(Method &&) = delete;
 
-  ~Method() noexcept {}
+  ~Method() noexcept;
 };
 }  // namespace proxy
 }  // namespace com

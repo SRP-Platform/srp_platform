@@ -11,101 +11,118 @@
 #ifndef ARA_COM_PROXY_FIELDS_H_
 #define ARA_COM_PROXY_FIELDS_H_
 
-#include "ara/com/msg_type.h"
-#include "ara/com/proxy/event.h"
+#include <string>
+#include <utility>
+
+#include "ara/com/proxy/event_packet_interpreter.h"
 #include "ara/com/types.h"
-#include "ara/core/instance_specifier.h"
 #include "ara/core/result.h"
-#include "ara/com/proxy/method.h"
 
 namespace ara {
 namespace com {
 namespace proxy {
-template <typename T>
-class EmptyFields : public ara::com::proxy::Event<T> {
+
+template <typename DataType>
+class Fields : public interpreter::EventPacketInterpreter<DataType> {
  private:
- public:
-  explicit Fields(const std::string name,
-                  interpreter::ProxyPacketInterpreter& handler)
-      : ara::com::proxy::Event<T> {
-    name, handler
-  } noexcept
-  {
+  ara::com::SubscriptionState s_state_{
+      ara::com::SubscriptionState::kNotSubscribed};
+  ara::com::SubscriptionStateChangeHandler s_handler_;
+  ara::com::EventReceiveHandler r_handler_;
+  DataType* sample_{nullptr};
+
+  void SetNewValue(const DataType& new_value) noexcept override {
+    if (sample_ != nullptr) {
+      delete sample_;
+    }
+    sample_ = new DataType(new_value);
+    if (r_handler_) {
+      r_handler_();
+    }
   }
+
+  void SetNewSubscriptionState(
+      const ara::com::SubscriptionState& new_state_) noexcept override {
+    if (new_state_ != s_state_ &&
+        s_state_ == ara::com::SubscriptionState::kSubscriptionPending) {
+      s_state_ = new_state_;
+      if (s_handler_) {
+        s_handler_();
+      }
+    }
+  }
+
+ public:
+  explicit Fields(
+      const std::string& name,
+      interpreter::ProxyPacketInterpreter& handler) noexcept  // NOLINT
+      : interpreter::EventPacketInterpreter<DataType>(name, handler) {}
 
   explicit Fields(Fields&&) = delete;
   explicit Fields(Fields&) = delete;
   Fields operator=(Fields&) = delete;
   Fields operator=(Fields&&) = delete;
 
-  ~Fields() noexcept {}
-};
-
-template <typename T>
-class SetterFields : public ara::com::proxy::Event<T> {
- private:
- public:
-  explicit Fields(const std::string name,
-                  interpreter::ProxyPacketInterpreter& handler)
-      : ara::com::proxy::Event<T> {
-    name, handler
-  } noexcept
-  {
+  ~Fields() noexcept {
+    if (sample_ != nullptr) {
+      delete sample_;
+    }
   }
 
-  explicit Fields(Fields&&) = delete;
-  explicit Fields(Fields&) = delete;
-  Fields operator=(Fields&) = delete;
-  Fields operator=(Fields&&) = delete;
-
-  ~Fields() noexcept {}
-
-  ara::core::Result<void> Set(const T& val) const noexcept {}
-};
-
-template <typename T>
-class GetterFields : public ara::com::proxy::Event<T> {
- private:
- public:
-  explicit Fields(const std::string name,
-                  interpreter::ProxyPacketInterpreter& handler)
-      : ara::com::proxy::Event<T> {
-    name, handler
-  } noexcept
-  {
+  void Unsubscribe() noexcept {
+    this->s_state_ = ara::com::SubscriptionState::kNotSubscribed;
+    ara::com::IpcMsg msg{ara::com::IpcMsgType::kStopSubscribe,
+                         0x00,
+                         0x00,
+                         0x00,
+                         0x00,
+                         0x00,
+                         0x00,
+                         {}};
+    this->TransmitPacket(std::move(msg));
   }
 
-  explicit Fields(Fields&&) = delete;
-  explicit Fields(Fields&) = delete;
-  Fields operator=(Fields&) = delete;
-  Fields operator=(Fields&&) = delete;
+  ara::core::Result<void> Subscribe(
+      ara::com::SubscriptionStateChangeHandler&& handler,
+      size_t maxSampleCount) noexcept {
+    this->s_handler_ = handler;
+    this->s_state_ = ara::com::SubscriptionState::kSubscriptionPending;
 
-  ~Fields() noexcept {}
-
-  ara::core::Result<T> Get() const noexcept {}
-};
-
-template <typename T>
-class Fields : public ara::com::proxy::Event<T> {
- private:
- public:
-  explicit Fields(const std::string name,
-                  interpreter::ProxyPacketInterpreter& handler)
-      : ara::com::proxy::Event<T> {
-    name, handler
-  } noexcept
-  {
+    ara::com::IpcMsg msg{ara::com::IpcMsgType::kSubscribe,
+                         0x00,
+                         0x00,
+                         0x00,
+                         0x00,
+                         0x00,
+                         0x00,
+                         {}};
+    this->TransmitPacket(std::move(msg));
+    return {};
   }
 
-  explicit Fields(Fields&&) = delete;
-  explicit Fields(Fields&) = delete;
-  Fields operator=(Fields&) = delete;
-  Fields operator=(Fields&&) = delete;
+  ara::com::SubscriptionState GetSubscriptionState() const {
+    return this->s_state_;
+  }
 
-  ~Fields() noexcept {}
+  ara::core::Result<void> SetReceiveHandler(
+      ara::com::EventReceiveHandler&& handler) noexcept {
+    r_handler_ = std::move(handler);
+    return {};
+  }
 
-  ara::core::Result<T> Get() const noexcept {}
-  ara::core::Result<void> Set(const T& val) const noexcept {}
+  ara::core::Result<size_t> GetNewSamples(
+      GetNewSampleHandler<DataType>&& handler,
+      size_t maxNumberOfSamples) noexcept {
+    const auto h = std::move(handler);
+    if (this->sample_ != nullptr) {
+      if (h) {
+        h(this->sample_);
+        delete this->sample_;
+        this->sample_ = nullptr;
+      }
+    }
+    return {0U};
+  }
 };
 }  // namespace proxy
 }  // namespace com

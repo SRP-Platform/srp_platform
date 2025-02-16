@@ -17,10 +17,18 @@
 namespace ara {
 namespace com {
 namespace model {
+enum EndpointMode : uint8_t {
+  kNormal = 0x00U,
+  kNoReturn = 0x01U,
+  kNoReturnWithAck = 0x02U,
+};
 struct EndpointModel {
-  EndpointModel(const uint16_t endpoint_id) : endpoint_id_{endpoint_id} {}
+  EndpointModel(const uint16_t endpoint_id,
+                const EndpointMode mode = EndpointMode::kNormal)
+      : endpoint_id_{endpoint_id}, mode_{mode} {}
 
   const uint16_t endpoint_id_;
+  const EndpointMode mode_;
 };
 
 }  // namespace model

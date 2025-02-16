@@ -12,7 +12,6 @@
 #define ARA_COM_INSTANCE_IDENTIFIER_CONTAINER_H_
 #include <map>
 #include <string>
-
 #include "ara/com/model/endpoint_model.h"
 #include "ara/com/model/service_model.h"
 

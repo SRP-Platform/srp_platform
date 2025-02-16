@@ -9,8 +9,8 @@
  *
  */
 
-#ifndef ARA_COM_PROXY_TESTS_MOCKS_PROXY_COM_WRAPPER_MOCKS_H_
-#define ARA_COM_PROXY_TESTS_MOCKS_PROXY_COM_WRAPPER_MOCKS_H_
+#ifndef ARA_COM_PROXY_TESTS_MOCKS_PROXY_COM_WRAPPER_MOCK_H_
+#define ARA_COM_PROXY_TESTS_MOCKS_PROXY_COM_WRAPPER_MOCK_H_
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
@@ -25,7 +25,7 @@ class ProxyComWrapperMock : public IProxyComWrapper {
  public:
   MOCK_METHOD(void, ProceedFrame, (const ara::com::IpcMsg&),
               (noexcept, override));
-  MOCK_METHOD(void, TransmitFrame, (const ara::com::IpcMsg&),
+  MOCK_METHOD(bool, TransmitFrame, (const ara::com::IpcMsg&),
               (noexcept, override));
   MOCK_METHOD(void, SetProceedFrameCallback, (const IProxyComWrapper::ProceedFrameCallback&&),
               (noexcept, override));
@@ -36,4 +36,4 @@ class ProxyComWrapperMock : public IProxyComWrapper {
 }  // namespace com
 }  // namespace ara
 
-#endif  // ARA_COM_PROXY_TESTS_MOCKS_PROXY_COM_WRAPPER_MOCKS_H_
+#endif  // ARA_COM_PROXY_TESTS_MOCKS_PROXY_COM_WRAPPER_MOCK_H_

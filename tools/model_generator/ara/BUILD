@@ -40,6 +40,26 @@ py_binary(
 )
 
 py_binary(
+    name = "json2model",
+    srcs = ["json2model.py"],
+    data = ["@srp_platform//tools/model_generator/ara:example_res"],
+    visibility = ["//visibility:public"],
+    deps = [
+        "@srp_platform//tools/model_generator/ara/common:common_parser",
+        "//third_party/python:pyfranca"
+    ],
+)
+py_binary(
+    name = "model2com",
+    srcs = ["model2com.py"],
+    data = ["@srp_platform//tools/model_generator/ara:example_res"],
+    visibility = ["//visibility:public"],
+    deps = [
+        "@srp_platform//tools/model_generator/ara/common:common_parser",
+        "//third_party/python:pyfranca"
+    ],
+)
+py_binary(
     name = "data_structure_gen",
     srcs = ["data_structure_gen.py"],
     data = ["@srp_platform//tools/model_generator/ara:example_res"],
