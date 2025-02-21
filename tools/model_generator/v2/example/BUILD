@@ -1,4 +1,4 @@
-load("//tools/model_generator/ara:adaptive_application.bzl", "json2model", "model2json")
+load("//tools/model_generator/ara:adaptive_application.bzl", "json2model", "model2json", "model2runtime_env")
 
 filegroup(
     name = "srcs",
@@ -24,3 +24,5 @@ cc_binary(
     deps = ["//tools/model_generator/v2/example:com_lib"],
     srcs = ["miain.cpp"],
 )
+
+model2runtime_env(name = "runtime_lib", src = "//tools/model_generator/v2/example:test")

@@ -23,12 +23,10 @@ namespace model {
 class ModelCom {
  public:
   const ara::com::InstanceIdentifierContainer container_;
-  const std::uint16_t instance_;
 
  public:
-  ModelCom(const ara::com::InstanceIdentifierContainer& container,
-           std::uint16_t instance)
-      : container_{container}, instance_{instance} {}
+  ModelCom(const ara::com::InstanceIdentifierContainer& container)
+      : container_{container} {}
 };
 }  // namespace model
 }  // namespace core

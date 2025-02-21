@@ -17,18 +17,12 @@ namespace com {
 namespace model {
 
 struct ServiceModel {
-  constexpr ServiceModel(const uint16_t service_id, const uint16_t instance_id,
-                         const uint8_t major_version,
-                         const uint32_t minor_version)
+  constexpr ServiceModel(const uint16_t service_id, const uint16_t instance_id)
       : service_id_{service_id},
-        instance_id_{instance_id},
-        major_version_{major_version},
-        minor_version_{minor_version} {}
+        instance_id_{instance_id}{}
 
   const uint16_t service_id_;
   const uint16_t instance_id_;
-  const uint8_t major_version_;
-  const uint32_t minor_version_;
 };
 }  // namespace model
 }  // namespace com

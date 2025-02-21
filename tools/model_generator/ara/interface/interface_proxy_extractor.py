@@ -1,10 +1,10 @@
 from __future__ import annotations
-
+from datetime import date
 from tools.model_generator.ara.interface.interface import *
 from tools.model_generator.ara.common.data_structure_db import DataStructureDB
 class InterfaceProxyExtractor:
     def ExtractProxy(out_path:str, model:Interface):
-        header_guard = model.package.upper().replace("/","_")[1:]+"_"+model.name.upper()+"_H_"
+        header_guard = model.package.upper().replace("/","_")[1:]+"_"+model.name.upper()+"_HANDLER_H_"
         namespace_list = model.package[1:].split("/")
         includes = ""
         temp_s = "  ////////////// METHODS SECTION //////////////\n"
@@ -74,7 +74,19 @@ class InterfaceProxyExtractor:
   {item.name}T {item.name}{"{"}"{item.name}", *this{"}"};
 
 """
-        res = f"""#ifndef {header_guard}
+        res = f"""/**
+* @file {model.name.split("/")[-1]}Handler.h
+* Data structure by Bartosz Snieg (snieg45@gmail.com)
+* @brief 
+* @version 0.1
+* @date """+str(date.today())+f""""
+* 
+* @copyright Copyright (c) 2024
+* 
+* !! Automatically generated file please do not change anything !!
+*
+*/
+#ifndef {header_guard}
 #define {header_guard}
 
 #include <utility>

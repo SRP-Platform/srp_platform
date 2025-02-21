@@ -1,5 +1,5 @@
 from __future__ import annotations
-
+from datetime import date
 from tools.model_generator.ara.common.data_structure import *
 
 class DataStructureExtractor:
@@ -8,8 +8,21 @@ class DataStructureExtractor:
         if struct.typ_str == "struct":
             with open(out_path+"/"+struct.name.replace(".","/")+".h","w") as out_file:
                 namespace_list = struct.name.split(".")
-                file = """#ifndef """+(struct.name.upper().replace(".","_"))+"_H_\n"
-                file += """#define """+(struct.name.upper().replace(".","_"))+"_H_\n"
+                file = f"""/**
+* @file {struct.name.replace(".","/").split("/")[-1]}.h
+* Data structure by Bartosz Snieg (snieg45@gmail.com)
+* @brief 
+* @version 0.1
+* @date """+str(date.today())+""""
+* 
+* @copyright Copyright (c) 2024
+* 
+* !! Automatically generated file please do not change anything !!
+*
+*/
+"""
+                file += """#ifndef """+(struct.name.upper().replace(".","_"))+"_H_\n"
+                file += """#define """+(struct.name.upper().replace(".","_"))+"_H_\n\n"
                 file+="""#include <vector>\n"""
                 file+="""#include <bit>\n"""
                 file+="""#include "ara/core/result.h"\n"""

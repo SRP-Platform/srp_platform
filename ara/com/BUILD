@@ -65,6 +65,6 @@ cc_library(
 cc_library(
     name = "instance_identifier_container",
     hdrs = ["instance_identifier_container.h"],
-    visibility = ["//ara/com:__subpackages__"],
+    visibility = ["//visibility:public"],
     deps = ["//ara/com/model"],
 )

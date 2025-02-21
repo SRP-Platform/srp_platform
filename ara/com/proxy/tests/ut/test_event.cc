@@ -25,7 +25,7 @@ class TestEventFixture : public ::testing::Test {
       ::testing::StrictMock<ara::com::proxy::wrapper::ProxyComWrapperMock>>
       com_mock_;
   const ara::com::InstanceIdentifierContainer container_{
-      ara::com::model::ServiceModel{0x01, 0x02, 0x03, 0x04},
+      ara::com::model::ServiceModel{0x01, 0x02},
       {{"example_event", ara::com::model::EndpointModel{0x15}}}};
 
  public:

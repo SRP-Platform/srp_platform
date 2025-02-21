@@ -26,7 +26,7 @@ class TestMethodFixture : public ::testing::Test {
       ::testing::StrictMock<ara::com::proxy::wrapper::ProxyComWrapperMock>>
       com_mock_;
   const ara::com::InstanceIdentifierContainer container_{
-      ara::com::model::ServiceModel{0x01, 0x02, 0x03, 0x04},
+      ara::com::model::ServiceModel{0x01, 0x02},
       {{"example_method", ara::com::model::EndpointModel{0x15}}}};
 
  public:
@@ -185,7 +185,7 @@ class TestMethodNoReturnAckFixture : public ::testing::Test {
       ::testing::StrictMock<ara::com::proxy::wrapper::ProxyComWrapperMock>>
       com_mock_;
   const ara::com::InstanceIdentifierContainer container_{
-      ara::com::model::ServiceModel{0x01, 0x02, 0x03, 0x04},
+      ara::com::model::ServiceModel{0x01, 0x02},
       {{"example_method",
         ara::com::model::EndpointModel{
             0x15, ara::com::model::EndpointMode::kNoReturnWithAck}}}};
@@ -243,7 +243,7 @@ class TestMethodNoReturnWithoutAckFixture : public ::testing::Test {
       ::testing::StrictMock<ara::com::proxy::wrapper::ProxyComWrapperMock>>
       com_mock_;
   const ara::com::InstanceIdentifierContainer container_{
-      ara::com::model::ServiceModel{0x01, 0x02, 0x03, 0x04},
+      ara::com::model::ServiceModel{0x01, 0x02},
       {{"example_method",
         ara::com::model::EndpointModel{
             0x15, ara::com::model::EndpointMode::kNoReturn}}}};

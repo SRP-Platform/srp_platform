@@ -59,64 +59,6 @@ ara_json2config = rule(
     },
 )
 
-def ara_json2runtime_env_impl(ctx):
-    # The list of arguments we pass to the script.
-    out = ctx.actions.declare_directory("ara/core")
-    args = [out.path, ctx.files.src[0].path]
-
-    # Action to call the script.
-    ctx.actions.run(
-        inputs = ctx.files.src,
-        outputs = [out],
-        arguments = args,
-        executable = ctx.executable.tool,
-        env = ctx.var,
-    )
-
-    return [DefaultInfo(files = depset([out]))]
-
-ara_json2runtime_env = rule(
-    implementation = ara_json2runtime_env_impl,
-    attrs = {
-        "src": attr.label_list(mandatory = False, allow_files = True),
-        "tool": attr.label(
-            executable = True,
-            cfg = "exec",
-            allow_files = True,
-            default = Label("@srp_platform//tools/model_generator/ara:json2runtime_env"),
-        ),
-    },
-)
-
-def ara_json2someip_lib_impl(ctx):
-    # The list of arguments we pass to the script.
-    out = ctx.actions.declare_directory("someip_lib.h")
-    args = [out.path, ctx.files.src[0].path]
-
-    # Action to call the script.
-    ctx.actions.run(
-        inputs = ctx.files.src,
-        outputs = [out],
-        arguments = args,
-        executable = ctx.executable.tool,
-        env = ctx.var,
-    )
-
-    return [DefaultInfo(files = depset([out]))]
-
-ara_json2someip_lib = rule(
-    implementation = ara_json2someip_lib_impl,
-    attrs = {
-        "src": attr.label_list(mandatory = False, allow_files = True),
-        "tool": attr.label(
-            executable = True,
-            cfg = "exec",
-            allow_files = True,
-            default = Label("@srp_platform//tools/model_generator/ara:json2someip_lib"),
-        ),
-    },
-)
-
 def json2model_impl(ctx):
     # The list of arguments we pass to the script.
     out = ctx.actions.declare_file("metadata_model.json")
@@ -146,6 +88,47 @@ json2model = rule(
         "component_name": attr.string(mandatory = False, default = "NONE"),
     },
 )
+
+
+def model2runtime_env_impl(ctx):
+    # The list of arguments we pass to the script.
+    out = ctx.actions.declare_directory("ara/core")
+    args = [out.path, ctx.files.src[0].path]
+
+    # Action to call the script.
+    ctx.actions.run(
+        inputs = ctx.files.src,
+        outputs = [out],
+        arguments = args,
+        executable = ctx.executable.tool,
+        env = ctx.var,
+    )
+
+    return [DefaultInfo(files = depset([out]))]
+
+_model2runtime_env = rule(
+    implementation = model2runtime_env_impl,
+    attrs = {
+        "src": attr.label(mandatory = True, allow_files = True),
+        "tool": attr.label(
+            executable = True,
+            cfg = "exec",
+            allow_files = True,
+            default = Label("@srp_platform//tools/model_generator/ara:model2runtime_env"),
+        ),
+    },
+)
+def model2runtime_env(name, src,visibility = []):
+    _model2runtime_env(
+        name = name+".src",
+        src=src
+    )
+    native.cc_library(
+        name = name,
+        deps = ["@srp_platform//ara/core:ara_initialization_lib", "@srp_platform//ara/log"],
+        srcs = [":"+name+".src"],
+        visibility = visibility,
+    )
 
 def model2com_impl(ctx):
     # The list of arguments we pass to the script.
@@ -188,21 +171,6 @@ def model2json(name, src, visibility = []):
         deps = ["@srp_platform//ara/com/proxy"],
         srcs = [":"+name+".src"],
         includes = ["./com_lib.h"], 
-        visibility = visibility,
-    )
-
-def ara_runtime_lib(name, model_src, visibility = []):
-    ara_json2runtime_env(
-        name = "runtime_src",
-        src = model_src,
-        visibility = ["//visibility:private"],
-    )
-
-    native.cc_library(
-        name = name,
-        deps = ["@srp_platform//ara/core:ara_initialization_lib", "@srp_platform//ara/log", "@srp_platform//ara/com"],
-        srcs = [":runtime_src"],
-        includes = ["."],
         visibility = visibility,
     )
 
