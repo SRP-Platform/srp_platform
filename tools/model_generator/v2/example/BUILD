@@ -1,4 +1,4 @@
-load("//tools/model_generator/ara:adaptive_application.bzl", "json2model", "model2json", "model2runtime_env")
+load("//tools/model_generator/ara:adaptive_application.bzl", "json2model", "model2com", "model2runtime_env")
 
 filegroup(
     name = "srcs",
@@ -15,7 +15,7 @@ json2model(
     component_name = "srp.example.ExampleApp"
 )
 
-model2json(
+model2com(
     name = "com_lib",
     src = "//tools/model_generator/v2/example:test"
 )

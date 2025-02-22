@@ -26,11 +26,12 @@ cpu_def(
         "platform_config.json",
     ],
     srp_components = [
-        "//platform/common/diag_demon/model:diag_demon",
+        # "//platform/common/diag_demon/model:diag_demon",
         "//platform/common/em/model:em",
         "//platform/common/logger/model:logger",
-        "//platform/common/someip_demon/model:someip_demon",
-        "//platform/common/state_manager/model:state_manager",
+        "//platform/common/ipc_service_discover/model:ipc_service_discover",
+        # "//platform/common/someip_demon/model:someip_demon",
+        # "//platform/common/state_manager/model:state_manager",
         # "//deployment/example_adaptive/ExampleApp2",
     ],
 )

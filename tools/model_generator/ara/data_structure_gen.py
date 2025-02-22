@@ -4,13 +4,9 @@ import os
 import copy
 import json
 from tools.model_generator.ara.common.common_parser import CommonParser
-from tools.model_generator.ara.app.adaptive_application_db import AdaptiveApplicationDb
-from tools.model_generator.ara.app.adaptive_application_extractor import AdaptiveApplicationExtractor
 from tools.model_generator.ara.common.data_structure_extractor import *
-from tools.model_generator.ara.someip.lib.someip_extractor import SomeipExtractor
 from tools.model_generator.ara.common.data_structure import data_type
 from tools.model_generator.ara.common.data_structure_db import DataStructureDB
-from tools.model_generator.ara.someip.lib.someip_db import *
 def LoadJson(path:str):
     CommonParser.LoadJson(path)
 def CreateDir(start:str,finish:str):

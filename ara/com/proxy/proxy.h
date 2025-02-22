@@ -1,12 +1,12 @@
 /**
  * @file proxy.h
  * @author Bartosz Snieg (snieg45@gmail.com)
- * @brief 
+ * @brief
  * @version 0.1
  * @date 2025-01-12
- * 
+ *
  * @copyright Copyright (c) 2025
- * 
+ *
  */
 #ifndef ARA_COM_PROXY_PROXY_H_
 #define ARA_COM_PROXY_PROXY_H_
@@ -18,13 +18,15 @@ namespace ara {
 namespace com {
 template <typename T>
 class Proxy {
- private:
-  const ara::core::InstanceSpecifier instance_;
-
  public:
   using Handler = std::shared_ptr<T>;
   using FindCallback = std::function<void(Handler)>;
 
+ private:
+  const ara::core::InstanceSpecifier instance_;
+  Handler handler_ptr_{nullptr};
+
+ public:
   explicit Proxy(const ara::core::InstanceSpecifier instance) noexcept
       : instance_{instance} {}
 
@@ -46,6 +48,9 @@ class Proxy {
    *
    */
   void StopFindService() noexcept {}
+  Handler GetActualProxy() noexcept {
+    return handler_ptr_;
+  }
 };
 }  // namespace com
 }  // namespace ara

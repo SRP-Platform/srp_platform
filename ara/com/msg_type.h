@@ -26,6 +26,8 @@ enum class IpcMsgType : uint8_t {
   kRequestNoReturn = 0x07U,
   kRequestNoReturnAck = 0x08U,
   kRequestAck = 0x09U,
+  kFind = 0x10U,
+  kOffer = 0x11U,
   kError = 0xFFU,
 };
 struct IpcMsg {

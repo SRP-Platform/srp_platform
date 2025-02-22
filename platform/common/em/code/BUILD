@@ -12,8 +12,8 @@ cc_binary(
         "@srp_platform//core/common:condition_lib",
         "@srp_platform//core/common:wait_queue",
         "@srp_platform//core/json:simba_json",
-        "@srp_platform//platform/common/em/model:ara",
-        "@srp_platform//platform/common/em/code/services:IPC_Service",
+        "@srp_platform//platform/common/em/model:runtime_env",
+        # "@srp_platform//platform/common/em/code/services:IPC_Service",
         "@srp_platform//platform/common/em/code/services/em:em_service",
     ],
 )

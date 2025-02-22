@@ -85,8 +85,9 @@ cc_library(
         "model_item.h",
     ],
     visibility = [
-        "@srp_platform//ara:__subpackages__",
-        "@srp_platform//diag/jobs:__subpackages__",
+        # "@srp_platform//ara:__subpackages__",
+        # "@srp_platform//diag/jobs:__subpackages__",
+        "//visibility:public"
     ],
     deps = [
         "@srp_platform//ara/core:core_error_lib",

@@ -25,7 +25,7 @@ OUTPUT_FILE_START = f"""/**
  * !! Automatically generated file please do not change anything !!
  *
  */
-// include "ara/com/initialization.h"
+#include "ara/com/initialization.h"
 
 #include <stop_token>
 
@@ -41,7 +41,7 @@ namespace {
 }
 Result<void> InitializeDb(ModelDataBase& db_) noexcept;
 Result<void> InitializeLogger() noexcept;
-
+void InitCom() noexcept;
 Result<void> Initialize() noexcept {
   std::ignore = InitializeLogger();
   const auto ara_logger_ = log::LoggingMenager::GetInstance()->CreateLogger("ara-");
@@ -54,8 +54,8 @@ Result<void> Initialize() noexcept {
   }
   
   ara_logger_.LogInfo() << "ARA environment has been initialized";
-
-  // ara_logger_.LogInfo() << "ARA::COM environment has been initialized";
+  InitCom();
+  ara_logger_.LogInfo() << "ARA::COM environment has been initialized";
   return {};
 }
 
@@ -109,7 +109,13 @@ def CreateInterfaceDepl(key, item: InterfaceDepl,sec) -> str:
     res += f"""      std::ignore = db_.AddNewItem("{key}",ara::core::model::ModelCom(container));\n"""
     res +="    }\n"
     return res
-
+def CreatInitCom(model: Component) -> str:
+    #  ;
+     return """
+void InitCom() noexcept {
+    ara::com::Initialize("""+hex(model.id).upper().replace("X","x")+""");
+}
+"""
 def CreateDbInit(model:Component,items)->str:
     res = """
 Result<void> InitializeDb(ModelDataBase& db_) noexcept {
@@ -148,4 +154,4 @@ if __name__ == "__main__":
          if type(item) == IpcItem:
             items[key] = [item ,db[item.depl]]
     with open(out_path+"/initialization.cc","w") as out_file:
-            out_file.write(OUTPUT_FILE_START+CreateLogerInit(model)+CreateDbInit(model,items)+OUTPUT_FILE_END)
+            out_file.write(OUTPUT_FILE_START+CreateLogerInit(model)+CreateDbInit(model,items)+CreatInitCom(model)+OUTPUT_FILE_END)

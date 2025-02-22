@@ -1,16 +1,4 @@
-load("@srp_platform//tools/model_generator/ara:adaptive_application.bzl", "adaptive_application", "ara_runtime_lib", "ara_someip_lib")
-
-ara_runtime_lib(
-    name = "ara",
-    model_src = ["@srp_platform//platform/common/em/model:instance"],
-    visibility = ["@srp_platform//platform/common/em/code:__subpackages__"],
-)
-
-ara_someip_lib(
-    name = "someip_lib",
-    model_src = ["@srp_platform//platform/common/em/model:instance"],
-    visibility = ["@srp_platform//platform/common/em/code:__subpackages__"],
-)
+load("@srp_platform//tools/model_generator/ara:adaptive_application.bzl", "adaptive_application", "json2model", "model2com", "model2runtime_env")
 
 filegroup(
     name = "instance",
@@ -21,10 +9,26 @@ filegroup(
     visibility = ["//visibility:private"],
 )
 
+json2model(
+    name="model",
+    src = ["//platform/common/em/model:instance"],
+    visibility=["//visibility:private"]
+)
+
+model2com(
+    name = "com_lib",
+    src="//platform/common/em/model",
+    visibility=["//platform/common/em/code:__subpackages__"]
+)
+model2runtime_env(
+    name = "runtime_env",
+    src="//platform/common/em/model",
+    visibility=["//platform/common/em/code:__subpackages__"]
+)
 adaptive_application(
     name = "em",
     bin = "@srp_platform//platform/common/em/code:em",
-    model_src = ["@srp_platform//platform/common/em/model:instance"],
+    model_src = ["@srp_platform//platform/common/em/model"],
     tar_path = "platform/",
     visibility = ["//visibility:public"],
 )

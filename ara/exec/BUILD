@@ -13,6 +13,6 @@ cc_library(
         "@srp_platform//ara/core:ara_initialization_lib",
         "@srp_platform//ara/core:instance_specifier",
         "@srp_platform//ara/log",
-        "@srp_platform//ara/com",
+        # "@srp_platform//ara/com",
     ],
 )

@@ -11,6 +11,7 @@
 #include "ara/exec/adaptive_lifecycle_menager.h"
 
 #include <pthread.h>
+#include <unistd.h>
 
 #include <string>
 #include <utility>
@@ -74,8 +75,7 @@ AdaptiveLifecycleMenager::AdaptiveLifecycleMenager(
   const auto app_path = help_path.substr(0, help_path.find_last_of("/") - 3);
 
   exec_logger.LogDebug() << "App path: " << app_path;
-
-  this->parms_.insert(std::make_pair("app_path", app_path));
+  chdir(app_path.c_str());
 
   for (int i = 1; i < argc; i++) {
     this->parms_.insert(this->ParseParm(ara::core::StringView{argv[i]}));

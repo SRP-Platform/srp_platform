@@ -80,7 +80,7 @@ class IpcItem:
 class Component:
     def __init__(self,name:str,logger:LogerConfig, functional_groups:list[str],reporting_mode:str, parms:str):
         self.name = name
-        self.id = int(hashlib.shake_128(name.encode('utf-8')).hexdigest(4), 32)
+        self.id = int(hashlib.shake_128(name.encode('utf-8')).hexdigest(2), 32)
         self.logger = logger
         self.parms = parms
         self.functional_groups = functional_groups

@@ -1,8 +1,8 @@
 {
-    "package": "srp.platform",
+    "package": "srp.platform.com",
     "include": [],
     "component": {
-        "em": {
+        "ipc_service_discover": {
             "functional_groups": [
                 "Startup",
                 "Startup2",
@@ -14,8 +14,8 @@
             "parms": "",
             "reporting_mode": "NoReporting",
             "logger": {
-                "app_id": "EM--",
-                "app_des": "EM server",
+                "app_id": "IPCD",
+                "app_des": "ICP Service Discover",
                 "log_level": "kInfo",
                 "log_mode": "kRemote|kConsole",
                 "ctx": []

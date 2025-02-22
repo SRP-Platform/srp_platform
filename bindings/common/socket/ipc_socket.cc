@@ -90,7 +90,7 @@ void IpcSocket::StartRXThread() {
   }
   this->rx_thred = std::make_unique<std::jthread>(
       [&](std::stop_token stoken) { this->Loop(stoken); });
-  pthread_setname_np(this->rx_thred->native_handle(), "IpcSocket_RX_Thread");
+  pthread_setname_np(this->rx_thred->native_handle(), "IPC_SOCK_RX");
 }
 
 void IpcSocket::Loop(std::stop_token stoken) {

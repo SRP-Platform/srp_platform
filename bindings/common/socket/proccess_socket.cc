@@ -18,6 +18,7 @@
 #include <sys/types.h>
 #include <sys/un.h>
 #include <unistd.h>
+#include <pthread.h>
 
 #include <algorithm>
 #include <array>
@@ -74,6 +75,7 @@ ara::core::Result<void> ProccessSocket::Offer() noexcept {
   }
   rx_thread_ = std::make_unique<std::jthread>(
       [this](std::stop_token token) { this->RxLoop(token); });
+      pthread_setname_np(rx_thread_->native_handle(),"PROCESS_SOCK");
   return {};
 }
 ara::core::Result<void> ProccessSocket::StopOffer() noexcept {

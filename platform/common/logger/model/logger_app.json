@@ -1,28 +1,29 @@
 {
-    "include": [],
     "package": "srp.platform",
-    "adaptive_application": {
+    "include": [],
+    "component": {
         "logger": {
-            "app": {
-                "functional_groups": [
-                    "Startup",
-                    "Startup2",
-                    "Platform",
-                    "Running",
-                    "SafetyMode",
-                    "MW"
-                ],
-                "parms": "",
-                "logger": {
-                    "app_id": "DLTS",
-                    "app_des": "DLT server",
-                    "log_level": "kInfo",
-                    "log_mode": "kFile",
-                    "ctx": []
-                      
-                }
+            "functional_groups": [
+                "Startup",
+                "Startup2",
+                "Platform",
+                "Running",
+                "SafetyMode",
+                "MW"
+            ],
+            "parms": "",
+            "reporting_mode": "AutoReporting",
+            "logger": {
+                "app_id": "DLTS",
+                "app_des": "DLT server",
+                "log_level": "kInfo",
+                "log_mode": "kFile",
+                "ctx": []
             },
-            "provide": []
+            "provide": {
+            },
+            "require": {
+            }
         }
     }
 }

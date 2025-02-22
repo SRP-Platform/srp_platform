@@ -40,7 +40,7 @@ EmService::EmService(
 EmService::~EmService() {}
 
 bool EmService::IsSrpApp(const std::string& path) noexcept {
-  std::ifstream file{path + "/etc/srp_app.json"};
+  std::ifstream file{path + "/etc/srp_app_config.json"};
   return file.is_open();
 }
 
@@ -49,7 +49,7 @@ void EmService::LoadApps() noexcept {
     for (auto& p : std::filesystem::directory_iterator("/srp/opt")) {
       if (p.is_directory()) {
         if (this->IsSrpApp(p.path().c_str())) {
-          std::string pp{p.path().string() + "/etc/srp_app.json"};
+          std::string pp{p.path().string() + "/etc/srp_app_config.json"};
           auto res = json::JsonParser::GetAppConfig(pp);
           if (res.has_value()) {
             if (db_->InsertNewApp(res.value()) == 0) {

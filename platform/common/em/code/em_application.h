@@ -21,7 +21,7 @@
 
 #include "ara/exec/adaptive_application.h"
 #include "platform/common/em/code/services/em/em_service.h"
-#include "platform/common/em/code/services/sm_service.h"
+// #include "platform/common/em/code/services/sm_service.h"
 #include "core/common/wait_queue.h"
 
 namespace srp {
@@ -43,7 +43,7 @@ class EmApplication final : public ara::exec::AdaptiveApplication {
   int Run(const std::stop_token& token) override;
 
   std::shared_ptr<service::EmService> em_service;
-  service::SmService sm_service_;
+  // service::SmService sm_service_;
   core::WaitQueue<uint16_t> cmd_list_{};
  public:
   EmApplication(/* args */);

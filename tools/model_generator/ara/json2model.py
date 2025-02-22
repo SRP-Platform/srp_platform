@@ -30,7 +30,7 @@ if __name__ == "__main__":
     out_json = copy.copy(InterfaceDb().interfaces)
     out_json.update(DataStructureDB().data_structure)
     out_json.update(DeploymentDb().list)
-    if component_name == "NONE":
+    if component_name == "/NONE":
         component_name = list(ComponentDb().list.keys())[0]
     out_json[component_name] = (ComponentDb().list[component_name])
     assert len(out_json) == (len(InterfaceDb().interfaces)+len(DeploymentDb().list)+1+len(DataStructureDB().data_structure))

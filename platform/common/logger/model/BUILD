@@ -1,11 +1,21 @@
-load("@srp_platform//tools/model_generator/ara:adaptive_application.bzl", "adaptive_application", "ara_runtime_lib", "ara_someip_lib")
+load("@srp_platform//tools/model_generator/ara:adaptive_application.bzl", "adaptive_application", "json2model", "model2com", "model2runtime_env")
 
-ara_runtime_lib(
-    name = "ara",
-    model_src = ["@srp_platform//platform/common/logger/model:instance"],
-    visibility = ["//visibility:public"],
+json2model(
+    name="model",
+    src = ["//platform/common/logger/model:instance"],
+    visibility=["//visibility:private"]
 )
 
+model2com(
+    name = "com_lib",
+    src="//platform/common/logger/model",
+    visibility=["//platform/common/em/code:__subpackages__"]
+)
+model2runtime_env(
+    name = "runtime_env",
+    src="//platform/common/logger/model",
+    visibility=["//platform/common/logger/code:__subpackages__"]
+)
 filegroup(
     name = "instance",
     srcs = [
@@ -17,6 +27,6 @@ filegroup(
 adaptive_application(
     name = "logger",
     bin = "@srp_platform//platform/common/logger/code:logger",
-    model_src = ["@srp_platform//platform/common/logger/model:instance"],
+    model_src = ["@srp_platform//platform/common/logger/model"],
     visibility = ["//visibility:public"],
 )

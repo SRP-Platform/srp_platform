@@ -27,23 +27,24 @@ static const ara::core::InstanceSpecifier kSmServiceInstance{
 }  // namespace
 
 EmApplication::EmApplication(/* args */)
-    : sm_service_{kSmServiceInstance, [this](uint16_t new_state) {
+  /*  : sm_service_{kSmServiceInstance, [this](uint16_t new_state) {
                     this->cmd_list_.push(new_state);
                     return 0;
-                  }} {}
+                  }}*/ {}
 
 EmApplication::~EmApplication() {}
 
 int EmApplication::Run(const std::stop_token& token) {
-  // this->em_service->StartApps();
-  sm_service_.StartOffer();
+  // this->em_service->StartApp();
+  // sm_service_.StartOffer();
+  this->em_service->SetActiveState(46617);
   while (!token.stop_requested()) {
     const auto val = this->cmd_list_.Get(token);
     if (val.has_value()) {
       this->em_service->SetActiveState(val.value());
     }
   }
-  sm_service_.StopOffer();
+  // sm_service_.StopOffer();
   return 0;
 }
 /**
@@ -56,7 +57,7 @@ int EmApplication::Initialize(
   const auto db = std::make_shared<service::data::AppDb>();
   em_service =
       std::make_shared<service::EmService>(db, [this](const uint16_t& new_id) {
-        this->sm_service_.CurrentState.Update(new_id);
+        // this->sm_service_.CurrentState.Update(new_id);
       });
 
   const auto json_opt = srp::core::json::JsonParser::Parser(

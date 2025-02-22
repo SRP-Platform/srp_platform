@@ -10,15 +10,13 @@
  */
 #include "ara/com/initialization.h"
 
-#include "ara/com/com_controller.h"
+#include "bindings/common/controller/controller.h"
 #include "ara/core/result.h"
-#include "ara/diag/diagnostic_menager.h"
 namespace ara {
 namespace com {
 ara::core::Result<void> Initialize(const uint32_t& app_id) noexcept {
-  auto& controller = ara::com::ComController::GetInstance(app_id);
-  controller.AddHandler(IComClient::MsgType::kDiag,
-                        ara::diag::DiagnosticMenager::GetInstance());
+  auto& controller = srp::bindings::Controller::GetInstance(app_id);
+
   controller.Init();
   return {};
 }

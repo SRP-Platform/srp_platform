@@ -27,10 +27,11 @@ cc_library(
     hdrs = ["initialization.h"],
     visibility = ["//visibility:public"],
     deps = [
-        "@srp_platform//ara/com:com_controller",
-        "@srp_platform//ara/com/someip/controller",
+        # "@srp_platform//ara/com:com_controller",
+        # "@srp_platform//ara/com/someip/controller",
+        "//bindings/common/controller",
         "@srp_platform//ara/core:Result",
-        "@srp_platform//ara/diag:diagnostic_menager",
+        # "@srp_platform//ara/diag:diagnostic_menager",
     ],
 )
 
@@ -40,21 +41,21 @@ cc_library(
     visibility = ["//visibility:public"],
 )
 
-cc_library(
-    name = "com_controller",
-    srcs = ["com_controller.cc"],
-    hdrs = [
-        "com_controller.h",
-        "i_com_client.h",
-    ],
-    visibility = ["@srp_platform//ara:__subpackages__"],
-    deps = [
-        "@srp_platform//ara/com:com_error_domain",
-        "@srp_platform//ara/com:com_log",
-        "@srp_platform//ara/core:Result",
-        "@srp_platform//bindings/common/socket:ipc_socket",
-    ],
-)
+# cc_library(
+#     name = "com_controller",
+#     srcs = ["com_controller.cc"],
+#     hdrs = [
+#         "com_controller.h",
+#         "i_com_client.h",
+#     ],
+#     visibility = ["@srp_platform//ara:__subpackages__"],
+#     deps = [
+#         "@srp_platform//ara/com:com_error_domain",
+#         "@srp_platform//ara/com:com_log",
+#         "@srp_platform//ara/core:Result",
+#         "@srp_platform//bindings/common/socket:ipc_socket",
+#     ],
+# )
 
 cc_library(
     name = "types",

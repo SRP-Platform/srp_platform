@@ -89,7 +89,6 @@ json2model = rule(
     },
 )
 
-
 def model2runtime_env_impl(ctx):
     # The list of arguments we pass to the script.
     out = ctx.actions.declare_directory("ara/core")
@@ -118,15 +117,17 @@ _model2runtime_env = rule(
         ),
     },
 )
-def model2runtime_env(name, src,visibility = []):
+
+def model2runtime_env(name, src, visibility = []):
     _model2runtime_env(
-        name = name+".src",
-        src=src
+        name = name + ".src",
+        src = src,
     )
     native.cc_library(
         name = name,
-        deps = ["@srp_platform//ara/core:ara_initialization_lib", "@srp_platform//ara/log"],
-        srcs = [":"+name+".src"],
+        # deps = ["@srp_platform//ara/core:ara_initialization_lib", "@srp_platform//ara/log"],
+        deps = ["@srp_platform//ara/log", "@srp_platform//ara/core:model_db_lib", "@srp_platform//ara/com"],
+        srcs = [":" + name + ".src"],
         visibility = visibility,
     )
 
@@ -159,24 +160,53 @@ _model2com = rule(
     },
 )
 
-def model2json(name, src, visibility = []):
+def model2com(name, src, visibility = []):
     # Tworzenie unikalnej nazwy dla pliku źródłowego
     _model2com(
-        name = name+".src",
+        name = name + ".src",
         src = src,
         visibility = ["//visibility:private"],
     )
     native.cc_library(
         name = name,
         deps = ["@srp_platform//ara/com/proxy"],
-        srcs = [":"+name+".src"],
-        includes = ["./com_lib.h"], 
+        srcs = [":" + name + ".src"],
+        includes = ["./com_lib.h"],
         visibility = visibility,
     )
 
+def model2config_impl(ctx):
+    # The list of arguments we pass to the script.
+    out = ctx.actions.declare_directory("etc")
+    args = [out.path, ctx.files.src[0].path]
+
+    # Action to call the script.
+    ctx.actions.run(
+        inputs = ctx.files.src,
+        outputs = [out],
+        arguments = args,
+        executable = ctx.executable.tool,
+        env = ctx.var,
+    )
+
+    return [DefaultInfo(files = depset(direct = [out]))]
+
+_model2config = rule(
+    implementation = model2config_impl,
+    attrs = {
+        "src": attr.label_list(mandatory = False, allow_files = True),
+        "tool": attr.label(
+            executable = True,
+            cfg = "exec",
+            allow_files = True,
+            default = Label("@srp_platform//tools/model_generator/ara:model2config"),
+        ),
+    },
+)
+
 def adaptive_application(name, model_src, bin, etcs = [], visibility = [], tar_path = "opt/"):
-    ara_json2config(
-        name = "config",
+    _model2config(
+        name = name + "config",
         src = model_src,
         visibility = ["//visibility:public"],
     )
@@ -187,14 +217,14 @@ def adaptive_application(name, model_src, bin, etcs = [], visibility = [], tar_p
         visibility = ["//visibility:private"],
     )
     pkg_tar(
-        name = "config_files",
+        name = "etc-pkg",
         package_dir = tar_path + name,
-        srcs = [":config"] + etcs,
+        srcs = [":" + name + "config"] + etcs,
         visibility = ["//visibility:private"],
     )
     if len(etcs) != 0:
         pkg_tar(
-            name = "config_files_other",
+            name = "etc-pkg-other",
             package_dir = tar_path + name + "/etc",
             srcs = etcs,
             visibility = ["//visibility:private"],
@@ -213,8 +243,8 @@ def adaptive_application(name, model_src, bin, etcs = [], visibility = [], tar_p
             name = name,
             srcs = [
                 ":bin-pkg",
-                ":config_files",
-                ":config_files_other",
+                ":etc-pkg",
+                ":etc-pkg-other",
             ],
             visibility = visibility,
         )
@@ -223,7 +253,7 @@ def adaptive_application(name, model_src, bin, etcs = [], visibility = [], tar_p
             name = name,
             srcs = [
                 ":bin-pkg",
-                ":config_files",
+                ":etc-pkg",
             ],
             visibility = visibility,
         )
