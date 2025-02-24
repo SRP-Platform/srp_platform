@@ -101,12 +101,15 @@ def CreateInterfaceDepl(key, item: InterfaceDepl,sec) -> str:
     res += f"""      const ara::com::model::ServiceModel service_model{"{"}{hex(item.common_conf.ServiceId).upper().replace("X","x")}U,{hex(sec.instance).upper().replace("X","x")}U{"}"};
 """
     res += """      const ara::com::InstanceIdentifierContainer container{service_model,{\n"""
+    typ = "",
+    if type(sec) == IpcItem:
+         typ = "ara::core::model::ModelCom::ComType::kIPC"
     for k,i in item.EndpointList.items():
          res+=f"""          {"{"}\"{k}\",ara::com::model::EndpointModel{"{"}{hex(i.EndpointId).upper().replace("X","x")}{"}},"}\n"""
     if res[-2:] == ',\n':
          res = res[:-2]+"\n"
     res += "      }};\n"
-    res += f"""      std::ignore = db_.AddNewItem("{key}",ara::core::model::ModelCom(container));\n"""
+    res += f"""      std::ignore = db_.AddNewItem("{key}",ara::core::model::ModelCom(container,{typ}));\n"""
     res +="    }\n"
     return res
 def CreatInitCom(model: Component) -> str:

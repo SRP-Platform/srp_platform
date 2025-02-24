@@ -22,11 +22,15 @@ namespace model {
 
 class ModelCom {
  public:
-  const ara::com::InstanceIdentifierContainer container_;
+ enum ComType: uint8_t {
+    kIPC = 0
+ };
 
+  const ara::com::InstanceIdentifierContainer container_;
+  const ComType type_;
  public:
-  ModelCom(const ara::com::InstanceIdentifierContainer& container)
-      : container_{container} {}
+  ModelCom(const ara::com::InstanceIdentifierContainer& container, const ComType type)
+      : container_{container}, type_{type} {}
 };
 }  // namespace model
 }  // namespace core

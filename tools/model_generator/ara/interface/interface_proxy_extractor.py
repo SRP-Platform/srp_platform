@@ -96,6 +96,8 @@ class InterfaceProxyExtractor:
 #include "ara/com/proxy/impl/fields.h"
 #include "ara/com/proxy/impl/method.h"
 #include "ara/com/proxy/proxy_handler.h"
+#include "ara/com/proxy/proxy.h"
+
 {includes}
 """
         for name in namespace_list:
@@ -117,6 +119,9 @@ class InterfaceProxyExtractor:
         res+=temp_s
 
         res+="};\n"
+        res+=f"""
+using {model.name}Proxy = ara::com::Proxy<{model.name}Handler>;
+"""
         for name in namespace_list[::-1]:
             res+=f"""{"}"}  // namespace {name}\n"""
         res+= f"""#endif  // {header_guard}

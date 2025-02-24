@@ -31,6 +31,7 @@ cc_library(
         # "@srp_platform//ara/com/someip/controller",
         "//bindings/common/controller",
         "@srp_platform//ara/core:Result",
+        "//bindings/com/ipc",
         # "@srp_platform//ara/diag:diagnostic_menager",
     ],
 )

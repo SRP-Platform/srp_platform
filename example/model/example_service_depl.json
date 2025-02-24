@@ -1,0 +1,32 @@
+{
+    "package": "srp.example",
+    "include": ["example/model/example_service.json"],
+    "deployment": {
+        "interface": {
+            "srp.example.ExampleService as ExampleServiceDepl": {
+                "ServiceId": 10,
+                "methods": {
+                    "TestMethod": {
+                        "EndpointId": 1
+                    }
+                },
+                "broadcasts": {
+                    "ExampleEvent": {
+                        "EndpointId": 3
+                    }
+                },
+                "attributes": {
+                    "ExampleField": {
+                        "EndpointId": 4,
+                        "GetterId": 6
+                    },
+                    "ExampleField2": {
+                        "EndpointId": 5,
+                        "GetterId": 7,
+                        "SetterId": 8
+                    }
+                }
+            }
+        }
+    }
+}

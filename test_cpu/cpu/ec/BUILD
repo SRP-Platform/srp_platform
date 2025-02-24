@@ -30,6 +30,7 @@ cpu_def(
         "//platform/common/em/model:em",
         "//platform/common/logger/model:logger",
         "//platform/common/ipc_service_discover/model:ipc_service_discover",
+        "//example/model:example_app",
         # "//platform/common/someip_demon/model:someip_demon",
         # "//platform/common/state_manager/model:state_manager",
         # "//deployment/example_adaptive/ExampleApp2",

@@ -24,8 +24,9 @@ class IpcController : public ControllerClient {
   IpcController(/* args */);
   ~IpcController() = default;
 
-  virtual void HandleNewMsg(
-      uint32_t pid, const std::vector<uint8_t>& payload) noexcept override;
+  void HandleNewMsg(uint32_t pid,
+                    const std::vector<uint8_t>& payload) noexcept override;
+  void Init() noexcept override;
 };
 }  // namespace ipc
 }  // namespace com

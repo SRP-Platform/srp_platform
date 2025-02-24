@@ -1,0 +1,34 @@
+{
+    "package": "srp.example",
+    "include": ["example/model/example_service_depl.json"],
+    "component": {
+        "example_app": {
+            "functional_groups": [
+                "Running",
+                "SafetyMode",
+                "MW"
+            ],
+            "parms": "",
+            "reporting_mode": "AutoReporting",
+            "logger": {
+                "app_id": "EXAM",
+                "app_des": "Example App",
+                "log_level": "kInfo",
+                "log_mode": "kRemote|kConsole",
+                "ctx": [                        {
+                    "ctx_id": "acom",
+                    "log_level": "kDebug",
+                    "ctx_des": "Default ctx for ara::com"
+                }]
+            },
+            "provide": {
+            },
+            "require": {
+                "srp.example.ExampleService as ExampleServiceRPort": {
+                    "using": "srp.example.ExampleServiceDepl",
+                    "on": "IPC"
+                }
+            }
+        }
+    }
+}

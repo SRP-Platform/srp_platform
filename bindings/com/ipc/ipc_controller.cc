@@ -18,10 +18,13 @@ namespace ipc {
 
 IpcController::IpcController(/* args */) {}
 
-IpcController::~IpcController() {}
 
 void IpcController::HandleNewMsg(uint32_t pid,
                                  const std::vector<uint8_t>& payload) noexcept {
+}
+
+void IpcController::Init() noexcept {
+
 }
 
 }  // namespace ipc
