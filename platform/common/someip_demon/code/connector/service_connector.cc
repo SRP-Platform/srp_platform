@@ -89,8 +89,8 @@ void ServiceConnector::Init() noexcept {
     }
   }
   if (ipc_soc_ == nullptr) {
-    ipc_soc_ =
-        std::make_shared<srp::bindings::com::ProccessSocket>(std::to_string(port_));
+    ipc_soc_ = std::make_shared<srp::bindings::com::ProccessSocket>(
+        std::to_string(port_));
 
     ipc_soc_->SetCallback(std::bind(&ServiceConnector::IpcRxCallback, this,
                                     std::placeholders::_1,
@@ -161,6 +161,11 @@ void ServiceConnector::IpcRxCallback(const uint32_t pid,
                       << payload;
     sd_connector_->ProcessFrame(pid, std::move(frame));
     return;
+  } else if (frame.header_.message_type ==
+             ara::com::someip::MessageType::kNotification) {
+    logger_.LogInfo() << "[" << ip_ << ":" << port_ << "] New Event msg -> "
+                      << payload;
+    sd_connector_->ProcessFrame(pid, std::move(frame));
   } else {
     if (CheckMessageType(kSkeletonIpcType, frame.header_.message_type)) {
       this->skeleton_connector_->ProcessFrame(pid, std::move(frame));

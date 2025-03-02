@@ -1,12 +1,12 @@
 /**
  * @file udp_skeleton_bindings.cc
  * @author Bartosz Snieg (snieg45@gmail.com)
- * @brief 
+ * @brief
  * @version 0.1
  * @date 2024-11-26
- * 
+ *
  * @copyright Copyright (c) 2024
- * 
+ *
  */
 #include "ara/com/someip/bindings/skeleton/udp_skeleton_bindings.h"
 
@@ -66,7 +66,23 @@ ara::core::Result<std::vector<uint8_t>> UdpSkeletonBindings::HandleMethod(
 }
 
 void UdpSkeletonBindings::HandleEvent(const uint16_t& method_id,
-                                      const std::vector<uint8_t>& payload) {}
+                                      const std::vector<uint8_t>& payload) {
+  ara::com::LogDebug() << "UdpSkeletonBindings: " << "SomeIp event send";
+  HeaderStructure header_{this->service_id_,
+                          method_id,
+                          0U,
+                          0U,
+                          0U,
+                          1U,
+                          this->major_version_,
+                          MessageType::kNotification,
+                          MessageCode::kEOk};
+  const auto frame = ara::com::someip::SomeipFrame::MakeFrame(header_, payload);
+  const auto vec = frame.GetRaw();
+  ara::com::LogDebug() << "UdpSkeletonBindings: " << "Vec size: "
+                       << static_cast<uint8_t>(vec.size());
+  this->controller_->SendByUdp(port_, vec);
+}
 
 void UdpSkeletonBindings::SubscribeToEvent(const uint16_t& event_id) {}
 
