@@ -1,12 +1,12 @@
 /**
  * @file network_controller.cc
  * @author Bartosz Snieg (snieg45@gmail.com)
- * @brief 
+ * @brief
  * @version 0.1
  * @date 2024-11-26
- * 
+ *
  * @copyright Copyright (c) 2024
- * 
+ *
  */
 #include "platform/common/someip_demon/code/common/network_controller.h"
 
@@ -15,6 +15,7 @@
 #include <string>
 #include <vector>
 
+#include "ara/com/someip/message_type.h"
 #include "ara/com/someip/someip_frame.h"
 #include "ara/log/logging_menager.h"
 namespace srp {
@@ -47,8 +48,11 @@ void NetworkController::ProcessRawFrame(
   logger_.LogInfo() << "New msg from: " << ip << ":" << port
                     << " Service_id: " << frame.header_.service_id
                     << ", method_id: " << frame.header_.method_id;
-  if ((frame.header_.service_id == 0xffff) &&
-      (frame.header_.method_id == 0x8100)) {
+  if (((frame.header_.service_id == 0xffff) &&
+       (frame.header_.method_id == 0x8100)) ||
+      ((frame.header_.service_id != 0xffff) &&
+       (frame.header_.message_type ==
+        ara::com::someip::MessageType::kNotification))) {
     if (sd_controller_ != nullptr) {
       std::async(std::launch::async, [this, &ip, &port, &frame]() {
         sd_controller_->ProcessFrame(ip, port, frame);

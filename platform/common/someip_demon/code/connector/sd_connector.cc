@@ -1,16 +1,17 @@
 /**
  * @file sd_connector.cc
  * @author Bartosz Snieg (snieg45@gmail.com)
- * @brief 
+ * @brief
  * @version 0.1
  * @date 2024-11-26
- * 
+ *
  * @copyright Copyright (c) 2024
- * 
+ *
  */
 #include "platform/common/someip_demon/code/connector/sd_connector.h"
 
 #include "ara/com/someip/EndpointOption.h"
+#include "ara/com/someip/EventEntry.h"
 #include "ara/com/someip/HeaderStructure.h"
 #include "ara/com/someip/someip_sd_frame_builder.h"
 #include "ara/log/log.h"
@@ -25,10 +26,29 @@ SDConnector::SDConnector(db::Database& sd_db, std::uint32_t local_ip,
 
 void SDConnector::ProcessFrame(uint32_t pid,
                                ara::com::someip::SomeipFrame&& frame) noexcept {
-  SdMsgHandler(pid, frame);
+  if(frame.header_.service_id != 0xffff) {
+  SdMsgHandler (pid, frame);
+  } else {
+    // we need send msg to multicast group
+  }
 }
 void SDConnector::ProcessFrame(const std::string& ip, std::uint16_t port,
                                ara::com::someip::SomeipFrame&& frame) noexcept {
+  if ((frame.header_.message_type =
+           ara::com::someip::MessageType::kNotification) &&
+      frame.header_.service_id != 0xffff) {
+    uint32_t key = (static_cast<uint32_t>(frame.header_.service_id) << 16) +
+                   frame.header_.method_id;
+    const auto list = sd_db_.GetSubList(key);
+    if (list.has_value()) {
+      std::vector<uint8_t> res{0x01U};
+      const auto raw = frame.GetRaw();
+      res.insert(res.end(), raw.begin(), raw.end());
+      for (auto item : list.value().get()) {
+        this->ipc_soc_->TransmitToPid(item, res);
+      }
+    }
+  }
 }
 void SDConnector::Start() noexcept {
   this->sd_thread_ = std::make_unique<std::jthread>(
@@ -85,13 +105,26 @@ void SDConnector::SdMsgHandler(const uint32_t pid,
         ara::log::LogError() << "Parssing error";
       }
     } else if (*(raw.begin() + 8 + (16 * i)) == 0x06) {
-      // subscribe to event
-    } else if (*(raw.begin() + 8 + (16 * i)) == 0x06) {
+      const auto t = srp::data::Convert<ara::com::someip::EventEntry>::Conv(
+          std::vector<uint8_t>{raw.begin() + 8 + (16 * i), raw.end()});
+      if (t.HasValue()) {
+        this->NewSubscription(pid, t.Value().service_id,
+                              t.Value().eventgroup_id);
+      } else {
+        ara::log::LogError() << "Parssing error";
+      }
+    } else if (*(raw.begin() + 8 + (16 * i)) == 0x07) {
       // subscribe to event ACK
     } else {
       ara::log::LogError() << "unknow type";
     }
   }
+}
+
+void SDConnector::NewSubscription(uint32_t pid, uint16_t service_id,
+                                  uint16_t event_group) {
+  uint32_t key_ = (static_cast<uint32_t>(service_id) << 16) + event_group;
+  sd_db_.AddNewLocalSubscriber(key_, pid);
 }
 
 void SDConnector::AddNewFindService(const ara::com::someip::ServiceEntry& entry,

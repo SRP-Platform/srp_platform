@@ -18,9 +18,9 @@
 #include <utility>
 #include <vector>
 
-#include "bindings/common/socket/proccess_socket.h"
 #include "ara/com/someip/ServiceEntry.h"
 #include "ara/com/someip/someip_frame.h"
+#include "bindings/common/socket/proccess_socket.h"
 #include "platform/common/someip_demon/code/common/udp_socket.h"
 #include "platform/common/someip_demon/code/connector/common_connector.h"
 #include "platform/common/someip_demon/code/connector/i_db.h"
@@ -54,6 +54,7 @@ class SDConnector : public CommonConnector, public IDb {
   void SdLoop(std::stop_token token);
   void SendIPCSdOffer(uint32_t pid,
                       std::reference_wrapper<const db::FindServiceItem> item);
+  void NewSubscription(uint32_t pid, uint16_t service_id, uint16_t event_group);
 
  public:
   void ProcessFrame(uint32_t pid,

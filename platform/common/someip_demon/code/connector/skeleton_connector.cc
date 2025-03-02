@@ -1,12 +1,12 @@
 /**
  * @file skeleton_connector.cc
  * @author Bartosz Snieg (snieg45@gmail.com)
- * @brief 
+ * @brief
  * @version 0.1
  * @date 2024-11-26
- * 
+ *
  * @copyright Copyright (c) 2024
- * 
+ *
  */
 #include "platform/common/someip_demon/code/connector/skeleton_connector.h"
 
@@ -14,6 +14,7 @@
 #include <utility>
 #include <vector>
 
+#include "ara/com/someip/message_type.h"
 #include "core/common/condition.h"
 
 namespace srp {
@@ -31,11 +32,16 @@ void SkeletonConnector::Start() noexcept {
 }
 void SkeletonConnector::ProcessFrame(
     uint32_t pid, ara::com::someip::SomeipFrame&& frame) noexcept {
-  const auto& item = req_list_.find(frame.header_.session_id);
-  if (item != req_list_.end()) {
-    SendResult(item->second, frame);
-    req_list_.erase(item->first);
-    return;
+  if (frame.header_.message_type ==
+      ara::com::someip::MessageType::kNotification) {
+  } else if (frame.header_.message_type ==
+             ara::com::someip::MessageType::kResponse) {
+    const auto& item = req_list_.find(frame.header_.session_id);
+    if (item != req_list_.end()) {
+      SendResult(item->second, frame);
+      req_list_.erase(item->first);
+      return;
+    }
   }
 }
 
@@ -49,15 +55,17 @@ void SkeletonConnector::ProcessFrame(
     this->udp_sock_->Transmit(ip, port, res.GetRaw());
     return;
   }
-  this->req_list_.insert(
-      {req_id,
-       {ip, port, frame.header_.session_id, std::chrono::steady_clock::now()}});
-  frame.header_.session_id = req_id;
-  req_id++;
-  const auto raw = frame.GetRaw();
-  std::vector<uint8_t> data{0x01};
-  data.insert(data.end(), raw.begin(), raw.end());
-  this->ipc_soc_->TransmitToPid(item.value(), std::move(data));
+  if (frame.header_.message_type == ara::com::someip::MessageType::kRequest) {
+    this->req_list_.insert({req_id,
+                            {ip, port, frame.header_.session_id,
+                             std::chrono::steady_clock::now()}});
+    frame.header_.session_id = req_id;
+    req_id++;
+    const auto raw = frame.GetRaw();
+    std::vector<uint8_t> data{0x01};
+    data.insert(data.end(), raw.begin(), raw.end());
+    this->ipc_soc_->TransmitToPid(item.value(), std::move(data));
+  }
 }
 
 void SkeletonConnector::SendResult(const ReqDetails& det,

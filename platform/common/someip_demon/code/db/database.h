@@ -1,12 +1,12 @@
 /**
  * @file database.h
  * @author Bartosz Snieg (snieg45@gmail.com)
- * @brief 
+ * @brief
  * @version 0.1
  * @date 2024-11-26
- * 
+ *
  * @copyright Copyright (c) 2024
- * 
+ *
  */
 #ifndef PLATFORM_COMMON_SOMEIP_DEMON_CODE_DB_DATABASE_H_
 #define PLATFORM_COMMON_SOMEIP_DEMON_CODE_DB_DATABASE_H_
@@ -32,17 +32,27 @@ class Database {
   using ReqServiceTable =
       std::pmr::unordered_map<uint32_t, std::pmr::unordered_set<uint32_t>>;
 
+  using NetworkSubscriberTable =
+      std::pmr::unordered_map<uint32_t, std::unordered_set<uint32_t>>;
+  using LocalSubscriberTable =
+      std::pmr::unordered_map<uint32_t, std::unordered_set<uint32_t>>;
+
  private:
   OfferedServiceTable offered_service_;
   FindServiceTable find_service_;
   ReqServiceTable req_table_;
+  NetworkSubscriberTable network_sub_;
+  LocalSubscriberTable local_sub_;
   std::condition_variable_any cv_;
   std::mutex mutex_;
 
  public:
   Database(/* args */)
       : offered_service_{std::pmr::new_delete_resource()},
-        find_service_{std::pmr::new_delete_resource()} {}
+        find_service_{std::pmr::new_delete_resource()},
+        network_sub_{std::pmr::new_delete_resource()},
+        local_sub_{std::pmr::new_delete_resource()} {}
+
   ~Database() = default;
 
   bool AddNewProvideService(const ServiceItem& item) {
@@ -52,7 +62,13 @@ class Database {
   bool AddNewConsumeService(const FindServiceItem& item) {
     return AddService(find_service_, item);
   }
-
+  bool AddNewLocalSubscriber(const uint32_t endpoint, uint32_t peer_id) {
+    auto item = local_sub_.find(endpoint);
+    if (item != local_sub_.end()) {
+      return item->second.insert(peer_id).second;
+    }
+    return local_sub_.insert({endpoint, {peer_id}}).second;
+  }
   template <typename TableSection, typename ItemType>
   bool AddService(TableSection& section, const ItemType& item) {  // NOLINT
     const uint32_t key{(static_cast<uint32_t>(item.instance_id_) << 16) +
@@ -76,6 +92,14 @@ class Database {
     const std::stop_callback stop_wait{token, [this]() { cv_.notify_one(); }};
     cv_.wait(ul_,
              [&token, &i]() { return token.stop_requested() || (i++ != 0); });
+  }
+  const std::optional<std::reference_wrapper<std::unordered_set<uint32_t>>>
+  GetSubList(const uint32_t endpoint) {
+    const auto item = local_sub_.find(endpoint);
+    if (item == local_sub_.end()) {
+      return std::nullopt;
+    }
+    return std::reference_wrapper<std::unordered_set<uint32_t>>(item->second);
   }
   void NotifyAboutNewService() {
     std::lock_guard<std::mutex> lk(mutex_);

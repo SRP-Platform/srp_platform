@@ -38,8 +38,8 @@ struct EventEntry {
 }  // namespace someip
 }  // namespace com
 }  // namespace ara
-namespace ara {
-namespace com {
+namespace srp {
+namespace data {
 
 template <>
 struct Convert<ara::com::someip::EventEntry> {
