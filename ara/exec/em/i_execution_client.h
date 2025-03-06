@@ -8,17 +8,17 @@
  * @copyright Copyright (c) 2025
  * 
  */
-#ifndef ARA_EXEC_SM_I_EXECUTION_CLIENT_H_
-#define ARA_EXEC_SM_I_EXECUTION_CLIENT_H_
+#ifndef ARA_EXEC_EM_I_EXECUTION_CLIENT_H_
+#define ARA_EXEC_EM_I_EXECUTION_CLIENT_H_
 #include "ara/core/result.h"
 namespace ara {
 namespace exec {
-enum ExecutionState {
-    kIdle = 0,
-    kStarting = 1,
-    kRunning = 2,
-    kTerminating = 3,
-    kTerminated = 4
+enum ExecutionState: uint8_t {
+    kIdle = 0U,
+    kStarting = 1U,
+    kRunning = 2U,
+    kTerminating = 3U,
+    kTerminated = 4U
 };
 class IExecutionClient {
  public:
@@ -30,4 +30,4 @@ class IExecutionClient {
 }  // namespace exec
 }  // namespace ara
 
-#endif  // ARA_EXEC_SM_I_EXECUTION_CLIENT_H_
+#endif  // ARA_EXEC_EM_I_EXECUTION_CLIENT_H_

@@ -20,6 +20,7 @@
 #include "ara/core/string_view.h"
 #include "ara/exec/adaptive_application.h"
 #include "ara/log/logging_menager.h"
+#include "ara/exec/em/execution_client.h"
 
 namespace ara {
 namespace exec {

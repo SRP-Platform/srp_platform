@@ -24,7 +24,7 @@ ara::core::Result<void> Initialize(const uint32_t& app_id) noexcept {
   controller.AddHandler(IComClient::MsgType::kDiag,
                         ara::diag::DiagnosticMenager::GetInstance());
   controller.AddHandler(IComClient::MsgType::kExec,
-                        ara::exec::ExecutionClient::GetInstance());
+                        ara::exec::ExecutionClient::GetInstance(app_id));
   controller.Init();
   return {};
 }

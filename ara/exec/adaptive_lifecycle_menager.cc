@@ -25,17 +25,20 @@ int AdaptiveLifecycleMenager::StartAdaptiveLifecycleMenager() {
   if (instance_ == nullptr) {
     return -1;
   }
-
+  auto exec_client_ = ExecutionClient::GetInstance();
+  exec_client_->ReportExecutionState(ExecutionState::kIdle);
   if (instance_->app_thread_ == nullptr) {
+    exec_client_->ReportExecutionState(ExecutionState::kStarting);
     instance_->InitApp();
-
+    exec_client_->ReportExecutionState(ExecutionState::kRunning);
     instance_->app_thread_ = std::make_unique<std::jthread>(
         [&](std::stop_token token) { instance_->Run(token); });
     pthread_setname_np(instance_->app_thread_->native_handle(), "APP_THREAD");
   }
-
+  exec_client_->ReportExecutionState(ExecutionState::kTerminating);
   instance_->app_thread_->join();
   instance_->exec_logger.LogInfo() << "Application Stoped";
+  exec_client_->ReportExecutionState(ExecutionState::kTerminated);
   // todo start app and wait
   return 0;
 }

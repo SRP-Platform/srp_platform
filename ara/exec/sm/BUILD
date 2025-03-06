@@ -26,25 +26,3 @@ filegroup(
     srcs = ["initialization.h"],
     visibility = ["//visibility:public"],
 )
-
-cc_library(
-    name = "execution_client_lib",
-    hdrs = [
-        "i_execution_client.h",
-        "execution_client.h",
-    ],
-    srcs = ["execution_client.cc"],
-    visibility = ["//visibility:public"],
-    deps = [
-        "//ara/core:Result",
-        "//ara/exec/sm:em_com_data",
-        "//bindings/common/controller",
-        "//ara/com:com_controller",
-    ],
-)
-
-data_structure_generator(
-    name = "em_com_data",
-    model = ["@srp_platform//platform_definition/data_structure:em_state_com_structure"],
-    visibility = ["//visibility:public"],
-)
