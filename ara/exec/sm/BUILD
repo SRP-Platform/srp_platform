@@ -38,7 +38,8 @@ cc_library(
     deps = [
         "//ara/core:Result",
         "//ara/exec/sm:em_com_data",
-        "//bindings/common/socket:socket_ipc",
+        "//bindings/common/controller",
+        "//ara/com:com_controller",
     ],
 )
 

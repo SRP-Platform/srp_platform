@@ -14,6 +14,7 @@
 #include "ara/com/someip/controller/someip_controller.h"
 #include "ara/core/result.h"
 #include "ara/diag/diagnostic_menager.h"
+#include "ara/exec/sm/execution_client.h"
 namespace ara {
 namespace com {
 ara::core::Result<void> Initialize(const uint32_t& app_id) noexcept {
@@ -22,6 +23,8 @@ ara::core::Result<void> Initialize(const uint32_t& app_id) noexcept {
                         ara::com::someip::SomeipController::GetInstance());
   controller.AddHandler(IComClient::MsgType::kDiag,
                         ara::diag::DiagnosticMenager::GetInstance());
+  controller.AddHandler(IComClient::MsgType::kExec,
+                        ara::exec::ExecutionClient::GetInstance());
   controller.Init();
   return {};
 }

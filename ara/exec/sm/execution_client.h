@@ -12,21 +12,20 @@
 #ifndef ARA_EXEC_SM_EXECUTION_CLIENT_H_
 #define ARA_EXEC_SM_EXECUTION_CLIENT_H_
 #include <memory>
+#include <vector>
 #include "ara/exec/sm/i_execution_client.h"
-#include "bindings/common/socket/ipc_socket.h"
+#include "ara/com/i_com_client.h"
 namespace ara {
 namespace exec {
-using ISocket = srp::bindings::com::soc::ISocket;
-using IpcSocket = srp::bindings::com::soc::IpcSocket;
-class ExecutionClient: public IExecutionClient {
+class ExecutionClient: public com::IComClient, public IExecutionClient {
  private:
-  const uint32_t app_id_;
-  std::unique_ptr<ISocket> sock_;
  public:
   ara::core::Result<void> ReportExecutionState(ExecutionState state) const noexcept override;
-  explicit ExecutionClient(const uint32_t& app_id, std::unique_ptr<ISocket> sock
-                                                = std::make_unique<IpcSocket>());
+  ExecutionClient();
   ~ExecutionClient() = default;
+  static std::shared_ptr<ExecutionClient> GetInstance() noexcept;
+  void HandleNewMsg(uint32_t pid,
+    const std::vector<uint8_t>& payload) noexcept override;
 };
 }
 }
