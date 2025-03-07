@@ -21,7 +21,7 @@ class ExecutionClient: public com::IComClient, public IExecutionClient {
  private:
   uint32_t app_id_;
  public:
-  ara::core::Result<void> ReportExecutionState(ExecutionState state) const noexcept override;
+  ara::core::Result<void> ReportExecutionState(const ExecutionState state) const noexcept override;
   ExecutionClient();
   ~ExecutionClient() = default;
   ExecutionClient(const ExecutionClient&) = delete;

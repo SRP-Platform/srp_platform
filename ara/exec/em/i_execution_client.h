@@ -25,7 +25,7 @@ class IExecutionClient {
   IExecutionClient() noexcept;
 
   ~IExecutionClient() noexcept;
-  virtual ara::core::Result<void> ReportExecutionState(ExecutionState state) const noexcept = 0;
+  virtual ara::core::Result<void> ReportExecutionState(const ExecutionState state) const noexcept = 0;
 };
 }  // namespace exec
 }  // namespace ara

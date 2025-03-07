@@ -32,6 +32,14 @@ void AppDb::SetPidForApp(const uint16_t app_id, const uint32_t pid) noexcept {
     iter->second.SetPid(pid);
   }
 }
+void AppDb::SetExecutionStateForApp(const uint16_t app_id,
+          const ara::exec::ExecutionState state) noexcept {
+  const auto& iter = this->app_list_.find(app_id);
+  if (iter != this->app_list_.end()) {
+    iter->second.SetExecutionState(state);
+  }
+}
+
 int8_t AppDb::InsertNewFG(uint16_t fg_id, const std::string& name) noexcept {
   std::ignore = this->fg_name_2_id.insert({name, fg_id});
   const auto res = this->fg_list_.insert({fg_id, {}}).second;

@@ -21,10 +21,10 @@ namespace {
 static std::shared_ptr<ExecutionClient> instance_;
 }
 
-ara::core::Result<void> ExecutionClient::ReportExecutionState(ExecutionState state) const noexcept {
+ara::core::Result<void> ExecutionClient::ReportExecutionState(const ExecutionState state) const noexcept {
     srp::platform::em::ExecutionHeader hdr_;
     hdr_.execution_state = state;
-    hdr_.app_id = 0;
+    hdr_.app_id = this->app_id_;
     auto buf = srp::data::Convert2Vector<srp::platform::em::ExecutionHeader>::Conv(hdr_);
     if (!this->send_callback_to_) {
         return ara::com::MakeErrorCode(com::someip::MessageCode::kENotReachable, "Callback Not Set");

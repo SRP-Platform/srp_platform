@@ -93,6 +93,22 @@ void EmService::SetActiveState(const uint16_t& state_id_) noexcept {
       }
     }
   }
+  bool all_ok = false;
+  while (!all_ok) {
+    all_ok = true;
+    for (const auto& app_id_ : next_list) {
+      auto app_config = db_->GetAppConfig(app_id_);
+      if (!app_config.has_value()) {
+        all_ok = false;
+        break;
+      }
+      auto state = app_config.value().get().GetExecutionState();
+      if (state != ara::exec::ExecutionState::kRunning) {
+        all_ok = false;
+        break;
+      }
+    }
+  }
   if (update_callback_) {
     update_callback_(state_id_);
   }
