@@ -21,9 +21,9 @@
 #include <array>
 #include <vector>
 
-#include "ara/com/com_error_domain.h"
-#include "ara/core/instance_specifier.h"
-#include "ara/core/result.h"
+#include "platform/com/com_error_domain.h"
+#include "platform/core/instance_specifier.h"
+#include "platform/core/result.h"
 #include "core/data/type_converter.h"
 
 namespace srp {
@@ -33,20 +33,20 @@ namespace fifo {
 template <typename fifo_type>
 class FifoProxy {
  private:
-  const ara::core::InstanceSpecifier instance_;
+  const platform::core::InstanceSpecifier instance_;
 
  public:
-  explicit FifoProxy(const ara::core::InstanceSpecifier& instance)
+  explicit FifoProxy(const platform::core::InstanceSpecifier& instance)
       : instance_{instance} {}
-  ara::core::Result<void> FindService() {
+  platform::core::Result<void> FindService() {
     // mkfifo(("/tmp/" + instance_.ToString()).c_str(), 0666);
     return {};
   }
-  ara::core::Result<void> StopOfferService() { return {}; }
-  ara::core::Result<fifo_type> GetNewSamples() {
+  platform::core::Result<void> StopOfferService() { return {}; }
+  platform::core::Result<fifo_type> GetNewSamples() {
     int fd = open(("/tmp/" + instance_.ToString()).c_str(), O_RDONLY);
     if (fd < 0) {
-      return ara::com::MakeErrorCode(ara::com::ComErrc::kIllegalUseOfAllocate,
+      return platform::com::MakeErrorCode(platform::com::ComErrc::kIllegalUseOfAllocate,
                                      "fifo not exist!");
     }
     std::array<uint8_t, sizeof(fifo_type)> buffor{};
@@ -59,10 +59,10 @@ class FifoProxy {
       if (data.has_value()) {
         return data.value();
       }
-      return ara::com::MakeErrorCode(ara::com::ComErrc::kPeerIsUnreachable,
+      return platform::com::MakeErrorCode(platform::com::ComErrc::kPeerIsUnreachable,
                                      " Error 1");
     }
-    return ara::com::MakeErrorCode(ara::com::ComErrc::kCommunicationStackError,
+    return platform::com::MakeErrorCode(platform::com::ComErrc::kCommunicationStackError,
                                    " Error 2");
   }
 };

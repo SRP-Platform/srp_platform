@@ -3,7 +3,7 @@
 
 /**
  * Checks if the Routing Activation Request is valid
- * @param data  contains the request
+ * @pplatformm data  contains the request
  * @return      routing activation response code
  */
 unsigned char parseRoutingActivation(unsigned char* data) {
@@ -40,8 +40,8 @@ unsigned char parseRoutingActivation(unsigned char* data) {
 /**
  * Create the complete routing activation response, which also contains the
  * generic header
- * @param clientAddress     address of the test equipment
- * @param responseCode      routing activation response code
+ * @pplatformm clientAddress     address of the test equipment
+ * @pplatformm responseCode      routing activation response code
  * @return                  complete routing activation response
  */
 unsigned char* createRoutingActivationResponse(unsigned short sourceAddress,
@@ -72,7 +72,7 @@ unsigned char* createRoutingActivationResponse(unsigned short sourceAddress,
 
 /**
  * Checks if the submitted address is valid
- * @param address	the address which will be checked
+ * @pplatformm address	the address which will be checked
  * @return			true if address is valid
  */
 bool checkSourceAddress(uint32_t address) {

@@ -1,5 +1,5 @@
 
-import paramiko
+import pplatformmiko
 import tools.pytest.pytest_main
 from tools.pytest.core_lib import ping
 
@@ -14,8 +14,8 @@ def test_ssh():
     username = "root"
     password = ""
 
-    client = paramiko.client.SSHClient()
-    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    client = pplatformmiko.client.SSHClient()
+    client.set_missing_host_key_policy(pplatformmiko.AutoAddPolicy())
     try:
         client.connect(host, username=username, password=password)
         client.close()

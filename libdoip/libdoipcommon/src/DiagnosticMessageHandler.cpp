@@ -5,11 +5,11 @@
 
 /**
  * Checks if a received Diagnostic Message is valid
- * @param cb                    callback which will be called with the user data
- * @param sourceAddress		currently registered source address on the
+ * @pplatformm cb                    callback which will be called with the user data
+ * @pplatformm sourceAddress		currently registered source address on the
  * socket
- * @param data			message which was received
- * @param diagMessageLength     length of the diagnostic message
+ * @pplatformm data			message which was received
+ * @pplatformm diagMessageLength     length of the diagnostic message
  */
 unsigned char parseDiagnosticMessage(DiagnosticCallback callback,
                                      unsigned char sourceAddress[2],
@@ -46,12 +46,12 @@ unsigned char parseDiagnosticMessage(DiagnosticCallback callback,
 
 /**
  * Creates a diagnostic message positive/negative acknowledgment message
- * @param type                  defines positive/negative acknowledge type
- * @param sourceAddress		logical address of the receiver of the previous
+ * @pplatformm type                  defines positive/negative acknowledge type
+ * @pplatformm sourceAddress		logical address of the receiver of the previous
  * diagnostic message
- * @param targetAddress		logical address of the sender of the previous
+ * @pplatformm targetAddress		logical address of the sender of the previous
  * diagnostic message
- * @param responseCode		positive or negative acknowledge code
+ * @pplatformm responseCode		positive or negative acknowledge code
  * @return pointer to the created diagnostic message acknowledge
  */
 unsigned char* createDiagnosticACK(bool ackType, unsigned short sourceAddress,
@@ -82,12 +82,12 @@ unsigned char* createDiagnosticACK(bool ackType, unsigned short sourceAddress,
 
 /**
  * Creates a complete diagnostic message
- * @param sourceAddress		logical address of the sender of a diagnostic
+ * @pplatformm sourceAddress		logical address of the sender of a diagnostic
  * message
- * @param targetAddress		logical address of the receiver of a diagnostic
+ * @pplatformm targetAddress		logical address of the receiver of a diagnostic
  * message
- * @param userData		actual diagnostic data
- * @param userDataLength	length of diagnostic data
+ * @pplatformm userData		actual diagnostic data
+ * @pplatformm userDataLength	length of diagnostic data
  */
 unsigned char* createDiagnosticMessage(unsigned short sourceAddress,
                                        unsigned char targetAddress[2],

@@ -11,31 +11,31 @@
 
 #include "example/code/example_app.h"
 
-#include "ara/log/log.h"
+#include "platform/log/log.h"
 #include "core/common/condition.h"
 #include "srp/example/ExampleServiceHandler.h"
 namespace srp {
 namespace example {
 namespace {
-const ara::core::InstanceSpecifier example_proxy_instance{
+const platform::core::InstanceSpecifier example_proxy_instance{
     "/srp/example/example_app_SWRoot/ExampleServiceRPort"};
 }
 int ExampleApp::Initialize(
-    const std::map<ara::core::StringView, ara::core::StringView> parms) {
-  ara::log::LogInfo() << "App started";
+    const std::map<platform::core::StringView, platform::core::StringView> parms) {
+  platform::log::LogInfo() << "App started";
   return 0;
 }
 
 int ExampleApp::Run(const std::stop_token& token) {
-  ara::log::LogInfo() << "App running";
+  platform::log::LogInfo() << "App running";
   srp::example::ExampleServiceProxy proxy{example_proxy_instance};
   proxy.StartFindService([&proxy](auto) {
     proxy.StopFindService();
-    ara::log::LogInfo() << "Proxy found";
+    platform::log::LogInfo() << "Proxy found";
   });
   core::condition::wait(token);
   proxy.StopFindService();
-  ara::log::LogInfo() << "App stopped";
+  platform::log::LogInfo() << "App stopped";
 
   return 0;
 }

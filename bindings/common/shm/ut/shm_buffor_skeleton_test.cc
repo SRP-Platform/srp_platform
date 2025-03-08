@@ -16,14 +16,14 @@
 class ShmBufforSkeletonTest : public ::testing::Test {
  protected:
     // Unique instance specifier for each test
-    ara::core::InstanceSpecifier createUniqueInstanceSpec() {
+    platform::core::InstanceSpecifier createUniqueInstanceSpec() {
         static int counter = 0;
         std::string uniqueName = "/test_shm_buffor_" + std::to_string(counter++);
-        return ara::core::InstanceSpecifier(uniqueName);
+        return platform::core::InstanceSpecifier(uniqueName);
     }
 };
 
-// Test OfferService with valid parameters
+// Test OfferService with valid pplatformmeters
 TEST_F(ShmBufforSkeletonTest, OfferServiceSuccess) {
     constexpr std::size_t BUFFER_SIZE = 1024;
     auto instanceSpec = createUniqueInstanceSpec();

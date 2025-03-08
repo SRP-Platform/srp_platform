@@ -11,6 +11,8 @@
 #ifndef BINDINGS_COM_IPC_IPC_CONTROLLER_H_
 #define BINDINGS_COM_IPC_IPC_CONTROLLER_H_
 
+#include <vector>
+
 #include "bindings/common/controller/controller_client.h"
 
 namespace srp {

@@ -11,13 +11,13 @@
 #ifndef BINDINGS_COM_SD_BINDINGS_H_
 #define BINDINGS_COM_SD_BINDINGS_H_
 
-#include "ara/com/internal/sd_component.h"
+#include "platform/com/internal/sd_component.h"
 
 namespace srp {
 namespace bindings {
 namespace com {
-using SdComponentInterface = ara::com::sd::SdComponent;
-using SdComponentEntry = ara::com::sd::SdComponent::SdEntry;
+using SdComponentInterface = platform::com::sd::SdComponent;
+using SdComponentEntry = platform::com::sd::SdComponent::SdEntry;
 }  // namespace com
 }  // namespace bindings
 }  // namespace srp

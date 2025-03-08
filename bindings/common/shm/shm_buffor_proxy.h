@@ -20,10 +20,10 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "ara/com/com_error_domain.h"
-#include "ara/core/condition_variable.h"
-#include "ara/core/instance_specifier.h"
-#include "ara/core/result.h"
+#include "platform/com/com_error_domain.h"
+#include "platform/core/condition_variable.h"
+#include "platform/core/instance_specifier.h"
+#include "platform/core/result.h"
 
 namespace srp {
 namespace bindings {
@@ -32,14 +32,14 @@ namespace shm {
 template <std::size_t buff_size>
 class ShmBufforProxy final {
  private:
-  const ara::core::InstanceSpecifier instance_specifier_;
+  const platform::core::InstanceSpecifier instance_specifier_;
   int shm_des{0};
   const int mode = S_IRWXU | S_IRWXG;
   std::uint8_t* handler = nullptr;
 
  public:
   explicit ShmBufforProxy(
-      const ara::core::InstanceSpecifier& instance_specifier)
+      const platform::core::InstanceSpecifier& instance_specifier)
       : instance_specifier_{instance_specifier} {}
 
   ShmBufforProxy(ShmBufforProxy&) = delete;
@@ -47,13 +47,13 @@ class ShmBufforProxy final {
   ShmBufforProxy& operator=(ShmBufforProxy&) = delete;
   ShmBufforProxy& operator=(ShmBufforProxy&&) = delete;
 
-  ara::core::Result<void> FindService() noexcept {
+  platform::core::Result<void> FindService() noexcept {
     shm_des = shm_open(instance_specifier_.ToString().c_str(), O_RDWR, mode);
     if (shm_des <= 0) {
-      return MakeErrorCode(ara::com::ComErrc::kNetworkBindingFailure, "");
+      return MakeErrorCode(platform::com::ComErrc::kNetworkBindingFailure, "");
     }
     if (ftruncate(shm_des, buff_size) == -1) {
-      return MakeErrorCode(ara::com::ComErrc::kFieldValueIsNotValid, "");
+      return MakeErrorCode(platform::com::ComErrc::kFieldValueIsNotValid, "");
     }
     handler = reinterpret_cast<std::uint8_t*>(
         mmap(NULL, buff_size, PROT_READ | PROT_WRITE, MAP_SHARED, shm_des, 0));

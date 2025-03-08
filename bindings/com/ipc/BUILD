@@ -4,6 +4,6 @@ cc_library(
         "ipc_controller.cc",
         "ipc_controller.h",
     ],
-    visibility = ["//ara/com:__subpackages__"],
+    visibility = ["//platform/com:__subpackages__"],
     deps = ["//bindings/common/controller:interfaces"],
 )

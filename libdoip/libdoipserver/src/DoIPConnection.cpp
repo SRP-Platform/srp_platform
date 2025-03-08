@@ -72,7 +72,7 @@ int DoIPConnection::receiveTcpMessage() {
  * receivedData. The method blocks until receivedData bytes are received or the
  * socket is closed.
  *
- * The parameter receivedData needs to point to a readily allocated array with
+ * The pplatformmeter receivedData needs to point to a readily allocated array with
  * at least payloadLength items.
  *
  * @return number of bytes received
@@ -185,8 +185,8 @@ void DoIPConnection::triggerDisconnection() {
 
 /**
  * Sends a message back to the connected client
- * @param message           contains generic header and payload specific content
- * @param messageLength     length of the complete message
+ * @pplatformm message           contains generic header and payload specific content
+ * @pplatformm messageLength     length of the complete message
  * @return                  number of bytes written is returned,
  *                          or -1 if error occurred
  */
@@ -198,7 +198,7 @@ int DoIPConnection::sendMessage(unsigned char* message, int messageLength) {
 /**
  * Sets the time in seconds after which a alive check timeout occurs.
  * Alive check timeouts can be deactivated when setting the seconds to 0
- * @param seconds   time after which alive check timeout occurs
+ * @pplatformm seconds   time after which alive check timeout occurs
  */
 void DoIPConnection::setGeneralInactivityTime(uint16_t seconds) {
   if (seconds > 0) {
@@ -210,9 +210,9 @@ void DoIPConnection::setGeneralInactivityTime(uint16_t seconds) {
 
 /*
  * Send diagnostic message payload to the client
- * @param sourceAddress   logical source address (i.e. address of this server)
- * @param value     received payload
- * @param length    length of received payload
+ * @pplatformm sourceAddress   logical source address (i.e. address of this server)
+ * @pplatformm value     received payload
+ * @pplatformm length    length of received payload
  */
 void DoIPConnection::sendDiagnosticPayload(unsigned short sourceAddress,
                                            unsigned char* data, int length) {
@@ -256,7 +256,7 @@ void DoIPConnection::sendDiagnosticAck(unsigned short sourceAddress,
 
 /**
  * Prepares a generic header nack and sends it to the client
- * @param ackCode       NACK-Code which will be included in the message
+ * @pplatformm ackCode       NACK-Code which will be included in the message
  * @return              amount of bytes sended to the client
  */
 int DoIPConnection::sendNegativeAck(unsigned char ackCode) {

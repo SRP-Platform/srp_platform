@@ -13,8 +13,8 @@
 #include <memory>
 #include <utility>
 
-#include "ara/com/com_error_domain.h"
 #include "bindings/common/log.h"
+#include "platform/com/com_error_domain.h"
 
 namespace srp {
 namespace bindings {
@@ -26,10 +26,11 @@ Controller::Controller(const uint32_t& app_id) : app_id_{app_id} {}
 
 Controller::~Controller() {}
 
-ara::core::Result<void> Controller::Init() noexcept {
+platform::core::Result<void> Controller::Init() noexcept {
   if (ipc_soc_ != nullptr) {
-    return ara::com::MakeErrorCode(ara::com::ComErrc::kNetworkBindingFailure,
-                                   "Controller already Started");
+    return platform::com::MakeErrorCode(
+        platform::com::ComErrc::kNetworkBindingFailure,
+        "Controller already Started");
   }
   ipc_soc_ = std::make_unique<srp::bindings::com::ProccessSocket>(app_id_);
 

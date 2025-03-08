@@ -9,8 +9,8 @@
  *
  */
 
-#ifndef BINDINGS_COMMON_CONTROLLER_CONTROLLER_H
-#define BINDINGS_COMMON_CONTROLLER_CONTROLLER_H
+#ifndef BINDINGS_COMMON_CONTROLLER_CONTROLLER_H_
+#define BINDINGS_COMMON_CONTROLLER_CONTROLLER_H_
 
 #include <memory>
 #include <string>
@@ -18,7 +18,7 @@
 #include <vector>
 
 #include "bindings/common/controller/controller_client.h"
-#include "ara/core/result.h"
+#include "platform/core/result.h"
 #include "bindings/common/socket/proccess_socket.h"
 
 namespace srp {
@@ -39,7 +39,7 @@ class Controller {
 
  public:
   explicit Controller(const uint32_t& app_id);
-  ara::core::Result<void> Init() noexcept;
+  platform::core::Result<void> Init() noexcept;
   bool AddHandler(ControllerClient::MsgType msg_type,
                   std::shared_ptr<ControllerClient> handler_);
   static Controller& GetInstance() noexcept;
@@ -49,4 +49,4 @@ class Controller {
 }  // namespace bindings
 }  // namespace srp
 
-#endif  // BINDINGS_COMMON_CONTROLLER_CONTROLLER_H
+#endif  // BINDINGS_COMMON_CONTROLLER_CONTROLLER_H_

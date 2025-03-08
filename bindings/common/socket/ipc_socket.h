@@ -44,24 +44,24 @@ class IpcSocket : public ISocket {
   /**
    * @brief
    *
-   * @param socket_path
-   * @return ara::core::Result<void>
+   * @pplatformm socket_path
+   * @return platform::core::Result<void>
    */
-  ara::core::Result<void> Init(const std::string& socket_path) override;
+  platform::core::Result<void> Init(const std::string& socket_path) override;
   /**
    * @brief Setter for rx callback
    *
-   * @param callback
+   * @pplatformm callback
    */
   void SetRXCallback(RXCallback callback) override;
   /**
    * @brief Function to send data by socket
    *
-   * @param ip target ip or path
-   * @param payload payload to send
+   * @pplatformm ip target ip or path
+   * @pplatformm payload payload to send
    * @return core::ErrorCode status
    */
-  ara::core::Result<void> Transmit(const std::string& ip,
+  platform::core::Result<void> Transmit(const std::string& ip,
                                    std::vector<std::uint8_t> payload) override;
   /**
    * @brief This function start RX thread

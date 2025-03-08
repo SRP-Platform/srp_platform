@@ -15,23 +15,23 @@
 #include <memory>
 #include <string>
 
-#include "ara/exec/adaptive_application.h"
+#include "platform/exec/adaptive_application.h"
 
 namespace srp {
 namespace example {
-class ExampleApp final : public ara::exec::AdaptiveApplication {
+class ExampleApp final : public platform::exec::AdaptiveApplication {
  private:
   /**
    * @brief This function is called to initialiaze the application
    *
-   * @param parms map with parms
+   * @pplatformm parms map with parms
    */
-  int Initialize(const std::map<ara::core::StringView, ara::core::StringView>
+  int Initialize(const std::map<platform::core::StringView, platform::core::StringView>
                      parms) override;
   /**
    * @brief This function is called to launch the application
    *
-   * @param token stop token
+   * @pplatformm token stop token
    */
   int Run(const std::stop_token& token) override;
 

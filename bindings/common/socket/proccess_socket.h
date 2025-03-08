@@ -22,7 +22,7 @@
 #include <thread>  // NOLINT
 #include <vector>
 
-#include "ara/core/result.h"
+#include "platform/core/result.h"
 
 namespace srp {
 namespace bindings {
@@ -44,11 +44,11 @@ class ProccessSocket {
 
  public:
   void SetCallback(RxCallback&& callback);
-  ara::core::Result<void> Offer() noexcept;
-  ara::core::Result<void> StopOffer() noexcept;
-  ara::core::Result<void> TransmitToPid(
+  platform::core::Result<void> Offer() noexcept;
+  platform::core::Result<void> StopOffer() noexcept;
+  platform::core::Result<void> TransmitToPid(
       uint16_t dest_pid, const std::vector<uint8_t>& payload) noexcept;
-  ara::core::Result<void> Transmit(
+  platform::core::Result<void> Transmit(
       const std::string& path, const std::vector<uint8_t>& payload) noexcept;
   ProccessSocket(/* args */);
   explicit ProccessSocket(const uint32_t app_id);

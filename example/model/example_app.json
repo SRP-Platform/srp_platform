@@ -18,7 +18,7 @@
                 "ctx": [                        {
                     "ctx_id": "acom",
                     "log_level": "kDebug",
-                    "ctx_des": "Default ctx for ara::com"
+                    "ctx_des": "Default ctx for platform::com"
                 }]
             },
             "provide": {

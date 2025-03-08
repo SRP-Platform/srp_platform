@@ -5,8 +5,8 @@ cc_library(
     data = [],
     visibility = ["//visibility:public"],
     deps = [
-        "@srp_platform//ara/com:com_error_domain",
-        "@srp_platform//ara/core:Result",
+        "@srp_platform//platform/com:com_error_domain",
+        "@srp_platform//platform/core:Result",
     ],
 )
 
@@ -21,8 +21,8 @@ cc_library(
     ],
     visibility = ["//visibility:public"],
     deps = [
-        "@srp_platform//ara/com:com_error_domain",
-        "@srp_platform//ara/core:Result",
+        "@srp_platform//platform/com:com_error_domain",
+        "@srp_platform//platform/core:Result",
     ],
 )
 
@@ -37,7 +37,7 @@ cc_library(
     ],
     visibility = ["//visibility:public"],
     deps = [
-        "@srp_platform//ara/com:com_error_domain",
-        "@srp_platform//ara/core:Result",
+        "@srp_platform//platform/com:com_error_domain",
+        "@srp_platform//platform/core:Result",
     ],
 )

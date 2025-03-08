@@ -1,12 +1,12 @@
-load("@srp_platform//tools/model_generator/ara:adaptive_application.bzl", "adaptive_application", "ara_runtime_lib", "ara_someip_lib")
+load("@srp_platform//tools/model_generator/platform:adaptive_application.bzl", "adaptive_application", "platform_runtime_lib", "platform_someip_lib")
 
-ara_runtime_lib(
-    name = "ara",
+platform_runtime_lib(
+    name = "platform",
     model_src = ["//deployment/platform/state_manager:instance"],
     visibility = ["//platform/common/state_manager/code:__subpackages__"],
 )
 
-ara_someip_lib(
+platform_someip_lib(
     name = "someip_lib",
     model_src = ["//deployment/platform/state_manager:instance"],
     visibility = ["//platform/common/state_manager/code:__subpackages__"],

@@ -18,24 +18,24 @@
                     "log_mode": "kRemote",
                     "ctx": [
                         {
-                            "ctx_id": "ara",
+                            "ctx_id": "platform",
                             "log_level": "kInfo",
-                            "ctx_des": "Default ctx for ara"
+                            "ctx_des": "Default ctx for platform"
                         },
                         {
                             "ctx_id": "acom",
                             "log_level": "kDebug",
-                            "ctx_des": "Default ctx for ara::com"
+                            "ctx_des": "Default ctx for platform::com"
                         },
                         {
                             "ctx_id": "diag",
                             "log_level": "kInfo",
-                            "ctx_des": "Default ctx for ara::diag"
+                            "ctx_des": "Default ctx for platform::diag"
                         },
                         {
                             "ctx_id": "exec",
                             "log_level": "kDebug",
-                            "ctx_des": "Default ctx for ara::exec"
+                            "ctx_des": "Default ctx for platform::exec"
                         },
                         {
                             "ctx_id": "doip",

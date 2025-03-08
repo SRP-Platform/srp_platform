@@ -35,7 +35,7 @@ void AliveCheckTimer::resetTimer() {
 
 /**
  * Sets the maximum seconds to wait till a timeout occurs
- * @param seconds   seconds till timeout
+ * @pplatformm seconds   seconds till timeout
  */
 void AliveCheckTimer::setTimer(uint16_t seconds) { maxSeconds = seconds; }
 

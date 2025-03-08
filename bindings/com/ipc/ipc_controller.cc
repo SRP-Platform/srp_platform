@@ -11,6 +11,8 @@
 
 #include "bindings/com/ipc/ipc_controller.h"
 
+#include <vector>
+
 namespace srp {
 namespace bindings {
 namespace com {
@@ -18,14 +20,11 @@ namespace ipc {
 
 IpcController::IpcController(/* args */) {}
 
-
 void IpcController::HandleNewMsg(uint32_t pid,
                                  const std::vector<uint8_t>& payload) noexcept {
 }
 
-void IpcController::Init() noexcept {
-
-}
+void IpcController::Init() noexcept {}
 
 }  // namespace ipc
 }  // namespace com

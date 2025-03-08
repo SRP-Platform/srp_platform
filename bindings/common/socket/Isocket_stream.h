@@ -17,7 +17,7 @@
 #include <string>
 #include <vector>
 
-#include "ara/core/result.h"
+#include "platform/core/result.h"
 namespace srp {
 namespace bindings {
 namespace com {
@@ -26,11 +26,11 @@ using RXCallbackStream =
     std::function<std::vector<uint8_t>(const std::vector<uint8_t>&)>;
 class ISocketStream {
  public:
-  virtual ara::core::Result<void> Init(const std::string& socket_path) = 0;
+  virtual platform::core::Result<void> Init(const std::string& socket_path) = 0;
   /**
    * @brief Setter for rx callback
    *
-   * @param callback
+   * @pplatformm callback
    */
   virtual void SetRXCallback(RXCallbackStream&& callback) = 0;
 

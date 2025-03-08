@@ -23,7 +23,7 @@ py_library(
     visibility = ["//visibility:public"],
     deps = [
         requirement("pytest"),
-        requirement("paramiko"),
+        requirement("pplatformmiko"),
     ],
 )
 
@@ -31,6 +31,6 @@ py_library(
     name = "pytest_core_lib",
     visibility = ["//visibility:public"],
     deps = [
-        requirement("paramiko"),
+        requirement("pplatformmiko"),
     ],
 )

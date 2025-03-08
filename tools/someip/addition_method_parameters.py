@@ -5,10 +5,10 @@ from someipy.serialization import (
     SomeIpPayload,
 )
 
-# In this example we define two method parameter types used for the Addition method example.
+# In this example we define two method pplatformmeter types used for the Addition method example.
 # In theory, Int16 and Sint32 types could be used directly instead of defining new classes,
 # but this way the code is more readable and the types are more descriptive and extensible, i.e.
-# you could other information such as version or metadata to the method parameters.
+# you could other information such as version or metadata to the method pplatformmeters.
 
 
 @dataclass
