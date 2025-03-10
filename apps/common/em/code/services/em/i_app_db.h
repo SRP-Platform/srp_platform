@@ -67,6 +67,14 @@ class IAppDb {
   virtual std::optional<
       std::reference_wrapper<const std::unordered_set<uint16_t>>>
   GetFgAppList(const uint16_t& fg_id) noexcept = 0;
+    /**
+   * @brief Set the Execution State For App object
+   * 
+   * @param app_id 
+   * @param state 
+   */
+  virtual void SetExecutionStateForApp(const uint16_t app_id,
+    const platform::exec::ExecutionState state) noexcept = 0;
   virtual ~IAppDb() = default;
 };
 

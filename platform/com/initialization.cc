@@ -15,6 +15,7 @@
 #include "bindings/com/ipc/ipc_controller.h"
 #include "bindings/common/controller/controller.h"
 #include "platform/core/result.h"
+#include "platform/exec/em/execution_client.h"
 
 namespace platform {
 namespace com {
@@ -23,6 +24,9 @@ platform::core::Result<void> Initialize(const uint32_t& app_id) noexcept {
   controller.AddHandler(
       srp::bindings::ControllerClient::kIPC,
       std::make_shared<srp::bindings::com::ipc::IpcController>());
+  controller.AddHandler(
+    srp::bindings::ControllerClient::kExec,
+    platform::exec::ExecutionClient::GetInstance(app_id));
   controller.Init();
   return {};
 }

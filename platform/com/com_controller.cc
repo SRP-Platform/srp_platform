@@ -28,7 +28,7 @@ ComController::~ComController() {}
 
 platform::core::Result<void> ComController::Init() noexcept {
   if (ipc_soc_ != nullptr) {
-    return MakeErrorCode(ComOfferErrc::kAlreadyOffered,
+    return MakeErrorCode(platform::com::ComErrc::kCommunicationLinkError,
                          "Controller already Started");
   }
   ipc_soc_ = std::make_unique<srp::bindings::com::ProccessSocket>(app_id_);

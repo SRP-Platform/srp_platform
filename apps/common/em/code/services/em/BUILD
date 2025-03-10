@@ -27,4 +27,7 @@ cc_library(
     visibility = [
         "@srp_platform//mw/em/code/services/exec:__subpackages__",
     ],
+    deps = [
+        "//platform/exec/em:execution_client_lib",
+    ],
 )

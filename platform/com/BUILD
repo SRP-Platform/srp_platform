@@ -42,21 +42,21 @@ cc_library(
     visibility = ["//visibility:public"],
 )
 
-# cc_library(
-#     name = "com_controller",
-#     srcs = ["com_controller.cc"],
-#     hdrs = [
-#         "com_controller.h",
-#         "i_com_client.h",
-#     ],
-#     visibility = ["@srp_platform//platform:__subpackages__"],
-#     deps = [
-#         "@srp_platform//platform/com:com_error_domain",
-#         "@srp_platform//platform/com:com_log",
-#         "@srp_platform//platform/core:Result",
-#         "@srp_platform//bindings/common/socket:ipc_socket",
-#     ],
-# )
+cc_library(
+    name = "com_controller",
+    srcs = ["com_controller.cc"],
+    hdrs = [
+        "com_controller.h",
+        "i_com_client.h",
+    ],
+    visibility = ["@srp_platform//platform:__subpackages__"],
+    deps = [
+        "@srp_platform//platform/com:com_error_domain",
+        "@srp_platform//platform/com:com_log",
+        "@srp_platform//platform/core:Result",
+        "@srp_platform//bindings/common/socket:ipc_socket",
+    ],
+)
 
 cc_library(
     name = "types",

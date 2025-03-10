@@ -12,6 +12,7 @@
 #define APPS_COMMON_EM_CODE_SERVICES_EM_APP_DB_H_
 
 #include <cstdint>
+#include <shared_mutex>
 #include <optional>
 #include <string>
 #include <unordered_map>
@@ -30,16 +31,19 @@ class AppDb : public IAppDb {
    *
    */
   std::unordered_map<uint16_t, AppConfig> app_list_{};
+  mutable std::shared_mutex app_list_mtx_;
   /**
    * @brief Map with all FG, ID as key
    *
    */
   std::unordered_map<uint16_t, std::unordered_set<uint16_t>> fg_list_{};
+  std::mutex fg_list_mtx_;
   /**
    * @brief Map with name and id
    *
    */
   std::unordered_map<std::string, uint16_t> fg_name_2_id{};
+  std::mutex fg_n_2_id_mtx_;
 
  public:
   AppDb(/* args */);
@@ -52,6 +56,8 @@ class AppDb : public IAppDb {
   std::optional<std::reference_wrapper<const std::unordered_set<uint16_t>>>
   GetFgAppList(const uint16_t& fg_id) noexcept override;
   ~AppDb() = default;
+  void SetExecutionStateForApp(const uint16_t app_id,
+    const platform::exec::ExecutionState state) noexcept override;
 };
 
 }  // namespace data
