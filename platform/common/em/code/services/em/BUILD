@@ -13,6 +13,7 @@ cc_library(
         ":em_db",
         "@srp_platform//ara/log",
         "@srp_platform//core/json:simba_json",
+        "@srp_platform//ara/exec/em:execution_client_lib",
     ],
 )
 
@@ -27,4 +28,7 @@ cc_library(
     visibility = [
         "@srp_platform//mw/em/code/services/exec:__subpackages__",
     ],
+    deps = [
+        "@srp_platform//ara/exec/em:execution_client_lib",
+    ]
 )

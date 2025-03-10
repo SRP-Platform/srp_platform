@@ -18,12 +18,14 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#include <chrono>  // NOLINT
 #include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <functional>
 #include <memory>
 #include <string>
+#include <unordered_set>
 
 #include "ara/log/log.h"
 #include "platform/common/em/code/services/em/json_parser.h"
@@ -31,6 +33,9 @@
 namespace srp {
 namespace em {
 namespace service {
+namespace {
+  constexpr auto kMax_wait_time = 3000;
+}
 
 EmService::EmService(
     std::shared_ptr<data::IAppDb> db,
@@ -82,7 +87,9 @@ void EmService::SetActiveState(const uint16_t& state_id_) noexcept {
       }
     }
   }
-  // TODO(bartek): kill app
+
+  this->KillApps(terminate_list);
+
   for (const auto& app_id_ : next_list) {
     auto app_config_opt = db_->GetAppConfig(app_id_);
     if (app_config_opt.has_value()) {
@@ -91,21 +98,9 @@ void EmService::SetActiveState(const uint16_t& state_id_) noexcept {
         const auto new_pid = this->StartApp(app_config);
         db_->SetPidForApp(app_id_, new_pid);
       }
-    }
-  }
-  bool all_ok = false;
-  while (!all_ok) {
-    all_ok = true;
-    for (const auto& app_id_ : next_list) {
-      auto app_config = db_->GetAppConfig(app_id_);
-      if (!app_config.has_value()) {
-        all_ok = false;
-        break;
-      }
-      auto state = app_config.value().get().GetExecutionState();
-      if (state != ara::exec::ExecutionState::kRunning) {
-        all_ok = false;
-        break;
+      if (!WaitForAppStatus(app_id_, ara::exec::ExecutionState::kRunning)) {
+        //TODO(matik) report DTC app not start properly
+        KillApp(app_id_, true);
       }
     }
   }
@@ -115,8 +110,59 @@ void EmService::SetActiveState(const uint16_t& state_id_) noexcept {
   this->active_state = state_id_;
 }
 
+//TODO change to wait for one app
+bool EmService::WaitForAppStatus(const uint16_t& app_id_, const ara::exec::ExecutionState state) {
+    auto app_config = db_->GetAppConfig(app_id_);
+    if (!app_config.has_value()) {
+      // TODO(matik) CALL DTC ERROR
+      return false;
+    }
+    ara::exec::ExecutionState state_;
+    auto start_time = std::chrono::high_resolution_clock::now();
+    int64_t duration;
+    do {
+      app_config = db_->GetAppConfig(app_id_);
+      state_ = app_config.value().get().GetExecutionState();
+      auto now = std::chrono::high_resolution_clock::now();
+      duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - start_time).count();
+    } while ((state != state_) && (duration <= kMax_wait_time));
+    if (state == state_) {
+      return true;
+    }
+    // TODO report DTC error
+    return false;
+}
+  // TODO potencjalny mutex dla app_db
+  // TODO sprawdzanie czy aplikacja dalej zyje
+  // TODO bindings/common/socket/processocket
+void EmService::KillApps(const std::vector<uint16_t>& terminate_list) {
+  for (const auto& app_id_ : terminate_list) {
+    auto app_config = db_->GetAppConfig(app_id_);
+    if (!app_config.has_value()) {
+      // TODO(matik) Report DTC error
+      break;
+    }
+    KillApp(app_config.value().get().GetPid());
+    if (!this->WaitForAppStatus(app_id_, ara::exec::ExecutionState::kTerminated)) {
+      //TODO report DTC (cant stop app, need to be killed)
+      KillApp(app_config.value().get().GetPid(), true);
+    }
+  }
+}
+
 std::optional<pid_t> EmService::RestartApp(const uint16_t appID) {
   return std::nullopt;
+}
+void EmService::KillApp(const pid_t pid, bool force) {
+  if (pid <= 0) {
+    ara::log::LogWarn() << "Invalid pid value: " << std::to_string(static_cast<int>(pid));
+    return;
+  }
+  if (force) {
+    kill(pid, SIGKILL);
+  } else {
+    kill(pid, SIGTERM);
+  }
 }
 
 pid_t EmService::StartApp(const srp::em::service::data::AppConfig& app) {

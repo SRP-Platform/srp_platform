@@ -14,6 +14,7 @@
 #include <optional>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 #include <functional>
@@ -33,7 +34,9 @@ class EmService {
   bool IsSrpApp(const std::string& path) noexcept;
 
   pid_t StartApp(const srp::em::service::data::AppConfig& app);
-
+  bool WaitForAppStatus(const uint16_t& app_id_, const ara::exec::ExecutionState state);
+  void KillApps(const std::vector<uint16_t>& terminate_list);
+  void KillApp(const pid_t pid, bool force = false);
  public:
   void LoadApps() noexcept;
   void SetActiveState(const uint16_t& state_id_) noexcept;
