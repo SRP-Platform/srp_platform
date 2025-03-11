@@ -13,6 +13,7 @@ cc_library(
         ":em_db",
         "@srp_platform//platform/log",
         "@srp_platform//core/json:simba_json",
+        "@srp_platform//core/common:condition_lib",
     ],
 )
 
@@ -28,6 +29,7 @@ cc_library(
         "@srp_platform//mw/em/code/services/exec:__subpackages__",
     ],
     deps = [
-        "//platform/exec/em:execution_client_lib",
+        "@srp_platform//platform/exec/em:execution_client_lib",
+        "@srp_platform//platform/exec/em:em_com_data",
     ],
 )

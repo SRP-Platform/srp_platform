@@ -73,7 +73,7 @@ class IAppDb {
    * @param app_id 
    * @param state 
    */
-  virtual void SetExecutionStateForApp(const uint16_t app_id,
+  virtual bool SetExecutionStateForApp(const uint16_t app_id,
     const platform::exec::ExecutionState state) noexcept = 0;
   virtual ~IAppDb() = default;
 };

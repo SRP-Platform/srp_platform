@@ -28,9 +28,12 @@
 #include <string>
 #include <thread>  // NOLINT
 
+#include "platform/exec/em/i_execution_client.h"
 #include "platform/log/log.h"
 #include "core/common/condition.h"
 #include "apps/common/em/code/services/em/json_parser.h"
+#include "bindings/common/controller/controller_client.h"
+#include "srp/platform/em/ExecutionHeader.h"
 
 namespace srp {
 namespace em {
@@ -38,13 +41,35 @@ namespace service {
 namespace {
   constexpr auto kMax_wait_time = 3000;
   constexpr auto kSignal_check_interval = 100;
+  constexpr std::string kExec_path = "ARA.EXEC";
+}
+
+void EmService::ProcessSockCallback(const uint32_t pid, const std::vector<uint8_t>& buf) noexcept {
+  if (buf[0] != bindings::ControllerClient::MsgType::kExec) {
+    return;
+  }
+  const std::vector<uint8_t> payload(buf.begin() + 1, buf.end());
+  auto  hdr_ = srp::data::Convert<srp::platform::em::ExecutionHeader>::Conv(payload);
+  if (!hdr_.has_value()) {
+    // TODO(matik) add dtc error
+    return;
+  }
+  if (!this->db_->SetExecutionStateForApp(hdr_.value().app_id,
+                static_cast<::platform::exec::ExecutionState>(hdr_.value().execution_state))) {
+    // TODO(matik) add dtc error
+    return;
+  }
 }
 
 EmService::EmService(
     std::shared_ptr<data::IAppDb> db,
     const std::function<void(const uint16_t&)>&& update_callback)
-    : db_{db}, update_callback_(std::move(update_callback)) {
-  this->state_checker_thread = std::jthread([this](std::stop_token token){
+    : db_{db}, update_callback_(std::move(update_callback)), proc_sock_(kExec_path) {
+
+  proc_sock_.SetCallback(std::bind(&EmService::ProcessSockCallback, this,
+                                   std::placeholders::_1, std::placeholders::_2));
+  proc_sock_.Offer();
+  this->state_checker_thread = std::make_unique<std::jthread>(([this](std::stop_token token){
     while (!token.stop_requested()) {
       core::condition::wait_for(std::chrono::milliseconds(kSignal_check_interval), token);
       for (const auto& app_id : current_fg_apps) {
@@ -59,10 +84,12 @@ EmService::EmService(
         // TODO app dont work properly , add DTC
       }
     }
-  })
+  }));
 }
 
-EmService::~EmService() {}
+EmService::~EmService() {
+  proc_sock_.StopOffer();
+}
 
 bool EmService::IsSrpApp(const std::string& path) noexcept {
   std::ifstream file{path + "/etc/srp_app_config.json"};
@@ -78,15 +105,15 @@ void EmService::LoadApps() noexcept {
           auto res = json::JsonParser::GetAppConfig(pp);
           if (res.has_value()) {
             if (db_->InsertNewApp(res.value()) == 0) {
-              platform::log::LogInfo()
-                  << "App: " << res.value().GetAppName() << " added to db";
+              // platform::log::LogInfo()
+              //     << "App: " << res.value().GetAppName() << " added to db";
             }
           }
         }
       }
     }
   } catch (std::exception& e) {
-    platform::log::LogError() << e.what();
+    // platform::log::LogError() << e.what();
   }
 }
 
@@ -95,7 +122,7 @@ void EmService::SetActiveState(const uint16_t& state_id_) noexcept {
   const auto currect_list_opt = db_->GetFgAppList(active_state);
   const auto next_list_opt = db_->GetFgAppList(state_id_);
   if (!next_list_opt.has_value()) {
-    platform::log::LogError() << "State: " << state_id_ << " not supported!";
+    // platform::log::LogError() << "State: " << state_id_ << " not supported!";
     return;
   }
   const auto& next_list = next_list_opt.value().get();
@@ -115,7 +142,7 @@ void EmService::SetActiveState(const uint16_t& state_id_) noexcept {
       if (app_config.GetPid() == 0) {
         const auto new_pid = this->StartApp(app_config);
         db_->SetPidForApp(app_id_, new_pid);
-        if (!WaitForAppStatus(app_id_, ara::exec::ExecutionState::kRunning)) {
+        if (!WaitForAppStatus(app_id_, ::platform::exec::ExecutionState::kRunning)) {
             //TODO(matik) report DTC app not start properly
           KillApp(app_id_, true);
         }
@@ -129,13 +156,13 @@ void EmService::SetActiveState(const uint16_t& state_id_) noexcept {
   this->active_state = state_id_;
 }
 
-bool EmService::WaitForAppStatus(const uint16_t& app_id_, const ara::exec::ExecutionState state) {
+bool EmService::WaitForAppStatus(const uint16_t& app_id_, const ::platform::exec::ExecutionState state) {
   auto app_config = db_->GetAppConfig(app_id_);
   if (!app_config.has_value()) {
     // TODO(matik) CALL DTC ERROR
     return false;
   }
-  ara::exec::ExecutionState state_;
+  ::platform::exec::ExecutionState state_;
   auto start_time = std::chrono::high_resolution_clock::now();
   int64_t duration;
   do {
@@ -150,7 +177,6 @@ bool EmService::WaitForAppStatus(const uint16_t& app_id_, const ara::exec::Execu
   // TODO report DTC error
   return false;
 }
-// TODO bindings/common/socket/processocket
 void EmService::KillApps(const std::vector<uint16_t>& terminate_list) {
 for (const auto& app_id_ : terminate_list) {
   auto app_config = db_->GetAppConfig(app_id_);
@@ -159,7 +185,7 @@ for (const auto& app_id_ : terminate_list) {
     break;
   }
   KillApp(app_config.value().get().GetPid());
-  if (!this->WaitForAppStatus(app_id_, ara::exec::ExecutionState::kTerminated)) {
+  if (!this->WaitForAppStatus(app_id_, ::platform::exec::ExecutionState::kTerminated)) {
     //TODO report DTC (cant stop app, need to be killed)
     KillApp(app_config.value().get().GetPid(), true);
   }
@@ -168,7 +194,7 @@ for (const auto& app_id_ : terminate_list) {
 
 void EmService::KillApp(const pid_t pid, bool force) {
   if (pid <= 0) {
-    ara::log::LogWarn() << "Invalid pid value: " << std::to_string(static_cast<int>(pid));
+    // ara::log::LogWarn() << "Invalid pid value: " << std::to_string(static_cast<int>(pid));
     return;
   }
   if (force) {
@@ -192,8 +218,8 @@ pid_t EmService::StartApp(const srp::em::service::data::AppConfig& app) {
   auto parms = app.GetParms();
   char* argv[] = {path.data(), parms.data(), NULL};
   posix_spawnp(&pid, app.GetBinPath().c_str(), NULL, &attr, argv, NULL);
-  platform::log::LogInfo() << "Spawning app: " << app.GetAppName()
-                      << " pid: " << std::to_string(pid);
+  // platform::log::LogInfo() << "Spawning app: " << app.GetAppName()
+  //                     << " pid: " << std::to_string(pid);
   return pid;
 }
 

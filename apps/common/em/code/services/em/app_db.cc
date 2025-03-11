@@ -17,13 +17,15 @@ namespace service {
 namespace data {
 AppDb::AppDb(/* args */) {}
 
-void AppDb::SetExecutionStateForApp(const uint16_t app_id,
+bool AppDb::SetExecutionStateForApp(const uint16_t app_id,
   const platform::exec::ExecutionState state) noexcept {
   std::unique_lock lock(this->app_list_mtx_);
   const auto& iter = this->app_list_.find(app_id);
   if (iter != this->app_list_.end()) {
     iter->second.SetExecutionState(state);
+    return true;
   }
+  return false;
 }
 
 int8_t AppDb::InsertNewApp(AppConfig app) noexcept {
