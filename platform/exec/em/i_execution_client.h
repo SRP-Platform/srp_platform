@@ -10,8 +10,8 @@
  */
 #ifndef PLATFORM_EXEC_EM_I_EXECUTION_CLIENT_H_
 #define PLATFORM_EXEC_EM_I_EXECUTION_CLIENT_H_
-#include "platform/core/result.h"
 #include <string>
+#include "platform/core/result.h"
 namespace platform {
 namespace exec {
 enum ExecutionState: uint8_t {
@@ -22,7 +22,7 @@ enum ExecutionState: uint8_t {
     kTerminated = 4U,
     kErrorShutdown = 5U
 };
-std::string get_string(const ExecutionState state) {
+inline std::string get_string(const ExecutionState state) {
   switch (state) {
   case kIdle:
     return "kIdle";
