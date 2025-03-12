@@ -11,6 +11,7 @@
 #ifndef PLATFORM_EXEC_EM_I_EXECUTION_CLIENT_H_
 #define PLATFORM_EXEC_EM_I_EXECUTION_CLIENT_H_
 #include "platform/core/result.h"
+#include <string>
 namespace platform {
 namespace exec {
 enum ExecutionState: uint8_t {
@@ -18,13 +19,34 @@ enum ExecutionState: uint8_t {
     kStarting = 1U,
     kRunning = 2U,
     kTerminating = 3U,
-    kTerminated = 4U
+    kTerminated = 4U,
+    kErrorShutdown = 5U
 };
+std::string get_string(const ExecutionState state) {
+  switch (state) {
+  case kIdle:
+    return "kIdle";
+    break;
+  case kStarting:
+    return "kStarting";
+    break;
+  case kRunning:
+    return "kRunning";
+    break;
+  case kTerminating:
+    return "kTerminating";
+    break;
+  case kTerminated:
+    return "kTerminated";
+    break;
+  default:
+    return "";
+    break;
+  }
+}
+
 class IExecutionClient {
  public:
-  IExecutionClient() noexcept;
-
-  ~IExecutionClient() noexcept;
   virtual platform::core::Result<void> ReportExecutionState(const ExecutionState state) const noexcept = 0;
 };
 }  // namespace exec

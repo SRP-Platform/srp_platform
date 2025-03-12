@@ -54,8 +54,10 @@ void EmService::ProcessSockCallback(const uint32_t pid, const std::vector<uint8_
     // TODO(matik) add dtc error
     return;
   }
-  if (!this->db_->SetExecutionStateForApp(hdr_.value().app_id,
-                static_cast<::platform::exec::ExecutionState>(hdr_.value().execution_state))) {
+  auto state = static_cast<::platform::exec::ExecutionState>(hdr_.value().execution_state);
+  ::platform::log::LogDebug() << std::to_string(hdr_.value().app_id) << ", reported state: "
+            << ::platform::exec::get_string(state);
+  if (!this->db_->SetExecutionStateForApp(hdr_.value().app_id, state)) {
     // TODO(matik) add dtc error
     return;
   }
@@ -78,16 +80,23 @@ EmService::EmService(
           // TODO some DTC???
           continue;
         }
-        if (kill(config.value().get().GetPid(), 0) == 0) {
-          continue;
+        if (kill(config.value().get().GetPid(), 0) != 0) {
+          if (config.value().get().GetExecutionState() == ::platform::exec::ExecutionState::kErrorShutdown) {
+            ::platform::log::LogDebug() << config.value().get().GetAppName() << " still die";
+          } else {
+            db_->SetExecutionStateForApp(app_id, ::platform::exec::ExecutionState::kErrorShutdown);
+          ::platform::log::LogWarn() << config.value().get().GetAppName() << " just die";
+          }
+          // TODO app dont work properly , add DTC
         }
-        // TODO app dont work properly , add DTC
       }
     }
   }));
 }
 
 EmService::~EmService() {
+  state_checker_thread->request_stop();
+  state_checker_thread->join();
   proc_sock_.StopOffer();
 }
 
@@ -105,15 +114,15 @@ void EmService::LoadApps() noexcept {
           auto res = json::JsonParser::GetAppConfig(pp);
           if (res.has_value()) {
             if (db_->InsertNewApp(res.value()) == 0) {
-              // platform::log::LogInfo()
-              //     << "App: " << res.value().GetAppName() << " added to db";
+              ::platform::log::LogInfo()
+                  << "App: " << res.value().GetAppName() << " added to db";
             }
           }
         }
       }
     }
   } catch (std::exception& e) {
-    // platform::log::LogError() << e.what();
+    ::platform::log::LogError() << e.what();
   }
 }
 
@@ -122,7 +131,7 @@ void EmService::SetActiveState(const uint16_t& state_id_) noexcept {
   const auto currect_list_opt = db_->GetFgAppList(active_state);
   const auto next_list_opt = db_->GetFgAppList(state_id_);
   if (!next_list_opt.has_value()) {
-    // platform::log::LogError() << "State: " << state_id_ << " not supported!";
+    ::platform::log::LogError() << "State: " << state_id_ << " not supported!";
     return;
   }
   const auto& next_list = next_list_opt.value().get();
@@ -194,7 +203,7 @@ for (const auto& app_id_ : terminate_list) {
 
 void EmService::KillApp(const pid_t pid, bool force) {
   if (pid <= 0) {
-    // ara::log::LogWarn() << "Invalid pid value: " << std::to_string(static_cast<int>(pid));
+    ::platform::log::LogWarn() << "Invalid pid value: " << std::to_string(static_cast<int>(pid));
     return;
   }
   if (force) {
@@ -218,8 +227,8 @@ pid_t EmService::StartApp(const srp::em::service::data::AppConfig& app) {
   auto parms = app.GetParms();
   char* argv[] = {path.data(), parms.data(), NULL};
   posix_spawnp(&pid, app.GetBinPath().c_str(), NULL, &attr, argv, NULL);
-  // platform::log::LogInfo() << "Spawning app: " << app.GetAppName()
-  //                     << " pid: " << std::to_string(pid);
+  ::platform::log::LogInfo() << "Spawning app: " << app.GetAppName()
+                      << " pid: " << std::to_string(pid);
   return pid;
 }
 

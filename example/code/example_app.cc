@@ -27,14 +27,14 @@ int ExampleApp::Initialize(
 }
 
 int ExampleApp::Run(const std::stop_token& token) {
-  platform::log::LogInfo() << "App running";
-  srp::example::ExampleServiceProxy proxy{example_proxy_instance};
-  proxy.StartFindService([&proxy](auto) {
-    proxy.StopFindService();
-    platform::log::LogInfo() << "Proxy found";
-  });
+  // platform::log::LogInfo() << "App running";
+  // srp::example::ExampleServiceProxy proxy{example_proxy_instance};
+  // proxy.StartFindService([&proxy](auto) {
+  //   proxy.StopFindService();
+  //   platform::log::LogInfo() << "Proxy found";
+  // });
   core::condition::wait(token);
-  proxy.StopFindService();
+  // proxy.StopFindService();
   platform::log::LogInfo() << "App stopped";
 
   return 0;

@@ -37,7 +37,6 @@ int AdaptiveLifecycleMenager::StartAdaptiveLifecycleMenager() {
     instance_->app_thread_ = std::make_unique<std::jthread>(
         [&](std::stop_token token) { instance_->Run(token); });
     pthread_setname_np(instance_->app_thread_->native_handle(), "APP_THREAD");
-    exec_client_->ReportExecutionState(ExecutionState::kTerminating);
   }
 
   instance_->app_thread_->join();
@@ -47,7 +46,9 @@ int AdaptiveLifecycleMenager::StartAdaptiveLifecycleMenager() {
   return 0;
 }
 void AdaptiveLifecycleMenager::StopAdaptiveLifecycleMenager(int status_) {
+  auto exec_client_ = ExecutionClient::GetInstance();
   instance_->exec_logger.LogInfo() << "Application Stoped requested";
+  exec_client_->ReportExecutionState(ExecutionState::kTerminating);
   instance_->app_thread_->request_stop();
 }
 
