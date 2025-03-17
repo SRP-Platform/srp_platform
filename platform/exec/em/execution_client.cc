@@ -57,4 +57,4 @@ void ExecutionClient::HandleNewMsg(uint32_t pid,
         return;
 }
 }  // namespace exec
-}  // namespace ara
+}  // namespace platform

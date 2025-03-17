@@ -10,10 +10,10 @@
  */
 #ifndef APPS_COMMON_EM_CODE_SERVICES_EM_APP_CONFIG_H_
 #define APPS_COMMON_EM_CODE_SERVICES_EM_APP_CONFIG_H_
-#include "platform/exec/em/i_execution_client.h"
 #include <cstdint>
 #include <string>
 #include <vector>
+#include "platform/exec/em/i_execution_client.h"
 namespace srp {
 namespace em {
 namespace service {

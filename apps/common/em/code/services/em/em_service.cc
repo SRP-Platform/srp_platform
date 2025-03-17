@@ -77,7 +77,7 @@ EmService::EmService(
       for (const auto& app_id : current_fg_apps) {
         auto config = this->db_->GetAppConfig(app_id);
         if (!config.has_value()) {
-          // TODO some DTC???
+          // TODO(matik): some DTC???
           continue;
         }
         if (kill(config.value().get().GetPid(), 0) != 0) {
@@ -87,7 +87,7 @@ EmService::EmService(
             db_->SetExecutionStateForApp(app_id, ::platform::exec::ExecutionState::kErrorShutdown);
           ::platform::log::LogWarn() << config.value().get().GetAppName() << " just die";
           }
-          // TODO app dont work properly , add DTC
+          // TODO(matik): app dont work properly , add DTC
         }
       }
     }
@@ -152,7 +152,7 @@ void EmService::SetActiveState(const uint16_t& state_id_) noexcept {
         const auto new_pid = this->StartApp(app_config);
         db_->SetPidForApp(app_id_, new_pid);
         if (!WaitForAppStatus(app_id_, ::platform::exec::ExecutionState::kRunning)) {
-            //TODO(matik) report DTC app not start properly
+            // TODO(matik) report DTC app not start properly
           KillApp(app_id_, true);
         }
       }
@@ -183,7 +183,7 @@ bool EmService::WaitForAppStatus(const uint16_t& app_id_, const ::platform::exec
   if (state == state_) {
     return true;
   }
-  // TODO report DTC error
+  // TODO(matik) report DTC error
   return false;
 }
 void EmService::KillApps(const std::vector<uint16_t>& terminate_list) {
@@ -195,7 +195,7 @@ for (const auto& app_id_ : terminate_list) {
   }
   KillApp(app_config.value().get().GetPid());
   if (!this->WaitForAppStatus(app_id_, ::platform::exec::ExecutionState::kTerminated)) {
-    //TODO report DTC (cant stop app, need to be killed)
+    // TODO(matik) report DTC (cant stop app, need to be killed)
     KillApp(app_config.value().get().GetPid(), true);
   }
 }

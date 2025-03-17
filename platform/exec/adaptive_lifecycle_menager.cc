@@ -9,13 +9,11 @@
  *
  */
 #include "platform/exec/adaptive_lifecycle_menager.h"
-#include "platform/exec/em/execution_client.h"
-
 #include <pthread.h>
 #include <unistd.h>
-
 #include <string>
 #include <utility>
+#include "platform/exec/em/execution_client.h"
 
 namespace platform {
 namespace exec {
