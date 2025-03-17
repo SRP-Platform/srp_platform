@@ -9,12 +9,11 @@
  *
  */
 #include "platform/exec/adaptive_lifecycle_menager.h"
-
 #include <pthread.h>
 #include <unistd.h>
-
 #include <string>
 #include <utility>
+#include "platform/exec/em/execution_client.h"
 
 namespace platform {
 namespace exec {
@@ -26,10 +25,13 @@ int AdaptiveLifecycleMenager::StartAdaptiveLifecycleMenager() {
   if (instance_ == nullptr) {
     return -1;
   }
+  auto exec_client_ = ExecutionClient::GetInstance();
+  exec_client_->ReportExecutionState(ExecutionState::kIdle);
 
   if (instance_->app_thread_ == nullptr) {
+    exec_client_->ReportExecutionState(ExecutionState::kStarting);
     instance_->InitApp();
-
+    exec_client_->ReportExecutionState(ExecutionState::kRunning);
     instance_->app_thread_ = std::make_unique<std::jthread>(
         [&](std::stop_token token) { instance_->Run(token); });
     pthread_setname_np(instance_->app_thread_->native_handle(), "APP_THREAD");
@@ -38,10 +40,13 @@ int AdaptiveLifecycleMenager::StartAdaptiveLifecycleMenager() {
   instance_->app_thread_->join();
   instance_->exec_logger.LogInfo() << "Application Stoped";
   // todo start app and wait
+  exec_client_->ReportExecutionState(ExecutionState::kTerminated);
   return 0;
 }
 void AdaptiveLifecycleMenager::StopAdaptiveLifecycleMenager(int status_) {
+  auto exec_client_ = ExecutionClient::GetInstance();
   instance_->exec_logger.LogInfo() << "Application Stoped requested";
+  exec_client_->ReportExecutionState(ExecutionState::kTerminating);
   instance_->app_thread_->request_stop();
 }
 

@@ -20,7 +20,6 @@
 #include "platform/core/string_view.h"
 #include "platform/exec/adaptive_application.h"
 #include "platform/log/logging_menager.h"
-
 namespace platform {
 namespace exec {
 class AdaptiveLifecycleMenager final {
