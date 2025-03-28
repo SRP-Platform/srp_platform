@@ -1,43 +1,23 @@
 {
     "include":[],
     "package":"srp.platform.sm",
-    "someip":{
+    "interface":{
         "StateManager":{
-            "service_id": 1,
-            "major_version":1,
-            "minor_version":0,
-            "methods":{
-                "SetState":{
-                    "id":1,
-                    "data_structure":{
-                        "in":{
-                            "type":"uint16"
-                        },
-                        "out":{
-                            "type":"void"
-                        }
-                    }
+            "major_version": 1,
+            "minor_version": 0,
+            "methods": {
+                "SetState": {
+                    "in": "uint16",
+                    "out": "void"
                 },
-                "GetState":{
-                    "id":2,
-                    "data_structure":{
-                        "in":{
-                            "type":"void"
-                        },
-                        "out":{
-                            "type":"uint16"
-                        }
-                    }
+                "GetState": {
+                    "in": "void",
+                    "out": "uint16"
                 }
             },
-            "events":{
+            "broadcasts": {
                 "CurrentState": {
-                    "id":32769,
-                    "data_structure":{
-                        "out":{
-                            "type":"uint16"
-                        }
-                    }
+                    "out": "uint16"
                 }
             }
         }

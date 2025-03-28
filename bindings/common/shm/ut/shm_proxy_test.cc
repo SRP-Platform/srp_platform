@@ -21,10 +21,10 @@ struct TestData {
 class ShmProxyTest : public ::testing::Test {
  protected:
     // Unique instance specifier for each test
-    ara::core::InstanceSpecifier createUniqueInstanceSpec() {
+    platform::core::InstanceSpecifier createUniqueInstanceSpec() {
         static int counter = 0;
         std::string uniqueName = "/test_shm_" + std::to_string(counter++);
-        return ara::core::InstanceSpecifier(uniqueName);
+        return platform::core::InstanceSpecifier(uniqueName);
     }
     // Helper method to manually create shared memory for testing
     int createSharedMemory(const std::string& name) {
@@ -57,7 +57,7 @@ TEST_F(ShmProxyTest, FindServiceSuccess) {
 // Test FindService with non-existent shared memory
 TEST_F(ShmProxyTest, FindServiceFailure) {
     // Use a non-existent shared memory name
-    ara::core::InstanceSpecifier instanceSpec("/non_existent_shm");
+    platform::core::InstanceSpecifier instanceSpec("/non_existent_shm");
     srp::bindings::com::shm::ShmProxy<TestData> proxy(instanceSpec);
     // Test FindService
     auto result = proxy.FindService();

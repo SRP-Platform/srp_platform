@@ -1,0 +1,29 @@
+{
+    "package": "srp.platform.com",
+    "include": [],
+    "component": {
+        "ipc_service_discover": {
+            "functional_groups": [
+                "Startup",
+                "Startup2",
+                "Platform",
+                "Running",
+                "SafetyMode",
+                "MW"
+            ],
+            "parms": "",
+            "reporting_mode": "NoReporting",
+            "logger": {
+                "app_id": "IPCD",
+                "app_des": "ICP Service Discover",
+                "log_level": "kInfo",
+                "log_mode": "kRemote|kConsole",
+                "ctx": []
+            },
+            "provide": {
+            },
+            "require": {
+            }
+        }
+    }
+}

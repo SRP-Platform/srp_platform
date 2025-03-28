@@ -5,7 +5,7 @@ cc_library(
         "shm_skeleton.h",
     ],
     visibility = ["//visibility:public"],
-    deps = ["@srp_platform//ara/com:com_error_domain"],
+    deps = ["@srp_platform//platform/com:com_error_domain"],
 )
 
 cc_library(
@@ -16,7 +16,7 @@ cc_library(
     ],
     visibility = ["//visibility:public"],
     deps = [
-        "@srp_platform//ara/com:com_error_domain",
-        "@srp_platform//ara/core:condition_variable",
+        "@srp_platform//platform/com:com_error_domain",
+        "@srp_platform//platform/core:condition_variable",
     ],
 )

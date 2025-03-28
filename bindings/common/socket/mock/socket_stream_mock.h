@@ -21,7 +21,7 @@
 #include <utility>
 #include <vector>
 
-#include "ara/core/result.h"
+#include "platform/core/result.h"
 #include "bindings/common/socket/Isocket_stream.h"
 namespace srp {
 namespace bindings {
@@ -29,7 +29,7 @@ namespace com {
 namespace soc {
 class SocketStreamMock : public ISocketStream {
  public:
-  MOCK_METHOD(ara::core::Result<void>, Init, (const std::string& socket_path),
+  MOCK_METHOD(platform::core::Result<void>, Init, (const std::string& socket_path),
               (override));
   MOCK_METHOD(void, SetRXCallback, (RXCallbackStream && callback), (override));
   MOCK_METHOD(std::optional<std::vector<uint8_t>>, Transmit,
@@ -48,7 +48,7 @@ class FacadeSocketStream : public ISocketStream {
  public:
   explicit FacadeSocketStream(std::shared_ptr<SocketStreamMock> mock)
       : mock_{mock} {}
-  ara::core::Result<void> Init(const std::string& socket_path) {
+  platform::core::Result<void> Init(const std::string& socket_path) {
     return mock_->Init(socket_path);
   }
   void SetRXCallback(RXCallbackStream&& callback) {

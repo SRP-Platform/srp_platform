@@ -5,8 +5,8 @@ cc_library(
     ],
     visibility = ["//visibility:public"],
     deps = [
-        "@srp_platform//ara/com:com_error_domain",
-        "@srp_platform//ara/core:instance_specifier",
+        "@srp_platform//platform/com:com_error_domain",
+        "@srp_platform//platform/core:instance_specifier",
     ],
 )
 
@@ -17,7 +17,7 @@ cc_library(
     ],
     visibility = ["//visibility:public"],
     deps = [
-        "@srp_platform//ara/com:com_error_domain",
-        "@srp_platform//ara/core:instance_specifier",
+        "@srp_platform//platform/com:com_error_domain",
+        "@srp_platform//platform/core:instance_specifier",
     ],
 )

@@ -1,0 +1,29 @@
+{
+    "package": "srp.platform",
+    "include": [],
+    "component": {
+        "logger": {
+            "functional_groups": [
+                "Startup",
+                "Startup2",
+                "Platform",
+                "Running",
+                "SafetyMode",
+                "MW"
+            ],
+            "parms": "",
+            "reporting_mode": "AutoReporting",
+            "logger": {
+                "app_id": "DLTS",
+                "app_des": "DLT server",
+                "log_level": "kInfo",
+                "log_mode": "kConsole",
+                "ctx": []
+            },
+            "provide": {
+            },
+            "require": {
+            }
+        }
+    }
+}

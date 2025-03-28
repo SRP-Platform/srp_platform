@@ -21,7 +21,7 @@
 #include <iostream>
 #include <vector>
 
-#include "ara/com/com_error_domain.h"
+#include "platform/com/com_error_domain.h"
 
 namespace srp {
 namespace bindings {
@@ -32,11 +32,11 @@ bool IpcSocket::SocketExist(const std::string path) {
   return (stat(path.c_str(), &buffer) == 0);
 }
 
-ara::core::Result<void> IpcSocket::Init(const std::string& socket_path) {
+platform::core::Result<void> IpcSocket::Init(const std::string& socket_path) {
   memset(&server_sockaddr, 0, sizeof(struct sockaddr_un));
   server_sock = socket(AF_UNIX, SOCK_DGRAM, 0);
   if (server_sock == -1) {
-    return ara::com::MakeErrorCode(ara::com::ComErrc::kNetworkBindingFailure,
+    return platform::com::MakeErrorCode(platform::com::ComErrc::kNetworkBindingFailure,
                                    "");
   }
   umask(0);
@@ -55,14 +55,14 @@ void IpcSocket::SetRXCallback(RXCallback callback) {
   this->callback_ = callback;
 }
 
-ara::core::Result<void> IpcSocket::Transmit(const std::string& ip,
+platform::core::Result<void> IpcSocket::Transmit(const std::string& ip,
                                             std::vector<std::uint8_t> payload) {
   int client_socket, rc;
   struct sockaddr_un remote;
   memset(&remote, 0, sizeof(struct sockaddr_un));
   client_socket = socket(AF_UNIX, SOCK_DGRAM, 0);
   if (client_socket == -1) {
-    return ara::com::MakeErrorCode(ara::com::ComErrc::kNetworkBindingFailure,
+    return platform::com::MakeErrorCode(platform::com::ComErrc::kNetworkBindingFailure,
                                    "");
   }
 
@@ -77,7 +77,7 @@ ara::core::Result<void> IpcSocket::Transmit(const std::string& ip,
   delete[] buffor;
   close(client_socket);
   if (rc == -1) {
-    return ara::com::MakeErrorCode(ara::com::ComErrc::kCommunicationStackError,
+    return platform::com::MakeErrorCode(platform::com::ComErrc::kCommunicationStackError,
                                    "");
   }
 
@@ -90,7 +90,7 @@ void IpcSocket::StartRXThread() {
   }
   this->rx_thred = std::make_unique<std::jthread>(
       [&](std::stop_token stoken) { this->Loop(stoken); });
-  pthread_setname_np(this->rx_thred->native_handle(), "IpcSocket_RX_Thread");
+  pthread_setname_np(this->rx_thred->native_handle(), "IPC_SOCK_RX");
 }
 
 void IpcSocket::Loop(std::stop_token stoken) {

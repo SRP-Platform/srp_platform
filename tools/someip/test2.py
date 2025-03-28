@@ -10,7 +10,7 @@ from someipy.client_service_instance import (
 from someipy.service import ServiceBuilder
 from someipy.service_discovery import construct_service_discovery
 from someipy.logging import set_someipy_log_level
-from addition_method_parameters import Addends, Sum
+from addition_method_pplatformmeters import Addends, Sum
 
 SD_MULTICAST_GROUP = "224.224.224.245"
 SD_PORT = 30490
@@ -56,9 +56,9 @@ async def main():
     try:
         while True:
 
-            method_parameter = Addends(addend1=1, addend2=2)
+            method_pplatformmeter = Addends(addend1=1, addend2=2)
             method_success, method_result = await client_instance_addition.call_method(
-                SAMPLE_METHOD_ID, method_parameter.serialize()
+                SAMPLE_METHOD_ID, method_pplatformmeter.serialize()
             )
             if method_success == MethodResult.SUCCESS:
                 print(

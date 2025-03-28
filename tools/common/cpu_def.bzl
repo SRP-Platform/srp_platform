@@ -33,9 +33,10 @@ def _start_service_script(ctx):
 ################################################################################
 #
 echo "Starting components SRP EM "
-sleep 3
-/srp/platform/em/bin/em &
-/srp/platform/state_manager/bin/state_manager &
+sleep 1
+setsid /srp/platform/em/bin/em &
+setsid /srp/platform/ipc_service_discover/bin/ipc_service_discover &
+setsid /srp/platform/state_manager/bin/state_manager &
 echo "Simab SRP start up component script [DONE]"
 """
     return content

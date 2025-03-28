@@ -1,0 +1,36 @@
+{
+    "package": "srp.platform",
+    "include": [
+        "platform_definition/sm_service/example_service_depl.json"
+    ],
+    "component": {
+        "state_manager": {
+            "functional_groups": [
+                "Startup",
+                "Startup2",
+                "Platform",
+                "Running",
+                "SafetyMode",
+                "MW"
+            ],
+            "parms": "",
+            "reporting_mode": "NoReporting",
+            "logger": {
+                "app_id": "SM--",
+                "app_des": "State Manager",
+                "log_level": "kInfo",
+                "log_mode": "kRemote|kConsole",
+                "ctx": []
+            },
+            "provide": {
+            },
+            "require": {
+                "srp.platform.sm.StateManager as StateManagerPPort": {
+                    "using": "srp.platform.sm.StateManagerDepl",
+                    "on": "IPC",
+                    "instanceID": 1
+                }
+            }
+        }
+    }
+}

@@ -1,6 +1,9 @@
 filegroup(
     name = "SM_service",
-    srcs = ["sm_service.json"],
+    srcs = [
+        "example_service_depl.json",
+        "sm_service.json",
+    ],
     visibility = ["//visibility:public"],
 )
 

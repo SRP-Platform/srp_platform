@@ -17,7 +17,7 @@ We can then run qemu simulations via the following command:
 $ bazel run @srp_platform//tools/qemu
 ```
 
-In the above case, the console will be launched in a separate window. Requires a graphics driver.
+In the above case, the console will be launched in a sepplatformte window. Requires a graphics driver.
 To run without graphics drivers, use the following command. It will launch qemu in the terminal. * CTRL+X will not work.
 
 ```

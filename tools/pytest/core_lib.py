@@ -10,10 +10,10 @@ def ping(host):
     """
 
     # Option for the number of packets as a function of
-    param = '-n' if platform.system().lower()=='windows' else '-c'
+    pplatformm = '-n' if platform.system().lower()=='windows' else '-c'
 
     # Building the command. Ex: "ping -c 1 google.com"
-    command = ['ping', param, '1', host]
+    command = ['ping', pplatformm, '1', host]
 
     return subprocess.call(command) == 0
 

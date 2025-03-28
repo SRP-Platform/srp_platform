@@ -15,8 +15,8 @@ def pytest_register_test(func):
 if __name__ == "__main__":
     qemu_thread = None
     logs = os.popen("ps -A").read()
-
-    if "qemu-system-arm" in logs:
+    
+    if "qemu-system-arm" in logs or "-nocheck" in sys.argv:
         print("@@@@ Qemu already running @@@@")
     else:
         print("@@@@ Please Start qemu... @@@@")

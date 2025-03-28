@@ -19,9 +19,9 @@ namespace srp {
 class ShmSkeletonTest : public ::testing::Test {
  protected:
     // Helper method to create a unique instance specifier for each test
-    ara::core::InstanceSpecifier createUniqueInstanceSpecifier() {
+    platform::core::InstanceSpecifier createUniqueInstanceSpecifier() {
         static int counter = 0;
-        return ara::core::InstanceSpecifier("test_shm_" + std::to_string(counter++));
+        return platform::core::InstanceSpecifier("test_shm_" + std::to_string(counter++));
     }
 
     // Cleanup method to ensure shared memory is properly removed

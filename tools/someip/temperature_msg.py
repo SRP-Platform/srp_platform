@@ -33,7 +33,7 @@ class Version(SomeIpPayload):
 
 
 @dataclass
-class TemparatureMsg(SomeIpPayload):
+class TempplatformtureMsg(SomeIpPayload):
     # Always define payloads with the @dataclass decorator. This leads to the __eq__ being
     # generated which makes it easy to compare the content of two messages.
     # For defining a payload struct simply derive from the SomeIpPayload class. This will ensure
@@ -56,7 +56,7 @@ class TemparatureMsg(SomeIpPayload):
 
 # Simple example how to instantiate a payload, change values, serialize and deserialize
 if __name__ == "__main__":
-    tmp_msg = TemparatureMsg()
+    tmp_msg = TempplatformtureMsg()
 
     tmp_msg.version.major = Uint8(2)
     tmp_msg.version.minor = Uint8(0)
@@ -78,7 +78,7 @@ if __name__ == "__main__":
     print(output.hex())
 
     # Create a new TemperatureMsg from the serialized bytes
-    tmp_msg_again = TemparatureMsg().deserialize(output)
+    tmp_msg_again = TempplatformtureMsg().deserialize(output)
     print(tmp_msg_again)
 
     assert tmp_msg_again == tmp_msg

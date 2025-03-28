@@ -17,22 +17,22 @@
 class ShmBufforProxyTest : public ::testing::Test {
  protected:
     // Unique instance specifier for each test
-    ara::core::InstanceSpecifier createUniqueInstanceSpec() {
+    platform::core::InstanceSpecifier createUniqueInstanceSpec() {
         static int counter = 0;
         std::string uniqueName = "/test_shm_buffor_proxy_" + std::to_string(counter++);
-        return ara::core::InstanceSpecifier(uniqueName);
+        return platform::core::InstanceSpecifier(uniqueName);
     }
 
     // Helper method to create shared memory for testing
     template <std::size_t BUFFER_SIZE>
-    void createSharedMemory(const ara::core::InstanceSpecifier& instanceSpec) {
+    void createSharedMemory(const platform::core::InstanceSpecifier& instanceSpec) {
         srp::bindings::com::shm::ShmBufforSkeleton<BUFFER_SIZE> skeleton(instanceSpec);
         auto result = skeleton.OfferService();
         ASSERT_TRUE(result.HasValue());
     }
 };
 
-// Test FindService with valid parameters
+// Test FindService with valid pplatformmeters
 TEST_F(ShmBufforProxyTest, FindServiceSuccess) {
     constexpr std::size_t BUFFER_SIZE = 1024;
     auto instanceSpec = createUniqueInstanceSpec();

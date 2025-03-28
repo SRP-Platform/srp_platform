@@ -15,7 +15,7 @@
 #include <string>
 #include <vector>
 
-#include "ara/core/result.h"
+#include "platform/core/result.h"
 
 namespace srp {
 namespace bindings {
@@ -27,24 +27,24 @@ class ISocket {
   /**
    * @brief
    *
-   * @param socket_path
-   * @return ara::core::Result<void>
+   * @pplatformm socket_path
+   * @return platform::core::Result<void>
    */
-  virtual ara::core::Result<void> Init(const std::string& socket_path) = 0;
+  virtual platform::core::Result<void> Init(const std::string& socket_path) = 0;
   /**
    * @brief Setter for rx callback
    *
-   * @param callback
+   * @pplatformm callback
    */
   virtual void SetRXCallback(RXCallback callback) = 0;
   /**
    * @brief Function to send data by socket
    *
-   * @param ip target ip or path
-   * @param payload payload to send
+   * @pplatformm ip target ip or path
+   * @pplatformm payload payload to send
    * @return core::ErrorCode status
    */
-  virtual ara::core::Result<void> Transmit(
+  virtual platform::core::Result<void> Transmit(
       const std::string& ip, std::vector<std::uint8_t> payload) = 0;
   /**
    * @brief This function start RX thread

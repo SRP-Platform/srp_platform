@@ -2,6 +2,7 @@ load("@srp_platform//bazel/toolchain:toolchain.bzl", "register_all_toolchains")
 load("@srp_platform//third_party:deps.bzl", "deps")
 load("@rules_python//python:repositories.bzl", "py_repositories")
 load("@rules_python//python:repositories.bzl", "python_register_toolchains")
+load("@com_github_nelhage_rules_boost//:boost/boost.bzl", "boost_deps")
 
 
 def install():
@@ -14,3 +15,4 @@ def install():
         # We recommend using the same version your team is already standardized on.
         python_version = "3.11",
     )
+    boost_deps()

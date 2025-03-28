@@ -18,8 +18,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "ara/core/instance_specifier.h"
-#include "ara/core/result.h"
+#include "platform/core/instance_specifier.h"
+#include "platform/core/result.h"
 #include "core/data/type_converter.h"
 
 namespace srp {
@@ -29,20 +29,20 @@ namespace fifo {
 template <typename fifo_type>
 class FifoSkeleton {
  private:
-  const ara::core::InstanceSpecifier instance_;
+  const platform::core::InstanceSpecifier instance_;
 
  public:
-  explicit FifoSkeleton(const ara::core::InstanceSpecifier& instance)
+  explicit FifoSkeleton(const platform::core::InstanceSpecifier& instance)
       : instance_{instance} {}
-  ara::core::Result<void> OfferService() {
+  platform::core::Result<void> OfferService() {
     mkfifo(("/tmp/" + instance_.ToString()).c_str(), 0666);
     return {};
   }
-  ara::core::Result<void> StopOfferService() {
+  platform::core::Result<void> StopOfferService() {
     unlink(("/tmp/" + instance_.ToString()).c_str());
     return {};
   }
-  ara::core::Result<void> Send(const fifo_type& value) {
+  platform::core::Result<void> Send(const fifo_type& value) {
     int fd = open(("/tmp/" + instance_.ToString()).c_str(), O_WRONLY);
     const auto data = srp::data::Convert2Vector<fifo_type>::Conv(value);
     write(fd, data.data(), data.size() + 1);
