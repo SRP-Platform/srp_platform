@@ -69,6 +69,11 @@ class LogerConfig:
         if(len(res)==0):
             raise Exception("kRemote , kFile or kConsole not found in log mode")
         return res
+class DiagItem:
+    def __init__(self,name:str,model:str,instance:int):
+        self.name = name
+        self.model = model
+        self.instance = instance
 
 class IpcItem:
     def __init__(self, name:str, model:str,depl:str,instance:int):

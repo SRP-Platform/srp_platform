@@ -20,7 +20,7 @@
 #include "platform/exec/adaptive_application.h"
 #include "platform/exec/sm/i_state_controller.h"
 #include "srp/platform/sm/StateManagerHandler.h"
-// #include "platform/common/state_manager/code/did_impl.h"
+#include "apps/common/state_manager/code/did_impl.h"
 
 namespace srp {
 namespace sm {
@@ -41,7 +41,7 @@ class StateManager final : public ::platform::exec::AdaptiveApplication {
   int Run(const std::stop_token& token) override;
   std::shared_ptr<::platform::exec::sm::IStateController> state_con_;
   srp::platform::sm::StateManagerProxy::Handler handler_;
-  // std::unique_ptr<DiDImpl> did_;
+  std::unique_ptr<DiDImpl> did_;
  public:
   StateManager(/* args */);
   ~StateManager();

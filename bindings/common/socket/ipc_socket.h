@@ -47,7 +47,7 @@ class IpcSocket : public ISocket {
    * @pplatformm socket_path
    * @return platform::core::Result<void>
    */
-  platform::core::Result<void> Init(const std::string& socket_path) override;
+  ::platform::core::Result<void> Init(const std::string& socket_path) override;
   /**
    * @brief Setter for rx callback
    *
@@ -61,7 +61,7 @@ class IpcSocket : public ISocket {
    * @pplatformm payload payload to send
    * @return core::ErrorCode status
    */
-  platform::core::Result<void> Transmit(const std::string& ip,
+  ::platform::core::Result<void> Transmit(const std::string& ip,
                                    std::vector<std::uint8_t> payload) override;
   /**
    * @brief This function start RX thread

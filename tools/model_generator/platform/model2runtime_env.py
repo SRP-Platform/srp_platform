@@ -8,10 +8,11 @@ from tools.model_generator.platform.common.common_parser import CommonParser
 from tools.model_generator.platform.interface.interface_db import InterfaceDb, Interface
 from tools.model_generator.platform.deployment.interface import *
 from tools.model_generator.platform.component.component_db import ComponentDb, Component
-from tools.model_generator.platform.component.component import IpcItem
+from tools.model_generator.platform.component.component import IpcItem, DiagItem
 from tools.model_generator.platform.common.data_structure import Structure
 from tools.model_generator.platform.common.data_structure_extractor import DataStructureExtractor
 from tools.model_generator.platform.common.data_structure_db import DataStructureDB
+from tools.model_generator.platform.diag.diag_jobs import ServiceType
 
 OUTPUT_FILE_START = f"""/**
  * @file initialization.cc
@@ -119,6 +120,16 @@ void InitCom() noexcept {
     platform::com::Initialize("""+hex(model.id).upper().replace("X","x")+""");
 }
 """
+def CreateDiagDepl(key, item: DiagItem, model: DiagJobDepl, service: ServiceType):
+
+    address = (service.service_id<<8*service.max_sub_id)+model.subs_service_id
+    print((service.service_id<<8*service.max_sub_id))
+    print(service.service_id)
+    print(model.subs_service_id)
+    res = f"""    std::ignore = db_.AddNewItem("{key}",platform::core::model::ModelUds({hex(service.service_id)},{hex(model.subs_service_id)},\"{address}\", platform::core::model::ModelUds::Direction::kOut));\n"""
+    return res
+
+
 def CreateDbInit(model:Component,items)->str:
     res = """
 Result<void> InitializeDb(ModelDataBase& db_) noexcept {
@@ -129,7 +140,9 @@ Result<void> InitializeDb(ModelDataBase& db_) noexcept {
         depl = itemd[1]
         print(depl)
         if type(depl) == InterfaceDepl:
-             res+=CreateInterfaceDepl(key,depl,item)+"\n"
+            res+=CreateInterfaceDepl(key,depl,item)+"\n"
+        elif type(depl) == DiagJobDepl:
+            res+=CreateDiagDepl(key,item,depl,itemd[2])+"\n"
     res += """    return {};
 }
 """
@@ -154,7 +167,9 @@ if __name__ == "__main__":
          if type(item) == IpcItem:
             items[key] = [item ,db[item.depl]]
     for key, item in model.provide.items():
-         if type(item) == IpcItem:
+        if type(item) == IpcItem:
             items[key] = [item ,db[item.depl]]
+        elif type(item) == DiagItem:
+             items[key] = [item, db[item.model], db[db[item.model].service_type]]
     with open(out_path+"/initialization.cc","w") as out_file:
             out_file.write(OUTPUT_FILE_START+CreateLogerInit(model)+CreateDbInit(model,items)+CreatInitCom(model)+OUTPUT_FILE_END)

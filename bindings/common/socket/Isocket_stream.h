@@ -26,7 +26,7 @@ using RXCallbackStream =
     std::function<std::vector<uint8_t>(const std::vector<uint8_t>&)>;
 class ISocketStream {
  public:
-  virtual platform::core::Result<void> Init(const std::string& socket_path) = 0;
+  virtual ::platform::core::Result<void> Init(const std::string& socket_path) = 0;
   /**
    * @brief Setter for rx callback
    *

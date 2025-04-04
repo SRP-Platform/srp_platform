@@ -11,8 +11,8 @@
 #ifndef APPS_COMMON_DIAG_DEMON_CODE_SERVICES_I_VALIDATOR_H_
 #define APPS_COMMON_DIAG_DEMON_CODE_SERVICES_I_VALIDATOR_H_
 
-#include "platform/common/diag_demon/code/services/uds_nrc_codes.h"
-#include "platform/common/diag_demon/code/services/uds_request.h"
+#include "apps/common/diag_demon/code/services/uds_nrc_codes.h"
+#include "apps/common/diag_demon/code/services/uds_request.h"
 namespace srp {
 namespace platform {
 namespace diag_demon {

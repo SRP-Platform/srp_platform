@@ -22,20 +22,20 @@
 
 namespace srp {
 namespace sm {
-class DiDImpl : public platform::diag::GenericDiD {
+class DiDImpl : public ::platform::diag::GenericDiD {
  private:
-  const std::shared_ptr<platform::exec::sm::IStateController> state_con_;
+  const std::shared_ptr<::platform::exec::sm::IStateController> state_con_;
 
-  platform::core::Result<platform::diag::OperationOutput> Read() noexcept
+  ::platform::core::Result<::platform::diag::OperationOutput> Read() noexcept
       override {
-    platform::diag::OperationOutput res{
+    ::platform::diag::OperationOutput res{
         srp::data::Convert2Vector<uint16_t>::Conv(
             srp::data::EndianConvert<uint16_t>::Conv(
                 state_con_->GetCurrentState()))};
     return res;
   }
 
-  platform::core::Result<void> Write(
+  ::platform::core::Result<void> Write(
       const std::vector<uint8_t>& val) noexcept override {
     const auto val_16 = srp::data::Convert<uint16_t>::Conv(val);
     if (val_16.has_value()) {
@@ -44,19 +44,19 @@ class DiDImpl : public platform::diag::GenericDiD {
       if (res == 0) {
         return {};
       } else {
-        return platform::diag::MakeErrorCode(
-            platform::diag::UdsDiagErrc::kProgrammingFailure);
+        return ::platform::diag::MakeErrorCode(
+            ::platform::diag::UdsDiagErrc::kProgrammingFailure);
       }
     }
 
-    return platform::diag::MakeErrorCode(
-        platform::diag::UdsDiagErrc::kGeneralReject);
+    return ::platform::diag::MakeErrorCode(
+        ::platform::diag::UdsDiagErrc::kGeneralReject);
   }
 
  public:
-  DiDImpl(const platform::core::InstanceSpecifier instance,
-          std::shared_ptr<platform::exec::sm::IStateController> state_con)
-      : platform::diag::GenericDiD{instance}, state_con_{state_con} {}
+  DiDImpl(const ::platform::core::InstanceSpecifier instance,
+          std::shared_ptr<::platform::exec::sm::IStateController> state_con)
+      : ::platform::diag::GenericDiD{instance}, state_con_{state_con} {}
   ~DiDImpl() = default;
 };
 }  // namespace sm

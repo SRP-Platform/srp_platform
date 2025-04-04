@@ -21,19 +21,19 @@ namespace srp {
 namespace platform {
 namespace diag_demon {
 
-class ExampleDiD : public platform::diag::GenericDiD {
+class ExampleDiD : public ::platform::diag::GenericDiD {
  private:
-  platform::core::Result<platform::diag::OperationOutput> Read() noexcept override {
-    return platform::diag::OperationOutput{{0x01, 0x02, 0x03, 0x04}};
+  ::platform::core::Result<::platform::diag::OperationOutput> Read() noexcept override {
+    return ::platform::diag::OperationOutput{{0x01, 0x02, 0x03, 0x04}};
   }
-  platform::core::Result<void> Write(const std::vector<uint8_t>&) noexcept override {
-    return platform::diag::MakeErrorCode(
-        platform::diag::UdsDiagErrc::kSubFunctionNotSupported);
+  ::platform::core::Result<void> Write(const std::vector<uint8_t>&) noexcept override {
+    return ::platform::diag::MakeErrorCode(
+        ::platform::diag::UdsDiagErrc::kSubFunctionNotSupported);
   }
 
  public:
-  explicit ExampleDiD(const platform::core::InstanceSpecifier& instance)
-      : platform::diag::GenericDiD(instance) {}
+  explicit ExampleDiD(const ::platform::core::InstanceSpecifier& instance)
+      : ::platform::diag::GenericDiD(instance) {}
 };
 }  // namespace diag_demon
 }  // namespace platform

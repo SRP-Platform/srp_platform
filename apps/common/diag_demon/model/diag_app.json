@@ -1,40 +1,33 @@
 {
-    "include": [
-        "@(srp_platform)/platform_definition/diag/jobs/read_vin.json"
-    ],
     "package": "srp.platform",
-    "adaptive_application": {
+    "include": [],
+    "component": {
         "diag_demon": {
-            "app": {
-                "functional_groups": [
-                    "Startup",
-                    "Startup2",
-                    "Platform",
-                    "Running",
-                    "SafetyMode",
-                    "MW"
-                ],
-                "parms": "",
-                "logger": {
-                    "app_id": "DIAG",
-                    "app_des": "Diagnostic Demon",
-                    "log_level": "kInfo",
-                    "log_mode": "kRemote",
-                    "ctx": [
-                        {
-                            "ctx_id": "doip",
-                            "log_level": "kDebug",
-                            "ctx_des": "Default ctx for doip"
-                        }
-                    ]
-                }
+            "functional_groups": [
+                "Startup",
+                "Startup2",
+                "Platform",
+                "Running",
+                "SafetyMode",
+                "MW"
+            ],
+            "parms": "",
+            "reporting_mode": "NoReporting",
+            "logger": {
+                "app_id": "DIAG",
+                "app_des": "Diagnostic Demon",
+                "log_level": "kInfo",
+                "log_mode": "kRemote",
+                "ctx": [
+                    {
+                        "ctx_id": "doip",
+                        "log_level": "kDebug",
+                        "ctx_des": "Default ctx for doip"
+                    }
+                ]
             },
-            "provide": [
-                {
-                    "name": "read_vin as UDSReadVin",
-                    "on": "diag"
-                }
-            ]
+            "provide": {},
+            "require": {}
         }
     }
 }

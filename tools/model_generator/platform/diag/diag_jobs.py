@@ -5,8 +5,10 @@ class diag_job:
         self.desc = desc
         pass
 
-class diag_job_global:
-    def __init__(self,service_id,max_sub_id,min_sub_id) -> None:
+class ServiceType:
+    def __init__(self,service_id,max_sub_id,min_sub_id, uds_id) -> None:
         self.service_id = service_id
         self.max_sub_id = max_sub_id
         self.min_sub_id = min_sub_id
+        self.uds_id = uds_id
+        self.skip_sub_service_id = False

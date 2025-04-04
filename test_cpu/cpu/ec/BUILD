@@ -26,7 +26,7 @@ cpu_def(
         "platform_config.json",
     ],
     srp_components = [
-        # "//platform/common/diag_demon/model:diag_demon",
+        "//apps/common/diag_demon/model:diag_demon",
         "//apps/common/em/model:em",
         "//apps/common/logger/model:logger",
         "//apps/common/ipc_service_discover/model:ipc_service_discover",

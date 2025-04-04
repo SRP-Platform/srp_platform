@@ -12,7 +12,8 @@ class ComponentParser:
         src_name = name.split(" as ")[0]
         desc_name = name.split(" as ")[1]
         return src_name, desc_name
-
+    def _ExtractDiag(json_obj, name, model):
+        return DiagItem(name,"/"+model.replace(".","/"),json_obj["instanceID"])
     def _ExtractIpc(json_obj, name, model):
         instance = 0
         if "instanceID" in json_obj:
@@ -29,6 +30,9 @@ class ComponentParser:
                     raise logger.critical("Missing InstanceId in provide")
                     
                 list[pkg+"/"+item_name] = item
+            elif obj["on"].upper() in ["DIAG"]:
+                item = ComponentParser._ExtractDiag(obj, pkg+"/"+item_name, model_name)
+                list[item.name] = item
         return list
                 
 
@@ -37,7 +41,7 @@ class ComponentParser:
         list = {}
         for key, obj in json_obj.items():
             model_name, item_name = ComponentParser._NameResolver(key)
-            if obj["on"] in ["IPC", "ipc"]:
+            if obj["on"].upper() in ["IPC"]:
                 item = ComponentParser._ExtractIpc(obj, pkg+"/"+item_name, model_name)
                 if item.instance == 0:
                     item.instance == 0xFFFF

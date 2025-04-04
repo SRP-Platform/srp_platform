@@ -9,7 +9,7 @@
  *
  */
 #include "platform/exec/adaptive_lifecycle.h"
-#include "platform/common/diag_demon/code/application/diag_demon.h"
+#include "apps/common/diag_demon/code/application/diag_demon.h"
 
 int main(int argc, char const *argv[]) {
   return platform::exec::RunAdaptiveLifecycle<

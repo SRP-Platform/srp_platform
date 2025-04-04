@@ -1,0 +1,13 @@
+{
+    "package": "srp.platform.common.diag",
+    "include": [],
+    "diagnostic": {
+        "ServiceType": {
+            "RiD": {
+                "ServiceId": 49,
+                "SubServiceMaxSize": 2,
+                "SubServiceMinSize": 2
+            }
+        }
+    }
+}

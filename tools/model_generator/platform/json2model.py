@@ -9,6 +9,7 @@ from tools.model_generator.platform.interface.interface_db import InterfaceDb
 from tools.model_generator.platform.deployment.deployment_db import DeploymentDb
 from tools.model_generator.platform.component.component_db import ComponentDb
 from tools.model_generator.platform.common.data_structure_db import DataStructureDB
+from tools.model_generator.platform.diag.diag_db import DiagDb
 def LoadJson(path:str):
     CommonParser.LoadJson(path)
 def CreateDir(start:str,finish:str):
@@ -30,10 +31,11 @@ if __name__ == "__main__":
     out_json = copy.copy(InterfaceDb().interfaces)
     out_json.update(DataStructureDB().data_structure)
     out_json.update(DeploymentDb().list)
+    out_json.update(DiagDb().items)
     if component_name == "/NONE":
         component_name = list(ComponentDb().list.keys())[0]
     out_json[component_name] = (ComponentDb().list[component_name])
-    assert len(out_json) == (len(InterfaceDb().interfaces)+len(DeploymentDb().list)+1+len(DataStructureDB().data_structure))
+    assert len(out_json) == (len(InterfaceDb().interfaces)+len(DeploymentDb().list)+1+len(DataStructureDB().data_structure)+len(DiagDb().items))
     json_string = jsonpickle.encode(out_json)
     json_t = json.loads(json_string)
     with open(out_path,"w") as file:

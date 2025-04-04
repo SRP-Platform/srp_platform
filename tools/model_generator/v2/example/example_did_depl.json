@@ -1,11 +1,11 @@
 {
-    "package": "srp.platform",
+    "package": "srp.example",
     "include": [
         "@(srp_platform)/platform_definition/common/did.json"
     ],
     "deployment": {
         "diagnostic.job": {
-            "StateMenagerDiD": {
+            "ExampleDidDepl": {
                 "ServiceType": "srp.platform.common.diag.DiD",
                 "SubsServiceID": 3,
                 "ActiveSesion": [
