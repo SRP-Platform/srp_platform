@@ -1,0 +1,14 @@
+{
+    "package": "srp.platform.common.diag",
+    "include": [],
+    "diagnostic": {
+        "ServiceType": {
+            "DiD": {
+                "ServiceId": 34,
+                "SubServiceMaxSize": 2,
+                "SubServiceMinSize": 2,
+                "UdsId" : [34,46]
+            }
+        }
+    }
+}

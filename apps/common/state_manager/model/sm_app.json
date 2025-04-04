@@ -1,7 +1,8 @@
 {
     "package": "srp.platform",
     "include": [
-        "platform_definition/sm_service/example_service_depl.json"
+        "platform_definition/sm_service/example_service_depl.json",
+        "platform_definition/sm_service/sm_did.json"
     ],
     "component": {
         "state_manager": {
@@ -23,6 +24,10 @@
                 "ctx": []
             },
             "provide": {
+                "srp.platform.StateMenagerDiD as StateMenagerDiDPPort": {
+                    "instanceID": 1,
+                    "on": "diag"
+                }
             },
             "require": {
                 "srp.platform.sm.StateManager as StateManagerPPort": {

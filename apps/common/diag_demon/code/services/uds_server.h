@@ -18,7 +18,7 @@
 #include "DoIPServer.h"  // NOLINT
 #include "platform/log/logging_menager.h"
 #include "bindings/common/socket/Isocket_stream.h"
-#include "platform/common/diag_demon/code/services/i_validator.h"
+#include "apps/common/diag_demon/code/services/i_validator.h"
 namespace srp {
 namespace platform {
 namespace diag_demon {
@@ -31,7 +31,7 @@ class UdsServer {
   bool serverActive = false;
   const std::string vin_;
   const uint16_t logical_address_;
-  const platform::log::Logger& doip_logger;
+  const ::platform::log::Logger& doip_logger;
   std::unique_ptr<uds::IValidator> validator;
   const std::unique_ptr<srp::bindings::com::soc::ISocketStream> soc_;
   /**

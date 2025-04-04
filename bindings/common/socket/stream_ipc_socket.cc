@@ -31,11 +31,11 @@ bool StreamIpcSocket::SocketExist(const std::string path) {
   return (stat(path.c_str(), &buffer) == 0);
 }
 
-platform::core::Result<void> StreamIpcSocket::Init(const std::string& socket_path) {
+::platform::core::Result<void> StreamIpcSocket::Init(const std::string& socket_path) {
   memset(&server_sockaddr, 0, sizeof(struct sockaddr_un));
   server_sock = socket(AF_UNIX, SOCK_STREAM, 0);
   if (server_sock == -1) {
-    return platform::com::MakeErrorCode(platform::com::ComErrc::kCommunicationStackError,
+    return ::platform::com::MakeErrorCode(::platform::com::ComErrc::kCommunicationStackError,
                                    "");
   }
   umask(0);

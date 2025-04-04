@@ -38,6 +38,7 @@ class CommonParser:
                 DeploymentParser.Parser(json_object)
             if "component" in json_object:
                 ComponentParser.Parser(json_object)   
-            
+            if "diagnostic" in json_object:
+                DiagParser.ParseJson(json_object)
             # if "diag" in json_object:
             #     DiagParser.ParseJson(json_object)

@@ -7,7 +7,7 @@ cc_library(
     deps = [
         "@srp_platform//platform/com:com_error_domain",
         "@srp_platform//platform/diag:uds_lib",
-        # "@srp_platform//platform/exec/sm:sm_interfaces",
+        "@srp_platform//apps/common/state_manager/model:com_lib",
         "@srp_platform//platform/log",
     ],
 )

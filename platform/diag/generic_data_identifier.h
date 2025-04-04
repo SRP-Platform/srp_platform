@@ -29,11 +29,11 @@ class GenericDiD : public routing::RoutableUdsService {
   /// @pplatformm reentrancyType Service reentrancy type in a multi-threading contex
   explicit GenericDiD(const core::InstanceSpecifier &specifier);
 
-  platform::core::Result<OperationOutput> HandleMessage(
+  ::platform::core::Result<OperationOutput> HandleMessage(
       const std::vector<uint8_t> &requestData) override;
 
-  virtual platform::core::Result<OperationOutput> Read() noexcept = 0;
-  virtual platform::core::Result<void> Write(
+  virtual ::platform::core::Result<OperationOutput> Read() noexcept = 0;
+  virtual ::platform::core::Result<void> Write(
       const std::vector<uint8_t> &) noexcept = 0;
 };
 }  // namespace diag

@@ -20,3 +20,10 @@ class InterfaceDepl:
         self.interface_name = interface_name
         self.common_conf = common_conf
         self.EndpointList = EndpointList
+
+class DiagJobDepl:
+    def __init__(self, service_type, subs_service_id, active_sesion, ecu_mode):
+        self.service_type = service_type
+        self.subs_service_id = subs_service_id
+        self.active_sesion = active_sesion
+        self.ecu_mode = ecu_mode

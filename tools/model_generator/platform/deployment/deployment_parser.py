@@ -1,7 +1,7 @@
 from __future__ import annotations
 import logging
 
-from tools.model_generator.platform.deployment.interface import InterfaceCommonConfig,InterfaceDepl,InterfaceEndpointConfig
+from tools.model_generator.platform.deployment.interface import InterfaceCommonConfig, InterfaceDepl, InterfaceEndpointConfig, DiagJobDepl
 from tools.model_generator.platform.deployment.deployment_db import DeploymentDb
 
 logger = logging.getLogger(__name__)
@@ -19,6 +19,8 @@ class DeploymentParser:
         json_obj = json_obj["deployment"]
         if "interface" in json_obj:
             DeploymentParser._InterfaceParser(json_obj["interface"],package)
+        if "diagnostic.job" in json_obj:
+            DeploymentParser._DiagnosticInterfaceParser(json_obj["diagnostic.job"],package)
 
     def _BasicEndpointParser(json_obj, container):
         for key,obj in json_obj.items():
@@ -48,3 +50,9 @@ class DeploymentParser:
                 DeploymentParser._AttributesParser(obj["attributes"],endpoint)
             model = InterfaceDepl(desc_name,"/"+src_name.replace(".","/"),general_config,endpoint)
             DeploymentDb().InsterModel("/"+pkg_name.replace(".","/")+"/"+desc_name, model)
+    
+    def _DiagnosticInterfaceParser(json_obj, pkg_name:str):
+        for key,obj in json_obj.items():
+            # src_name, desc_name = DeploymentParser._ResolvePkg(key,pkg_name)
+            model = DiagJobDepl("/"+obj["ServiceType"].replace(".","/"),obj["SubsServiceID"],obj["ActiveSesion"],obj["EcuMode"])
+            DeploymentDb().InsterModel("/"+pkg_name.replace(".","/")+"/"+key, model)

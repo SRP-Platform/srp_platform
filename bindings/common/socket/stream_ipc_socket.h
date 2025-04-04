@@ -47,7 +47,7 @@ class StreamIpcSocket : public ISocketStream {
    * @pplatformm config Config file
    * @return srp::core::ErrorCode initialiaze status
    */
-  platform::core::Result<void> Init(const std::string& socket_path) override;
+  ::platform::core::Result<void> Init(const std::string& socket_path) override;
   /**
    * @brief Setter for rx callback
    *

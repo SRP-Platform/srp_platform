@@ -1,0 +1,13 @@
+{
+    "package": "srp.platform.common.diag",
+    "include": [],
+    "diagnostic": {
+        "ServiceType": {
+            "Restart": {
+                "ServiceId": 17,
+                "SubServiceMaxSize": 1,
+                "SubServiceMinSize": 1
+            }
+        }
+    }
+}

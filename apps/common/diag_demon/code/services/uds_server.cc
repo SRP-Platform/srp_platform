@@ -61,7 +61,7 @@ UdsServer::UdsServer(const uint16_t& logical_address, const std::string& vin)
       validator{std::make_unique<ValidatorController>()},
       soc_{std::make_unique<srp::bindings::com::soc::StreamIpcSocket>()},
       doip_logger{
-          platform::log::LoggingMenager::GetInstance()->CreateLogger("doip")} {}
+          ::platform::log::LoggingMenager::GetInstance()->CreateLogger("doip")} {}
 
 UdsServer::~UdsServer() {}
 

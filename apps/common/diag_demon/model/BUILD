@@ -1,27 +1,36 @@
-# load("@srp_platform//tools/model_generator/platform:adaptive_application.bzl", "adaptive_application", "APPS_runtime_lib", "APPS_someip_lib")
+load("@srp_platform//tools/model_generator/platform:adaptive_application.bzl", "adaptive_application", "json2model", "model2com", "model2runtime_env")
 
-# APPS_runtime_lib(
-#     name = "platform",
-#     model_src = ["@srp_platform//platform/common/diag_demon/model:instance"],
-#     visibility = ["//visibility:public"],
-# )
+filegroup(
+    name = "instance",
+    srcs = [
+        "diag_app.json",
+        "@srp_platform//platform_definition/sm_service:SM_service",
+    ],
+    visibility = ["//visibility:private"],
+)
 
-# APPS_someip_lib(
-#     name = "someip_lib",
-#     model_src = ["@srp_platform//platform/common/diag_demon/model:instance"],
-# )
+json2model(
+    name = "model",
+    src = ["//apps/common/diag_demon/model:instance"],
+    visibility = ["//visibility:private"],
+)
 
-# filegroup(
-#     name = "instance",
-#     srcs = [
-#         "diag_app.json",
-#         "@srp_platform//platform_definition/diag/jobs:read_vin_job",
-#     ],
-# )
+model2com(
+    name = "com_lib",
+    src = "@srp_platform//apps/common/diag_demon/model",
+    visibility = ["@srp_platform//apps/common/diag_demon/code:__subpackages__"],
+)
 
-# adaptive_application(
-#     name = "diag_demon",
-#     bin = "@srp_platform//platform/common/diag_demon/code/application:diag_demon",
-#     model_src = ["@srp_platform//platform/common/diag_demon/model:instance"],
-#     visibility = ["//visibility:public"],
-# )
+model2runtime_env(
+    name = "runtime_env",
+    src = "@srp_platform//apps/common/diag_demon/model",
+    visibility = ["@srp_platform//apps/common/diag_demon/code:__subpackages__"],
+)
+
+adaptive_application(
+    name = "diag_demon",
+    bin = "@srp_platform//apps/common/diag_demon/code/application:diag_demon",
+    model_src = ["@srp_platform//apps/common/diag_demon/model"],
+    # tar_path = "platform/",
+    visibility = ["//visibility:public"],
+)

@@ -1,6 +1,9 @@
 {
     "package": "srp.example",
-    "include": ["tools/model_generator/v2/example/example_service_depl.json"],
+    "include": [
+        "tools/model_generator/v2/example/example_service_depl.json",
+        "tools/model_generator/v2/example/example_did_depl.json"
+    ],
     "component": {
         "ExampleApp": {
             "functional_groups": [
@@ -21,10 +24,9 @@
                 "ctx": []
             },
             "provide": {
-                "srp.example.ExampleService as ExampleServicePPort": {
-                    "using": "srp.example.ExampleServiceDepl",
+                "srp.example.ExampleDidDepl as ExampleDidPPort": {
                     "instanceID": 1,
-                    "on": "IPC"
+                    "on": "diag"
                 }
             },
             "require": {

@@ -25,7 +25,7 @@ namespace {
 static constexpr std::string_view kConfigPath{
     "/srp/platform/etc/state_config.json"};
 static const ::platform::core::InstanceSpecifier did_instance_{
-    "/srp/platform/state_manager/CurrentMachineStatePPort"};
+    "/srp/platform/state_manager_SWRoot/StateMenagerDiDPPort"};
 }  // namespace
 
 StateManager::StateManager(/* args */) {}
@@ -76,15 +76,15 @@ int StateManager::Run(const std::stop_token& token) {
         this->state_con_ = ::platform::exec::sm::Initialize(
             std::make_unique<ComWrapper>(handler_));
         this->state_con_->Init();
-        //       this->did_ = std::make_unique<DiDImpl>(did_instance_,
-        //       this->state_con_); this->did_->Offer();
+        this->did_ = std::make_unique<DiDImpl>(did_instance_, this->state_con_);
+        this->did_->Offer();
       });
   ::platform::log::LogInfo() << "App Started";
   srp::core::condition::wait(token);
-  // sm_proxy.StopFindService();
-  // if (did_) {
-  //   did_->StopOffer();
-  // }
+  sm_proxy.StopFindService();
+  if (did_) {
+    did_->StopOffer();
+  }
   ::platform::log::LogInfo() << "App Stoping";
   return 0;
 }

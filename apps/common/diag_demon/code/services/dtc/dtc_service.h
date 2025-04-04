@@ -15,7 +15,7 @@
 
 #include "bindings/common/socket/proccess_socket.h"
 #include "platform/log/logger.h"
-#include "platform/common/diag_demon/code/services/dtc/i_dtc_service.h"
+#include "apps/common/diag_demon/code/services/dtc/i_dtc_service.h"
 namespace srp {
 namespace platform {
 namespace diag_demon {

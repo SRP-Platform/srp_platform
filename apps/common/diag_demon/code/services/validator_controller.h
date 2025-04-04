@@ -11,7 +11,7 @@
 
 #ifndef APPS_COMMON_DIAG_DEMON_CODE_SERVICES_VALIDATOR_CONTROLLER_H_
 #define APPS_COMMON_DIAG_DEMON_CODE_SERVICES_VALIDATOR_CONTROLLER_H_
-#include "platform/common/diag_demon/code/services/i_validator.h"
+#include "apps/common/diag_demon/code/services/i_validator.h"
 namespace srp {
 namespace platform {
 namespace diag_demon {
