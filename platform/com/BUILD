@@ -33,6 +33,7 @@ cc_library(
         "@srp_platform//platform/core:Result",
         "//bindings/com/ipc",
         # "@srp_platform//platform/diag:diagnostic_menager",
+        "@srp_platform//platform/exec/em:execution_client_lib",
     ],
 )
 

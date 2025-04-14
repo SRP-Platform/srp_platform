@@ -13,6 +13,7 @@
 
 #include <cstdint>
 #include <optional>
+#include <shared_mutex>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -25,6 +26,7 @@ namespace service {
 namespace data {
 class AppDb : public IAppDb {
  private:
+ mutable std::shared_mutex mtx_;
   /**
    * @brief Map with app config
    *
@@ -51,6 +53,8 @@ class AppDb : public IAppDb {
                     const uint32_t pid) noexcept override;
   std::optional<std::reference_wrapper<const std::unordered_set<uint16_t>>>
   GetFgAppList(const uint16_t& fg_id) noexcept override;
+  bool SetExecutionStateForApp(const uint16_t app_id,
+    const ::platform::exec::ExecutionState state) noexcept override;
   ~AppDb() = default;
 };
 

@@ -14,6 +14,8 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+
+#include "platform/exec/em/i_execution_client.h"
 namespace srp {
 namespace em {
 namespace service {
@@ -26,6 +28,7 @@ class AppConfig {
   const std::string app_name_;
   const std::vector<std::string> fg_list_;
   pid_t pid{0};
+  platform::exec::ExecutionState state_{platform::exec::ExecutionState::kIdle};
 
  public:
   AppConfig(const std::string& bin_path, const std::string& parms,
@@ -44,6 +47,8 @@ class AppConfig {
   const std::vector<std::string>& GetFg() const { return fg_list_; }
   pid_t GetPid() const { return pid; }
   void SetPid(pid_t pid) { this->pid = pid; }
+  const platform::exec::ExecutionState GetExecutionState() const { return state_; }
+  void SetExecutionState(platform::exec::ExecutionState state) { this->state_ = state; }
 };
 }  // namespace data
 }  // namespace service

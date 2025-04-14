@@ -24,6 +24,10 @@ cc_library(
         "app_db.h",
         "i_app_db.h",
     ],
+    deps = [
+        "@srp_platform//platform/exec/em:execution_client_lib",
+        "@srp_platform//platform/exec/em:em_com_data",
+    ],
     visibility = [
         "@srp_platform//mw/em/code/services/exec:__subpackages__",
     ],
