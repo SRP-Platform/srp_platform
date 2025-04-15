@@ -5,7 +5,7 @@
     ],
     "deployment": {
         "diagnostic.job": {
-            "AplicationStatusDiD": {
+            "ApplicationStatusDiD": {
                 "ServiceType": "srp.platform.common.diag.DiD",
                 "SubsServiceID": 4,
                 "ActiveSesion": [
