@@ -9,8 +9,6 @@
                 "ServiceType": "srp.platform.common.diag.DiD",
                 "SubsServiceID": 4,
                 "ActiveSesion": [
-                    "Default",
-                    "Programming",
                     "Extended",
                     "Manufacture"
                 ],
