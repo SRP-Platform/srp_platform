@@ -1,0 +1,21 @@
+{
+    "package": "srp.platform.extra",
+    "include": [
+        "@(srp_platform)/platform_definition/common/did.json"
+    ],
+    "deployment": {
+        "diagnostic.job": {
+            "ApplicationStatusDiD": {
+                "ServiceType": "srp.platform.common.diag.DiD",
+                "SubsServiceID": 4,
+                "ActiveSesion": [
+                    "Extended",
+                    "Manufacture"
+                ],
+                "EcuMode": [
+                    "Engineering"
+                ]
+            }
+        }
+    }
+}
