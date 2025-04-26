@@ -25,14 +25,18 @@ namespace em {
 namespace {
 static const ::platform::core::InstanceSpecifier kSmServiceInstance{
     "/srp/platform/em_SWRoot/StateManagerPPort"};
+static const ::platform::core::InstanceSpecifier kAppStatusInstance{
+    "/srp/platform/em_SWRoot/ApplicationStatusDiD"};
 }  // namespace
 
-EmApplication::EmApplication(/* args */) {}
+EmApplication::EmApplication(/* args */) {
+}
 
 EmApplication::~EmApplication() {}
 
 int EmApplication::Run(const std::stop_token& token) {
   this->sm_service_->OfferService();
+  this->app_status_did_->Offer();
   // this->em_service->SetActiveState(46617);
   while (!token.stop_requested()) {
     const auto val = this->cmd_list_.Get(token);
@@ -41,6 +45,7 @@ int EmApplication::Run(const std::stop_token& token) {
     }
   }
   this->sm_service_->StopOfferService();
+  this->app_status_did_->StopOffer();
   return 0;
 }
 /**
@@ -62,7 +67,8 @@ int EmApplication::Initialize(
   this->sm_service_->GetState.Bind(
       [this]() { return this->em_service->GetActiveState(); });
 
-  const auto db = std::make_shared<service::data::AppDb>();
+  db = std::make_shared<service::data::AppDb>();
+  app_status_did_ = std::make_shared<service::AplicationStatusDiD>(kAppStatusInstance, db);
   em_service =
       std::make_shared<service::EmService>(db, [this](const uint16_t& new_id) {
         if (this->sm_service_) {

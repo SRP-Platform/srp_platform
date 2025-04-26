@@ -11,6 +11,7 @@
 #include <mutex>  // NOLINT
 #include <shared_mutex>
 #include "apps/common/em/code/services/em/app_db.h"
+#include "platform/log/log.h"
 namespace srp {
 namespace em {
 namespace service {
@@ -34,8 +35,10 @@ bool AppDb::SetExecutionStateForApp(const uint16_t app_id,
   const auto& iter = this->app_list_.find(app_id);
   if (iter != this->app_list_.end()) {
     iter->second.SetExecutionState(state);
+    ::platform::log::LogWarn() << "Succed set app state for app " << app_id;
     return true;
   }
+  ::platform::log::LogWarn() << "Cant set state for app " << app_id;
   return false;
 }
 void AppDb::SetPidForApp(const uint16_t app_id, const uint32_t pid) noexcept {
@@ -72,6 +75,12 @@ AppDb::GetFgAppList(const uint16_t& fg_id) noexcept {
 
   return std::reference_wrapper<const std::unordered_set<uint16_t>>{
       iter->second};
+}
+uint16_t AppDb::GetActualFunctionGroupID() noexcept {
+  return this->actual_state_id_;
+}
+void AppDb::SetActualFunctionGroupID(const uint16_t& state_id) noexcept {
+  this->actual_state_id_ = state_id;
 }
 }  // namespace data
 }  // namespace service

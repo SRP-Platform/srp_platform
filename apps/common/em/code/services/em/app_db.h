@@ -26,7 +26,8 @@ namespace service {
 namespace data {
 class AppDb : public IAppDb {
  private:
- mutable std::shared_mutex mtx_;
+  mutable std::shared_mutex mtx_;
+  uint16_t actual_state_id_;
   /**
    * @brief Map with app config
    *
@@ -55,6 +56,8 @@ class AppDb : public IAppDb {
   GetFgAppList(const uint16_t& fg_id) noexcept override;
   bool SetExecutionStateForApp(const uint16_t app_id,
     const ::platform::exec::ExecutionState state) noexcept override;
+  uint16_t GetActualFunctionGroupID() noexcept override;
+  void SetActualFunctionGroupID(const uint16_t& state_id) noexcept override;
   ~AppDb() = default;
 };
 

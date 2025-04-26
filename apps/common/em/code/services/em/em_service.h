@@ -29,12 +29,12 @@ namespace em {
 namespace service {
 class EmService {
  private:
-  bindings::com::ProccessSocket proc_sock_;
   std::unordered_set<uint16_t> current_fg_apps;
   std::unique_ptr<std::jthread> state_checker_thread;
   uint16_t active_state{0U};
   const std::shared_ptr<data::IAppDb> db_;
   const std::function<void(const uint16_t&)> update_callback_;
+  bindings::com::ProccessSocket proc_sock_;
   bool IsSrpApp(const std::string& path) noexcept;
   void ProcessSockCallback(const uint32_t pid, const std::vector<uint8_t>& buf) noexcept;
   pid_t StartApp(const srp::em::service::data::AppConfig& app);

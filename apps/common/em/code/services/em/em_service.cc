@@ -58,9 +58,13 @@ void EmService::ProcessSockCallback(const uint32_t pid, const std::vector<uint8_
 }
 
 EmService::EmService(
-    std::shared_ptr<data::IAppDb> db,
-    const std::function<void(const uint16_t&)>&& update_callback)
-    : db_{db}, update_callback_(std::move(update_callback)), proc_sock_(kExec_path) {}
+      std::shared_ptr<data::IAppDb> db,
+      const std::function<void(const uint16_t&)>&& update_callback)
+      : db_{db}, update_callback_(std::move(update_callback)), proc_sock_(kExec_path) {
+    proc_sock_.SetCallback(
+      std::bind(&EmService::ProcessSockCallback, this, std::placeholders::_1,
+        std::placeholders::_2));
+    }
 
 EmService::~EmService() {}
 
@@ -108,6 +112,7 @@ void EmService::SetActiveState(const uint16_t& state_id_) noexcept {
     }
   }
   KillApps(terminate_list);
+  this->db_->SetActualFunctionGroupID(state_id_);
   for (const auto& app_id_ : next_list) {
     auto app_config_opt = db_->GetAppConfig(app_id_);
     if (app_config_opt.has_value()) {

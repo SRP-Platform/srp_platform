@@ -23,6 +23,8 @@
 #include "apps/common/em/code/services/em/em_service.h"
 #include "srp/platform/sm/StateManager.h"
 #include "core/common/wait_queue.h"
+#include "apps/common/em/code/services/em/aplication_status_did.h"
+#include "apps/common/em/code/services/em/i_app_db.h"
 
 namespace srp {
 namespace em {
@@ -44,8 +46,11 @@ class EmApplication final : public ::platform::exec::AdaptiveApplication {
 
   std::shared_ptr<service::EmService> em_service;
   std::shared_ptr<srp::platform::sm::StateManagerSkeleton> sm_service_;
+  std::shared_ptr<service::AplicationStatusDiD> app_status_did_;
+  std::shared_ptr<service::data::IAppDb> db;
   // service::SmService sm_service_;
   core::WaitQueue<uint16_t> cmd_list_{};
+
  public:
   EmApplication(/* args */);
   ~EmApplication();

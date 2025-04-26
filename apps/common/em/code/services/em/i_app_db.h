@@ -75,6 +75,8 @@ class IAppDb {
    */
   virtual bool SetExecutionStateForApp(const uint16_t app_id,
     const platform::exec::ExecutionState state) noexcept = 0;
+  virtual uint16_t GetActualFunctionGroupID() noexcept = 0;
+  virtual void SetActualFunctionGroupID(const uint16_t& state_id) noexcept = 0;
   virtual ~IAppDb() = default;
 };
 
