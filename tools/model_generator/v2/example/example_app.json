@@ -27,6 +27,15 @@
                 "srp.example.ExampleDidDepl as ExampleDidPPort": {
                     "instanceID": 1,
                     "on": "diag"
+                },
+                "srp.example.ExampleService as ExampleServicePPort": {
+                    "using": "srp.example.ExampleServiceDepl",
+                    "instanceID": 1,
+                    "on": "SomeIp",
+                    "bind": {
+                        "type": "UDP",
+                        "port": 10002
+                    }
                 }
             },
             "require": {

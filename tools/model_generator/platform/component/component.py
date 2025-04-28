@@ -81,6 +81,13 @@ class IpcItem:
         self.model = model
         self.depl = depl
         self.instance = instance
+class SomeIpItem:
+    def __init__(self, name:str, model:str,depl:str,instance:int,bind):
+        self.name = name
+        self.model = model
+        self.depl = depl
+        self.instance = instance
+        self.bind = bind
 
 class Component:
     def __init__(self,name:str,logger:LogerConfig, functional_groups:list[str],reporting_mode:str, parms:str):
