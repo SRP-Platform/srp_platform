@@ -5,5 +5,6 @@ test_suite(
         "//tests/core:ssh_test",
         "//tests/core:uds_test",
         "//tests/core:uds_machine_state_did_test",
+        "//tests/core:uds_em_did_test",
     ],
 )

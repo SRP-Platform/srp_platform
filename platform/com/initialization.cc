@@ -24,7 +24,9 @@ platform::core::Result<void> Initialize(const uint32_t& app_id) noexcept {
   controller.AddHandler(
       srp::bindings::ControllerClient::kIPC,
       srp::bindings::com::ipc::IpcController::GetInstance(app_id));
-      platform::exec::ExecutionClient::GetInstance(app_id);
+  controller.AddHandler(
+      srp::bindings::ControllerClient::kExec,
+      platform::exec::ExecutionClient::GetInstance(app_id));
   controller.Init();
   return {};
 }

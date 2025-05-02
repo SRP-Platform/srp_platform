@@ -26,16 +26,17 @@ AplicationStatusDiD::AplicationStatusDiD(const ::platform::core::InstanceSpecifi
         return platform::diag::MakeErrorCode(platform::diag::DiagErrc::kMemoryError, "");
     }
     uint8_t size = FgAppList.value().get().size();
-    std::vector<uint8_t> res(size + 1);
+    std::vector<uint8_t> res;
     res.push_back(size);
-    ::platform::log::LogInfo() << "number of services: " << size;
+    ::platform::log::LogDebug() << "number of services: " << size;
     for (const auto app_id_ : FgAppList.value().get()) {
         auto app = db_->GetAppConfig(app_id_);
         if (!app.has_value()) {
             continue;
         }
         uint8_t app_state = static_cast<uint8_t>(app.value().get().GetExecutionState());
-        ::platform::log::LogInfo() << "app_id: " << app_id_ << ", state: " << std::to_string(app_state);
+        ::platform::log::LogDebug() << "app_id: " << app_id_ << ", state: "
+                        << ::platform::exec::get_string(app.value().get().GetExecutionState());
         res.push_back(static_cast<uint8_t>(app_id_ >> 8));
         res.push_back(static_cast<uint8_t>(app_id_ & 0xFF));
         res.push_back(app_state);

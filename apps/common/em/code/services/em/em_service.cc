@@ -29,6 +29,7 @@
 #include "apps/common/em/code/services/em/json_parser.h"
 #include "bindings/common/controller/controller_client.h"
 #include "srp/platform/em/ExecutionHeader.h"
+#include "platform/exec/em/i_execution_client.h"
 
 namespace srp {
 namespace em {
@@ -48,7 +49,7 @@ void EmService::ProcessSockCallback(const uint32_t pid, const std::vector<uint8_
     // TODO(matik) add dtc error
     return;
   }
-  auto state = static_cast<::platform::exec::ExecutionState>(hdr_.value().execution_state);
+  ::platform::exec::ExecutionState state = static_cast<::platform::exec::ExecutionState>(hdr_.value().execution_state);
   ::platform::log::LogDebug() << std::to_string(hdr_.value().app_id) << ", reported state: "
             << ::platform::exec::get_string(state);
   if (!this->db_->SetExecutionStateForApp(hdr_.value().app_id, state)) {
@@ -64,9 +65,12 @@ EmService::EmService(
     proc_sock_.SetCallback(
       std::bind(&EmService::ProcessSockCallback, this, std::placeholders::_1,
         std::placeholders::_2));
+    ::platform::core::Result<void> err = proc_sock_.Offer();
     }
 
-EmService::~EmService() {}
+EmService::~EmService() {
+  proc_sock_.StopOffer();
+}
 
 bool EmService::IsSrpApp(const std::string& path) noexcept {
   std::ifstream file{path + "/etc/srp_app_config.json"};
