@@ -34,6 +34,7 @@ EmApplication::~EmApplication() {}
 int EmApplication::Run(const std::stop_token& token) {
   this->sm_service_->OfferService();
   // this->em_service->SetActiveState(46617);
+  this->app_status_did_->Offer();
   while (!token.stop_requested()) {
     const auto val = this->cmd_list_.Get(token);
     if (val.has_value()) {

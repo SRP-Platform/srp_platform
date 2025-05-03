@@ -1,7 +1,12 @@
 build:bbb --crosstool_top=//bazel/toolchain/arm-cortex_a8-linux-gnueabihf:gcc_toolchain --cpu=armv7
+build:bbb-platform --config=platform_build --platforms=//bazel/platforms:bbb
 
-build:platform_build --incompatible_enable_cc_toolchain_resolution --crosstool_top=//bazel/toolchain/arm-cortex_a8-linux-gnueabihf:gcc_toolchain 
-build:bbb-platform --config=platform_build --config=adaptive --platforms=//bazel/platforms:bbb
+build:rpizero --crosstool_top=//bazel/toolchain/aarch64-rpi3-linux-gnu:gcc_toolchain --cpu=aarch64
+build:rpizero-platform --config=platform_build --platforms=//bazel/platforms:rpi
+
+
+
+build:platform_build --incompatible_enable_cc_toolchain_resolution
 build:adaptive -c opt --copt=-O3
 
 build --action_env=BAZEL_CXXOPTS="-std=c++20" --config=adaptive

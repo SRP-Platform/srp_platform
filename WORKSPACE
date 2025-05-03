@@ -11,3 +11,8 @@ install_python()
 
 load("@srp_platform//:pip_install.bzl", "pip_install")
 pip_install()
+load("@srp_platform//third_party:deps.bzl", "deps")
+deps()
+
+load("@srp_platform//bazel/toolchain:toolchain.bzl", "register_all_toolchains")
+register_all_toolchains()
