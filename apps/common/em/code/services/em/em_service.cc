@@ -170,6 +170,8 @@ for (const auto& app_id_ : terminate_list) {
   if (!this->WaitForAppStatus(app_id_, ::platform::exec::ExecutionState::kTerminated)) {
     // TODO(matik) report DTC (cant stop app, need to be killed)
     KillApp(app_config.value().get().GetPid(), true);
+    db_->SetExecutionStateForApp(app_config.value().get().GetAppId(),
+                                          ::platform::exec::ExecutionState::kTerminated);
   }
 }
 }
