@@ -12,3 +12,7 @@
       shell:
         executable: /bin/bash
         cmd: date
+    - name: Print hello world 2
+      shell:
+        executable: /bin/bash
+        cmd: time

@@ -1,6 +1,10 @@
 - job:
     name: testjob
     run: playbooks/testjob.yaml
+    nodeset:
+      nodes:
+        - name: ubuntu-qemu
+          label: ubuntu-qemu
 
 - project:
     check:
