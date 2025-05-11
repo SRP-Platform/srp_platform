@@ -20,25 +20,20 @@
 #include <unordered_map>
 
 #include "platform/exec/adaptive_application.h"
-#include "platform/common/someip_demon/code/common/com/impl/multicast_controller.h"
-#include "platform/common/someip_demon/code/connector/service_connector.h"
-#include "platform/common/someip_demon/code/db/database.h"
+#include "platform/log/log.h"
 
 namespace srp {
 namespace someip_demon {
 class SomeIpApplication final : public platform::exec::AdaptiveApplication {
  private:
-  std::shared_ptr<common::com::IMulticastController> multicast_controller_;
-  std::unordered_map<uint16_t, std::shared_ptr<ServiceConnector>>
-      connector_list_;
-  db::Database sd_db_{};
   /**
    * @brief This function is called to initialiaze the application
    *
    * @pplatformm parms map with parms
    */
-  int Initialize(const std::map<platform::core::StringView, platform::core::StringView>
-                     parms) override;
+  int Initialize(
+      const std::map<::platform::core::StringView, ::platform::core::StringView>
+          parms) override;
   /**
    * @brief This function is called to launch the application
    *
