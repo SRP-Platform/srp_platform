@@ -7,7 +7,7 @@
     - name: Print src
       shell:
         executable: /bin/bash
-        cmd: ls -la src/github.com/SRP-Platform
+        cmd: ls -la src/github.com/SRP-Platform/srp_platform
     - name: Print hello world 2
       shell:
         executable: /bin/bash
