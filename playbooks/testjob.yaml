@@ -1,4 +1,5 @@
 - hosts: all
   tasks:
     - name: Print hello world
-      cmd: ls -la
+      build:
+        cmd: ls -la
