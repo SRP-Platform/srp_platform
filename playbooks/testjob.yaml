@@ -2,4 +2,9 @@
   tasks:
     - name: Print hello world
       shell:
+        executable: /bin/bash
         cmd: ls -la
+    - name: Print hello world 2
+      shell:
+        executable: /bin/bash
+        cmd: date
