@@ -4,6 +4,10 @@
       shell:
         executable: /bin/bash
         cmd: ls -la
+    - name: Print src
+      shell:
+        executable: /bin/bash
+        cmd: ls -la src
     - name: Print hello world 2
       shell:
         executable: /bin/bash
