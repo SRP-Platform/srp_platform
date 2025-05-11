@@ -7,7 +7,7 @@
     - name: Print src
       shell:
         executable: /bin/bash
-        cmd: ls -la src
+        cmd: ls -la src/github.com
     - name: Print hello world 2
       shell:
         executable: /bin/bash
