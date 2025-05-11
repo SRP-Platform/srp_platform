@@ -1,0 +1,11 @@
+- job:
+    name: testjob
+    run: zuul.d/testjob.yaml
+
+- project:
+    check:
+      jobs:
+        - testjob
+    gate:
+      jobs:
+        - testjob
