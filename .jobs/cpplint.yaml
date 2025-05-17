@@ -1,18 +1,6 @@
 - hosts: all
   tasks:
-    - name: Ensure log directory exists
-      file:
-        path: "{{ zuul.executor.log_root }}"
-        state: directory
-        recurse: yes
-
-    - name: Ensure logs are readable before uploading
-      delegate_to: localhost
-      command: "chmod -R u=rwX,g=rwX,o=rX {{ zuul.executor.log_root }}/"
-      tags:
-        - skip_ansible_lint
-
     - name: Run CppLint
       shell:
         executable: /bin/bash
-        cmd: cd {{ zuul.project.src_dir }} && ./tools/cpplint/user_cpplint.sh > {{ zuul.executor.log_root }}/cpplint_output.txt
+        cmd: cd {{ zuul.project.src_dir }} && ./tools/cpplint/user_cpplint.sh
