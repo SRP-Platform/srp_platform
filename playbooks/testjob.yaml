@@ -16,3 +16,6 @@
       shell:
         executable: /bin/bash
         cmd: time
+    - zuul_return:
+        data:
+          foo: bar

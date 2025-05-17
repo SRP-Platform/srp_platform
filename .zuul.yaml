@@ -5,11 +5,18 @@
       nodes:
         - name: ubuntu-qemu
           label: ubuntu-qemu
-
+- job:
+    name: cpplint
+    run: .jobs/cpplint.yaml
+    vars:
+      zuul_output_dir: "{{ ansible_user_dir }}/zuul-output"
+      zuul_logserver_root: "{{ ansible_user_dir }}/zuul-output"
 - project:
     check:
       jobs:
         - testjob
+        - cpplint
     gate:
       jobs:
         - testjob
+        - cpplint
