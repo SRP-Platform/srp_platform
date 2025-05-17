@@ -1,15 +1,22 @@
 - job:
-    name: testjob
-    run: playbooks/testjob.yaml
-    nodeset:
-      nodes:
-        - name: ubuntu-qemu
-          label: ubuntu-qemu
+    name: cpplint
+    run: .jobs/cpplint.yaml
+
+- job:
+    name: unit_tests_platform
+    run: .jobs/unit_tests_platform.yaml
 
 - project:
     check:
       jobs:
-        - testjob
+        - noop
+        - cpplint
+        - unit_tests_platform
     gate:
       jobs:
-        - testjob
+        - noop
+        - unit_tests_platform
+    gate-bot:
+      jobs:
+        - noop
+        - unit_tests_platform
