@@ -1,0 +1,6 @@
+- hosts: all
+  tasks:
+    - name: Run CppLint
+      shell:
+        executable: /bin/bash
+        cmd: ./src/github.com/SRP-Platform/srp_platform/tools/cpplint/user_cpplint.sh 

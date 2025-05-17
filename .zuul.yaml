@@ -5,11 +5,15 @@
       nodes:
         - name: ubuntu-qemu
           label: ubuntu-qemu
-
+- job:
+    name: cpplint
+    run: .jobs/cpplint.yaml
 - project:
     check:
       jobs:
         - testjob
+        - cpplint
     gate:
       jobs:
         - testjob
+        - cpplint
