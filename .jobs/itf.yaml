@@ -1,0 +1,6 @@
+- hosts: all
+  tasks:
+    - name: Run tests
+      shell:
+        executable: /bin/bash
+        cmd: cd {{ zuul.project.src_dir }} && bazel test --config=pytest //tests:core_all --cache_test_results=no
