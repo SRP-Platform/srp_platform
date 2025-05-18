@@ -13,6 +13,14 @@ py_library(
 )
 
 py_library(
+    name = "requests",
+    deps = [
+        requirement("requests"),
+    ],
+)
+
+
+py_library(
     name = "someip_lib",
     visibility = ["//visibility:public"],
     deps = [requirement("someipy")],
