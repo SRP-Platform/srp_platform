@@ -13,5 +13,9 @@ cryptography==44.0.0
 PyNaCl==1.5.0
 cffi==1.17.1
 pycparser==2.22
-
+requests==2.32.3
+certifi==2025.4.26
+charset-normalizer==3.4.2
+idna==3.10
+urllib3==2.4.0
 jsonpickle==4.0.1
