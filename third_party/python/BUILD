@@ -29,6 +29,12 @@ py_library(
         requirement("wsproto"),
     ],
 )
+py_library(
+    name = "requests",
+    deps = [
+        requirement("requests"),
+    ],
+)
 
 py_library(
     name = "someip_lib",
