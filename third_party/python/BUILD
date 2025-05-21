@@ -13,12 +13,28 @@ py_library(
 )
 
 py_library(
+    name = "pymavlink",
+    deps = [
+        requirement("fastcrc"),
+        requirement("future"),
+        requirement("h11"),
+        requirement("iniconfig"),
+        requirement("lxml"),
+        requirement("packaging"),
+        requirement("pluggy"),
+        requirement("pymavlink"),
+        requirement("pytest"),
+        requirement("syrupy"),
+        requirement("wheel"),
+        requirement("wsproto"),
+    ],
+)
+py_library(
     name = "requests",
     deps = [
         requirement("requests"),
     ],
 )
-
 
 py_library(
     name = "someip_lib",
