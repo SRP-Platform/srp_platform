@@ -9,12 +9,12 @@
  *
  */
 #include "platform/exec/adaptive_lifecycle_menager.h"
-
 #include <pthread.h>
 #include <unistd.h>
 
 #include <string>
 #include <utility>
+#include "platform/exec/em/execution_client.h"
 
 namespace platform {
 namespace exec {
@@ -26,9 +26,12 @@ int AdaptiveLifecycleMenager::StartAdaptiveLifecycleMenager() {
   if (instance_ == nullptr) {
     return -1;
   }
-
+  auto exec_client = ExecutionClient::GetInstance();
+  exec_client->ReportExecutionState(ExecutionState::kIdle);
   if (instance_->app_thread_ == nullptr) {
+    exec_client->ReportExecutionState(ExecutionState::kStarting);
     instance_->InitApp();
+    exec_client->ReportExecutionState(ExecutionState::kRunning);
 
     instance_->app_thread_ = std::make_unique<std::jthread>(
         [&](std::stop_token token) { instance_->Run(token); });
@@ -36,7 +39,9 @@ int AdaptiveLifecycleMenager::StartAdaptiveLifecycleMenager() {
   }
 
   instance_->app_thread_->join();
+  exec_client->ReportExecutionState(ExecutionState::kTerminating);
   instance_->exec_logger.LogInfo() << "Application Stoped";
+  exec_client->ReportExecutionState(ExecutionState::kTerminated);
   // todo start app and wait
   return 0;
 }

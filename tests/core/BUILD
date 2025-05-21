@@ -27,3 +27,10 @@ pytest_test(
     deps = [
     ],
 )
+
+pytest_test(
+    name = "uds_em_did_test",
+    srcs = ["uds_em_test.py"],
+    deps = [
+    ],
+)

@@ -5,6 +5,7 @@ filegroup(
     srcs = [
         "em_app.json",
         "@srp_platform//platform_definition/sm_service:SM_service",
+        "@srp_platform//platform_definition/em:em_dids",
     ],
     visibility = ["//visibility:private"],
 )

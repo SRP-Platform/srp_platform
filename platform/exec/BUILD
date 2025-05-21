@@ -14,5 +14,6 @@ cc_library(
         "@srp_platform//platform/core:instance_specifier",
         "@srp_platform//platform/log",
         # "@srp_platform//platform/com",
+        "@srp_platform//platform/exec/em:execution_client_lib",
     ],
 )
