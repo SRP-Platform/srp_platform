@@ -31,7 +31,7 @@ cpu_def(
         "//apps/common/logger/model:logger",
         "//apps/common/ipc_service_discover/model:ipc_service_discover",
         "//example/model:example_app",
-        # "//platform/common/someip_demon/model:someip_demon",
+        "//apps/common/someip_demon/model:someip_demon",
         "//apps/common/state_manager/model:state_manager",
         # "//deployment/example_adaptive/ExampleApp2",
     ],
