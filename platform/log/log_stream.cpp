@@ -39,40 +39,6 @@ LogStream &LogStream::operator<<(bool value) {
   return *this;
 }
 
-LogStream &LogStream::operator<<(uint8_t value) {
-  std::string _valueString = std::to_string(value);
-  concat(std::move(_valueString));
-
-  return *this;
-}
-LogStream &LogStream::operator<<(uint16_t value) {
-  std::string _valueString = std::to_string(value);
-  concat(std::move(_valueString));
-
-  return *this;
-}
-
-LogStream &LogStream::operator<<(uint32_t value) {
-  std::string _valueString = std::to_string(value);
-  concat(std::move(_valueString));
-
-  return *this;
-}
-
-LogStream &LogStream::operator<<(uint64_t value) {
-  std::string _valueString = std::to_string(value);
-  concat(std::move(_valueString));
-
-  return *this;
-}
-
-LogStream &LogStream::operator<<(float value) {
-  std::string _valueString = std::to_string(value);
-  concat(std::move(_valueString));
-
-  return *this;
-}
-
 LogStream &LogStream::operator<<(const std::string &value) {
   mLogs += value;
 
