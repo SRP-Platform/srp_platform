@@ -63,27 +63,14 @@ class LogStream final {
   /// @returns Reference to the current log stream
   LogStream &operator<<(bool value);
 
-  /// @brief Byte insertion operator
-  /// @pplatformm value A byte value
+  /// @brief Number insertion operator
+  /// @pplatformm value A number value
   /// @returns Reference to the current log stream
-  LogStream &operator<<(uint8_t value);
-
-  /// @brief Unsigned integer insertion operator
-  /// @pplatformm value An unsigned integer value
-  /// @returns Reference to the current log stream
-  LogStream &operator<<(uint16_t value);
-  /// @brief Unsigned integer insertion operator
-  /// @pplatformm value An unsigned integer value
-  /// @returns Reference to the current log stream
-  LogStream &operator<<(uint32_t value);
-  /// @brief Unsigned integer insertion operator
-  /// @pplatformm value An unsigned integer value
-  /// @returns Reference to the current log stream
-  LogStream &operator<<(uint64_t value);
-  /// @brief Float insertion operator
-  /// @pplatformm value A float value
-  /// @returns Reference to the current log stream
-  LogStream &operator<<(float value);
+  template<typename T, std::enable_if_t<std::is_arithmetic_v<T>, int> = 0>
+  LogStream &operator<<(T value) {
+    concat((std::to_string(value)));
+    return *this;
+  }
 
   /// @brief String insertion operator
   /// @pplatformm value A string
