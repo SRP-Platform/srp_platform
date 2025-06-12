@@ -1,0 +1,9 @@
+{
+    "package": "srp.platform.em",
+    "data_structure": {
+        "ExecutionHeader": {
+            "app_id": "uint32",
+            "execution_state": "uint8"
+        }
+    }
+}
