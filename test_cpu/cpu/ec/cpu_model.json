@@ -1,0 +1,52 @@
+{
+    "package": "srp.platform",
+    "include": [],
+    "ecu": {
+        "ExampleEcu": {
+            "transport_layer": {
+                "network": {
+                    "eth0": {
+                        "ip_address": "192.168.10.101",
+                        "network_mask": "255.255.255.0"
+                    }
+                },
+                "someip_sd": {
+                    "sd_group_1": {
+                        "multicast_group": "224.224.224.245",
+                        "multicast_port": 30490
+                    }
+                },
+                "doip": {
+                    "announcement_ip": "192.168.10.255",
+                    "announcement_port": 13400,
+                    "interface": "transport_layer/network/eth0"
+                }
+            },
+            "logging": {
+                "use": "transport_layer/network/eth0",
+                "tx_port": 3490,
+                "ecu_id": "EC--"
+            },
+            "someip_endpoints": {
+                "eth0.10000": {
+                    "use": "transport_layer/network/eth0",
+                    "sd": "transport_layer/someip_sd/sd_group_1",
+                    "port": 10000
+                },
+                "platform.port.1": {
+                    "alias": "someip_endpoints/eth0.10000"
+                },
+                "eth0.10001": {
+                    "use": "transport_layer/network/eth0",
+                    "sd": "transport_layer/someip_sd/sd_group_1",
+                    "port": 10001
+                }
+            },
+            "diagnostic": {
+                "use": "transport_layer/doip",
+                "protocol": "doip",
+                "logical_address": 1
+            }
+        }
+    }
+}

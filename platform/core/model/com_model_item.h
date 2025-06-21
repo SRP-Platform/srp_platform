@@ -22,7 +22,7 @@ namespace model {
 
 class ModelCom {
  public:
-  enum ComType : uint8_t { kIPC = 0 };
+  enum ComType : uint8_t { kIPC = 0, kSomeIp };
 
   const platform::com::InstanceIdentifierContainer container_;
   const ComType type_;
@@ -31,6 +31,11 @@ class ModelCom {
   ModelCom(const platform::com::InstanceIdentifierContainer& container,
            const ComType type)
       : container_{container}, type_{type} {}
+};
+class SomeIpBindModel {
+ public:
+  const std::string path_;
+  SomeIpBindModel(const std::string& path) : path_{path} {}
 };
 }  // namespace model
 }  // namespace core

@@ -19,7 +19,7 @@
             "logger": {
                 "app_id": "SM--",
                 "app_des": "State Manager",
-                "log_level": "kInfo",
+                "log_level": "kError",
                 "log_mode": "kRemote|kConsole",
                 "ctx": []
             },

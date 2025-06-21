@@ -27,6 +27,12 @@
                 "srp.example.ExampleDidDepl as ExampleDidPPort": {
                     "instanceID": 1,
                     "on": "diag"
+                },
+                "srp.example.ExampleService as ExampleServicePPort": {
+                    "using": "srp.example.ExampleServiceDepl",
+                    "instanceID": 1,
+                    "on": "SomeIp",
+                    "bind": "srp.platform.ExampleEcu.someip_endpoints.platform.port.1"
                 }
             },
             "require": {

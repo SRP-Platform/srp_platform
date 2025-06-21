@@ -5,7 +5,7 @@ cc_library(
     visibility = ["@srp_platform//apps/common/logger/code:__subpackages__"],
     deps = [
         "@srp_platform//bindings/common/socket:socket_ipc",
-        "@srp_platform//apps/common/someip_demon/code/common:udp_lib",
+        "@srp_platform//apps/common/someip_demon/code/old/common:udp_lib",
         "@srp_platform//platform/exec:adaptive_application_lib",
         "@srp_platform//core/common:wait_queue",
         "@srp_platform//core/json:simba_json",

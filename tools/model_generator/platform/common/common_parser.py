@@ -7,6 +7,8 @@ from tools.model_generator.platform.diag.diag_parser import DiagParser
 from tools.model_generator.platform.interface.interface_parser import InterfaceParser
 from tools.model_generator.platform.deployment.deployment_parser import DeploymentParser
 from tools.model_generator.platform.component.component_parser import ComponentParser
+from tools.model_generator.platform.ecu.ecu_parser import EcuParser
+
 class CommonParser:
     def PathR(path) -> str:
         if "@" in path:
@@ -40,5 +42,7 @@ class CommonParser:
                 ComponentParser.Parser(json_object)   
             if "diagnostic" in json_object:
                 DiagParser.ParseJson(json_object)
+            if "ecu" in json_object:
+                EcuParser.ParseJson(json_object)
             # if "diag" in json_object:
             #     DiagParser.ParseJson(json_object)

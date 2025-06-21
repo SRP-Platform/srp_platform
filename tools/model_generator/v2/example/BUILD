@@ -3,6 +3,7 @@ load("//tools/model_generator/platform:adaptive_application.bzl", "json2model", 
 filegroup(
     name = "srcs",
     srcs = [
+        "cpu_model.json",
         "example_app.json",
         "example_did_depl.json",
         "example_service.json",

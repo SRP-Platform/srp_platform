@@ -25,10 +25,11 @@ py_library(
     srcs = ["common_parser.py"],
     visibility = ["@srp_platform//tools/model_generator/platform:__subpackages__"],
     deps = [
-        "@srp_platform//tools/model_generator/platform/component",
         "@srp_platform//tools/model_generator/platform/common:data_structure_lib",
+        "@srp_platform//tools/model_generator/platform/component",
         "@srp_platform//tools/model_generator/platform/deployment",
         "@srp_platform//tools/model_generator/platform/diag:diag_lib",
+        "@srp_platform//tools/model_generator/platform/ecu",
         "@srp_platform//tools/model_generator/platform/interface",
     ],
 )
