@@ -16,7 +16,7 @@
 
 #include "platform/exec/adaptive_application.h"
 #include "bindings/common/socket/ipc_socket.h"
-#include "apps/common/someip_demon/code/common/udp_multicast_socket.h"
+#include "apps/common/someip_demon/code/old/common/udp_multicast_socket.h"
 #include "core/common/wait_queue.h"
 #include "apps/common/logger/code/data/idlt_frame.h"
 

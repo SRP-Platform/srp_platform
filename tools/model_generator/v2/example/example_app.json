@@ -32,10 +32,7 @@
                     "using": "srp.example.ExampleServiceDepl",
                     "instanceID": 1,
                     "on": "SomeIp",
-                    "bind": {
-                        "type": "UDP",
-                        "port": 10002
-                    }
+                    "bind": "srp.platform.ExampleEcu.someip_endpoints.platform.port.1"
                 }
             },
             "require": {

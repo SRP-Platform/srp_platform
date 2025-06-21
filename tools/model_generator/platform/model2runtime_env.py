@@ -114,7 +114,7 @@ def CreateInterfaceDepl(key, item: InterfaceDepl,sec) -> str:
     res += "      }};\n"
     res += f"""      std::ignore = db_.AddNewItem("{key}",platform::core::model::ModelCom(container,{typ}));\n"""
     if type(sec) == SomeIpItem:
-         path = "someip_"+sec.bind["type"].upper()+"_"+str(sec.bind["port"])
+         path = "someip."+sec.bind["interface"].lower()+"."+sec.bind["type"].lower()+"."+str(sec.bind["port"])
          res += f"""      std::ignore = db_.AddNewItem("{key}/bind",platform::core::model::SomeIpBindModel("{path}"));\n"""
     res +="    }\n"
     return res
