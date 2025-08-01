@@ -8,7 +8,7 @@ py_library(
     ],
     visibility = ["//visibility:public"],
     deps = [
-        "//third_party/python:pytest_core_lib",
+        "@pypi//pytest_core_lib",
         "@doipclient",
     ],
 )
