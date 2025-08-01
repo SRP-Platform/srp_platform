@@ -16,7 +16,8 @@ py_binary(
     visibility = ["//visibility:public"],
     deps = [
         "@srp_platform//tools/model_generator/platform/common:common_parser",
-        "//third_party/python:pyfranca"
+        "@pypi//pyfranca",
+        "@pypi//jsonpickle",
     ],
 )
 py_binary(
@@ -25,7 +26,8 @@ py_binary(
     visibility = ["//visibility:public"],
     deps = [
         "@srp_platform//tools/model_generator/platform/common:common_parser",
-        "//third_party/python:pyfranca"
+        "@pypi//pyfranca",
+        "@pypi//jsonpickle",
     ],
 )
 
@@ -35,7 +37,8 @@ py_binary(
     visibility = ["//visibility:public"],
     deps = [
         "@srp_platform//tools/model_generator/platform/common:common_parser",
-        "//third_party/python:pyfranca"
+        "@pypi//pyfranca",
+        "@pypi//jsonpickle",
     ],
 )
 
@@ -45,7 +48,8 @@ py_binary(
     visibility = ["//visibility:public"],
     deps = [
         "@srp_platform//tools/model_generator/platform/common:common_parser",
-        "//third_party/python:pyfranca"
+        "@pypi//pyfranca",
+        "@pypi//jsonpickle",
     ],
 )
 
