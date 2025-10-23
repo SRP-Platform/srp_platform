@@ -15,6 +15,7 @@ cc_binary(
         "@srp_platform//apps/common/em/model:runtime_env",
         # "@srp_platform//apps/common/em/code/services:IPC_Service",
         "@srp_platform//apps/common/em/code/services/em:em_service",
-        "//apps/common/em/model:com_lib",
+        "@srp_platform//apps/common/em/model:com_lib",
+        "@srp_platform//platform/exec/em:execution_client_lib",
     ],
 )
