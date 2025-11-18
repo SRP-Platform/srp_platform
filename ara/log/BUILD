@@ -1,9 +1,13 @@
+logging_menager_deps = select({
+    "//:ut": ["dummy/ut_logging_manager.cpp"],
+    "//conditions:default": ["logging_menager.cpp"],
+})
+
 cc_library(
     name = "log",
     srcs = [
         "logger.cpp",
-        "logging_menager.cpp",
-    ],
+    ] + logging_menager_deps,
     hdrs = [
         "log.h",
         "logger.h",
