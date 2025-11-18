@@ -76,22 +76,6 @@ void LoggingMenager::Create(std::string appId, LogMode logMode,
         << "An attempt to double initialize LoggingMenager was detected";
     return;
   }
-  //   if (logMode == LogMode::kFile) {
-  //     throw std::invalid_argument(
-  //         "File logging mode is not feasible within this constructor
-  //         override.");
-  //   }
-
-  //   if (logMode == LogMode::kConsole) {
-  //     sink::LogSink *_logSink = new sink::ConsoleLogSink(appId,
-  //     appDescription); LoggingMenager *_result = new
-  //     LoggingMenager(_logSink, logLevel);
-
-  //     return _result;
-  //   } else {
-  //     throw std::invalid_argument("The log mode is not currently
-  //     supported.");
-  //   }
   loger_f_ = std::make_unique<LoggingMenager>(appId, logLevel);
   if (logMode & LogMode::kConsole) {
     AddSink(std::make_unique<sink::ConsoleLogSink>());

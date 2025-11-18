@@ -8,10 +8,9 @@
  * @copyright Copyright (c) 2024
  *
  */
-#include "ara/log/logging_menager.h"
-
 #include <utility>
 
+#include "ara/log/logging_menager.h"
 #include "ara/log/sink/console_log_sink.h"
 #include "ara/log/sink/remote_log_sink.h"
 namespace ara {
@@ -109,7 +108,7 @@ void LoggingMenager::AddSink(std::unique_ptr<sink::LogSink> sink_) {
 
 LoggingMenager *LoggingMenager::GetInstance() {
   if (loger_f_ == nullptr) {
-    Create("UT--", LogMode::kConsole, LogLevel::kInfo, "");
+    Create("DUMY", LogMode::kConsole, LogLevel::kInfo, "Dummy logger");
   }
   return loger_f_.get();
 }
