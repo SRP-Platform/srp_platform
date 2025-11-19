@@ -1,0 +1,6 @@
+- hosts: all
+  tasks:
+    - name: Run Unit tests in ara
+      shell:
+        executable: /bin/bash
+        cmd: cd {{ zuul.project.src_dir }} && bazel test --nocache_test_results `bazel query 'kind(cc_test, //ara/...)'`
