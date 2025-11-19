@@ -1,0 +1,32 @@
+- job:
+    name: cpplint
+    run: .jobs/cpplint.yaml
+
+- job:
+    name: unit_tests_platform
+    run: .jobs/unit_tests_platform.yaml
+
+- job:
+    parent: qemu
+    name: itf-core
+    run: .jobs/itf.yaml
+
+- project:
+    check:
+      jobs:
+        - noop
+        - cpplint
+        - unit_tests_platform
+    gate:
+      jobs:
+        - noop
+        - unit_tests_platform
+    gate-bot:
+      jobs:
+        - noop
+        - unit_tests_platform
+        - itf-core
+    integrity-tests:
+      jobs:
+        - noop
+        - itf-core
