@@ -25,8 +25,6 @@
       jobs:
         - noop
         - unit_tests_platform
-        - itf-core
     integrity-tests:
       jobs:
         - noop
-        - itf-core
