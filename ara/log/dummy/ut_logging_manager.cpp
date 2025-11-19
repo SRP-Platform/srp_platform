@@ -8,10 +8,9 @@
  * @copyright Copyright (c) 2024
  *
  */
-#include "ara/log/logging_menager.h"
-
 #include <utility>
 
+#include "ara/log/logging_menager.h"
 #include "ara/log/sink/console_log_sink.h"
 #include "ara/log/sink/remote_log_sink.h"
 namespace ara {
@@ -76,6 +75,22 @@ void LoggingMenager::Create(std::string appId, LogMode logMode,
         << "An attempt to double initialize LoggingMenager was detected";
     return;
   }
+  //   if (logMode == LogMode::kFile) {
+  //     throw std::invalid_argument(
+  //         "File logging mode is not feasible within this constructor
+  //         override.");
+  //   }
+
+  //   if (logMode == LogMode::kConsole) {
+  //     sink::LogSink *_logSink = new sink::ConsoleLogSink(appId,
+  //     appDescription); LoggingMenager *_result = new
+  //     LoggingMenager(_logSink, logLevel);
+
+  //     return _result;
+  //   } else {
+  //     throw std::invalid_argument("The log mode is not currently
+  //     supported.");
+  //   }
   loger_f_ = std::make_unique<LoggingMenager>(appId, logLevel);
   if (logMode & LogMode::kConsole) {
     AddSink(std::make_unique<sink::ConsoleLogSink>());
@@ -91,7 +106,12 @@ void LoggingMenager::AddSink(std::unique_ptr<sink::LogSink> sink_) {
   }
 }
 
-LoggingMenager *LoggingMenager::GetInstance() { return loger_f_.get(); }
+LoggingMenager *LoggingMenager::GetInstance() {
+  if (loger_f_ == nullptr) {
+    Create("DUMY", LogMode::kConsole, LogLevel::kInfo, "Dummy logger");
+  }
+  return loger_f_.get();
+}
 
 LoggingMenager::~LoggingMenager() noexcept {
   for (auto &sin : this->sink_list_) {
