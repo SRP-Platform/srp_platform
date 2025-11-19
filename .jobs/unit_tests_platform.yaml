@@ -3,4 +3,4 @@
     - name: Run CppLint
       shell:
         executable: /bin/bash
-        cmd: cd {{ zuul.project.src_dir }} && bazel test --nocache_test_results `bazel query 'kind(cc_test, //platform/...)'`
+        cmd: cd {{ zuul.project.src_dir }} && bazel test --nocache_test_results `bazel query 'kind(cc_test, //ara/..., //core/...)'`
