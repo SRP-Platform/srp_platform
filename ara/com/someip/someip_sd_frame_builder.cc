@@ -151,6 +151,49 @@ SomeipFrame SomeipSdFrameBuilder::BuildFrame() noexcept {
   header_.length = 8U + payload.size();
   return SomeipFrame{header_, payload};
 }
+
+SomeipFrame SomeipSdFrameBuilder::BuildEventAck(const EventEntry& event, const EndpointOption& endpoint) {
+  const uint8_t res1{0x00};
+  const uint8_t res2{0x00};
+  const uint8_t res3{0x00};
+  const uint32_t entry_length{16U *
+                              static_cast<uint32_t>(1)};
+
+  this->header_.message_type = MessageType::kNotification;
+  std::vector<uint8_t> payload{0xc0, res1, res2, res3};
+  EventEntry out{event};
+  out.opt = 0x00U;
+  out.type = 0x07;
+  if constexpr (std::endian::native == std::endian::big) {
+    const auto res = srp::data::Convert2Vector<uint32_t>::Conv(entry_length);
+    payload.insert(payload.end(), res.begin(), res.end());
+  } else {
+    const auto temp_v =
+        srp::data::EndianConvert<std::uint32_t>::Conv(entry_length);
+    const auto res = srp::data::Convert2Vector<uint32_t>::Conv(temp_v);
+    payload.insert(payload.end(), res.begin(), res.end());
+  }
+  {
+    const auto res = srp::data::Convert2Vector<EventEntry>::Conv(out);
+    payload.insert(payload.end(), res.begin(), res.end());
+  }
+  {
+    const uint32_t endpoint_length{0};
+
+    if constexpr (std::endian::native == std::endian::big) {
+      const auto res =
+          srp::data::Convert2Vector<uint32_t>::Conv(endpoint_length);
+      payload.insert(payload.end(), res.begin(), res.end());
+    } else {
+      const auto temp_v =
+          srp::data::EndianConvert<std::uint32_t>::Conv(endpoint_length);
+      const auto res = srp::data::Convert2Vector<uint32_t>::Conv(temp_v);
+      payload.insert(payload.end(), res.begin(), res.end());
+    }
+  }
+  header_.length = 8U + payload.size();
+  return SomeipFrame{header_, payload};
+}
 }  // namespace someip
 }  // namespace com
 }  // namespace ara

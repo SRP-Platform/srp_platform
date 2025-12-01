@@ -1,12 +1,12 @@
 /**
  * @file someip_controller.h
  * @author Bartosz Snieg (snieg45@gmail.com)
- * @brief 
+ * @brief
  * @version 0.1
  * @date 2024-11-26
- * 
+ *
  * @copyright Copyright (c) 2024
- * 
+ *
  */
 #ifndef ARA_COM_SOMEIP_CONTROLLER_SOMEIP_CONTROLLER_H_
 #define ARA_COM_SOMEIP_CONTROLLER_SOMEIP_CONTROLLER_H_

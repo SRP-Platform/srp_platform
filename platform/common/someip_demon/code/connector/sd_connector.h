@@ -66,7 +66,8 @@ class SDConnector : public CommonConnector, public IDb {
 
   std::optional<std::reference_wrapper<const db::FindServiceItem>> GetServiceIp(
       const uint16_t service_id, const uint32_t pid) const noexcept override;
-
+  std::optional<std::reference_wrapper<const db::ServiceItem>>
+    GetProviderService(const uint16_t service_id, const uint16_t instance_id) const noexcept override;
   explicit SDConnector(db::Database& sd_db, std::uint32_t local_ip,  // NOLINT
                        std::uint16_t port);
   ~SDConnector() = default;

@@ -58,7 +58,6 @@ int EmApplication::Initialize(
       std::make_shared<service::EmService>(db, [this](const uint16_t& new_id) {
         this->sm_service_.CurrentState.Update(new_id);
       });
-
   const auto json_opt = srp::core::json::JsonParser::Parser(
       std::string{"/srp/platform/etc/state_config.json"});
   if (!json_opt.has_value()) {

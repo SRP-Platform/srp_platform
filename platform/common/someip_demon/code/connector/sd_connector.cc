@@ -1,12 +1,12 @@
 /**
  * @file sd_connector.cc
  * @author Bartosz Snieg (snieg45@gmail.com)
- * @brief 
+ * @brief
  * @version 0.1
  * @date 2024-11-26
- * 
+ *
  * @copyright Copyright (c) 2024
- * 
+ *
  */
 #include "platform/common/someip_demon/code/connector/sd_connector.h"
 
@@ -93,7 +93,11 @@ void SDConnector::SdMsgHandler(const uint32_t pid,
     }
   }
 }
-
+std::optional<std::reference_wrapper<const db::ServiceItem>>
+SDConnector::GetProviderService(const uint16_t service_id,
+                                const uint16_t instance_id) const noexcept {
+  return sd_db_.FindInProvideService(service_id, instance_id);
+}
 void SDConnector::AddNewFindService(const ara::com::someip::ServiceEntry& entry,
                                     const uint32_t pid) {
   const auto& s_id = entry.service_id;

@@ -1,12 +1,12 @@
 /**
  * @file someip_controller.cc
  * @author Bartosz Snieg (snieg45@gmail.com)
- * @brief 
+ * @brief
  * @version 0.1
  * @date 2024-11-26
- * 
+ *
  * @copyright Copyright (c) 2024
- * 
+ *
  */
 #include "ara/com/someip/controller/someip_controller.h"
 
@@ -148,8 +148,13 @@ ara::core::Result<void> SomeipController::SendByUdp(
     uint32_t port, const std::vector<uint8_t>& payload) noexcept {
   ara::com::LogDebug() << "[Someip] Sending on: " << port;
   if (send_callback_to_) {
-    this->send_callback_to_(std::to_string(port), std::move(payload),
-                            IComClient::MsgType::kSomeIp);
+    if (this->send_callback_to_(std::to_string(port), std::move(payload),
+                                IComClient::MsgType::kSomeIp)) {
+      return {};
+    } else {
+      return MakeErrorCode(ComErrc::kCommunicationLinkError,
+                           " Proxy already exist! ");
+    }
   }
   return {};
 }

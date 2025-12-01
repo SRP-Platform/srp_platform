@@ -31,6 +31,7 @@ cpu_def(
         "//platform/common/logger/model:logger",
         "//platform/common/someip_demon/model:someip_demon",
         "//platform/common/state_manager/model:state_manager",
+        "//example_app/models/ExampleApp"
         # "//deployment/example_adaptive/ExampleApp2",
     ],
 )

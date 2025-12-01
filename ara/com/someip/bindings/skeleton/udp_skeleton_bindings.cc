@@ -1,15 +1,16 @@
 /**
  * @file udp_skeleton_bindings.cc
  * @author Bartosz Snieg (snieg45@gmail.com)
- * @brief 
+ * @brief
  * @version 0.1
  * @date 2024-11-26
- * 
+ *
  * @copyright Copyright (c) 2024
- * 
+ *
  */
 #include "ara/com/someip/bindings/skeleton/udp_skeleton_bindings.h"
 
+#include <utility>
 #include <vector>
 
 #include "ara/com/log.h"
@@ -17,6 +18,7 @@
 #include "ara/com/someip/ServiceEntry.h"
 #include "ara/com/someip/controller/someip_controller.h"
 #include "ara/com/someip/someip_frame.h"
+#include "ara/com/someip/someip_frame_builder.h"
 #include "ara/com/someip/someip_sd_frame_builder.h"
 
 namespace ara {
@@ -66,7 +68,17 @@ ara::core::Result<std::vector<uint8_t>> UdpSkeletonBindings::HandleMethod(
 }
 
 void UdpSkeletonBindings::HandleEvent(const uint16_t& method_id,
-                                      const std::vector<uint8_t>& payload) {}
+                                      const std::vector<uint8_t>& payload) {
+  SomeipFrameBuilder builder{};
+  builder.SetServiceId(service_id_)
+      .SetMethodId(method_id)
+      .SetSessionId(instance_id_);
+  builder.SetRequestId(0x01);  // todo(snieg45@gmail.com) implement this
+  builder.SetMessageType(MessageType::kNotification)
+      .SetReturnCode(MessageCode::kEOk);
+  builder.SetPayload(std::move(payload));
+  this->controller_->SendByUdp(port_, builder.BuildFrame().GetRaw());
+}
 
 void UdpSkeletonBindings::SubscribeToEvent(const uint16_t& event_id) {}
 

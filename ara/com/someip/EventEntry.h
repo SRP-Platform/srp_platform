@@ -31,22 +31,22 @@ struct EventEntry {
   std::uint16_t instance_id;
   std::uint8_t major_version;
   std::uint32_t ttl;
-  std::uint16_t counter;
+  std::uint8_t counter;
   std::uint16_t eventgroup_id;
 };
 
 }  // namespace someip
 }  // namespace com
 }  // namespace ara
-namespace ara {
-namespace com {
+namespace srp {
+namespace data {
 
 template <>
 struct Convert<ara::com::someip::EventEntry> {
   static ara::core::Result<ara::com::someip::EventEntry> Conv(
       const std::vector<std::uint8_t>& in) {
     ara::com::someip::EventEntry res{};
-    if (in.size() != 17) {
+    if (in.size() < 16) {
       return ara::com::MakeErrorCode(ara::com::ComErrc::kFieldValueIsNotValid,
                                      "The given buffer is of inadequate size");
     }
@@ -145,7 +145,7 @@ struct Convert<ara::com::someip::EventEntry> {
       }
     }
     {
-      const auto tem_v = srp::data::Convert<std::uint16_t>::Conv(
+      const auto tem_v = srp::data::Convert<std::uint8_t>::Conv(
           std::vector<uint8_t>{in.begin() + 13, in.begin() + 15});
       if (!tem_v.has_value()) {
         return ara::com::MakeErrorCode(
@@ -156,12 +156,12 @@ struct Convert<ara::com::someip::EventEntry> {
         res.counter = tem_v.value();
       } else {
         res.counter =
-            srp::data::EndianConvert<std::uint16_t>::Conv(tem_v.value());
+            srp::data::EndianConvert<std::uint8_t>::Conv(tem_v.value());
       }
     }
     {
       const auto tem_v = srp::data::Convert<std::uint16_t>::Conv(
-          std::vector<uint8_t>{in.begin() + 15, in.begin() + 17});
+          std::vector<uint8_t>{in.begin() + 14, in.begin() + 16});
       if (!tem_v.has_value()) {
         return ara::com::MakeErrorCode(
             ara::com::ComErrc::kFieldValueIsNotValid,
@@ -241,13 +241,13 @@ struct Convert2Vector<ara::com::someip::EventEntry> {
     }
     if constexpr (std::endian::native == std::endian::big) {
       const auto temp_r_v =
-          srp::data::Convert2Vector<std::uint16_t>::Conv(in.counter);
+          srp::data::Convert2Vector<std::uint8_t>::Conv(in.counter);
       out.insert(out.end(), temp_r_v.begin(), temp_r_v.end());
     } else {
       const auto temp_v =
-          srp::data::EndianConvert<std::uint16_t>::Conv(in.counter);
+          srp::data::EndianConvert<std::uint8_t>::Conv(in.counter);
       const auto temp_r_v =
-          srp::data::Convert2Vector<std::uint16_t>::Conv(temp_v);
+          srp::data::Convert2Vector<std::uint8_t>::Conv(temp_v);
       out.insert(out.end(), temp_r_v.begin(), temp_r_v.end());
     }
     if constexpr (std::endian::native == std::endian::big) {
@@ -265,7 +265,7 @@ struct Convert2Vector<ara::com::someip::EventEntry> {
     return out;
   }
 };
-}  // namespace com
-}  // namespace ara
+}  // namespace data
+}  // namespace srp
 
 #endif  // ARA_COM_SOMEIP_EVENTENTRY_H_
