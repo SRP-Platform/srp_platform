@@ -10,7 +10,7 @@
  */
 #include "platform/common/someip_demon/code/common/com/impl/multicast_controller.h"
 
-#include <future> // NOLINT
+#include <future>  // NOLINT
 #include <memory>
 #include <vector>
 
@@ -27,7 +27,7 @@ MulticastController::MulticastController(const std::string& interface_ip,
       multicast_ip_{multicast_ip},
       multicast_port_{multicast_port},
       logger_{ara::log::LoggingMenager::GetInstance()->CreateLogger(
-          "mUDP", "", ara::log::LogLevel::kInfo)} {}
+          "mUDP", "", ara::log::LogLevel::kError)} {}
 
 void MulticastController::RxCallback(const std::string& ip,
                                      const std::uint16_t& port,
@@ -66,7 +66,7 @@ ara::core::Result<void> MulticastController::SendFrame(
   logger_.LogInfo() << "Transmit msg to: " << ip << ":" << port;
   if (sock_ != nullptr && ip.size() == 0) {
     this->sock_->Transmit(data);
-  } else   if (sock_ != nullptr && ip.size() > 0) {
+  } else if (sock_ != nullptr && ip.size() > 0) {
     this->sock_->TransmitToClient(data, ip, port);
   }
   return {};
