@@ -9,8 +9,8 @@ def install():
     deps()
     py_repositories()
     python_register_toolchains(
-        name = "python_3_11",
+        name = "python_3_12",
         # Available versions are listed in @rules_python//python:versions.bzl.
         # We recommend using the same version your team is already standardized on.
-        python_version = "3.11",
+        python_version = "3.12",
     )

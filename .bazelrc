@@ -9,3 +9,4 @@ test --test_output=all
 coverage --instrument_test_targets --experimental_cc_coverage --combined_report=lcov --instrumentation_filter="[:],-external/[:]" --coverage_report_generator=@bazel_tools//tools/test/CoverageOutputGenerator/java/com/google/devtools/coverageoutputgenerator:Main
 
 test:pytest --strategy=TestRunner=standalone
+common --noenable_bzlmod   
