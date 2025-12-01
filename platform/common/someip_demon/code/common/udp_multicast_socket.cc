@@ -28,9 +28,9 @@ namespace {
 constexpr uint32_t kBufforSize{255 * 2};
 }  // namespace
 
-srp::core::ErrorCode UdpMulticastSocket::Init(const std::string &local_ip,
-                                                const std::string &multicast_ip,
-                                                const std::uint16_t port_id) {
+srp::core::ErrorCode UdpMulticastSocket::Init(const std::string& local_ip,
+                                              const std::string& multicast_ip,
+                                              const std::uint16_t port_id) {
   local_ip_ = local_ip;
   multicast_ip_ = multicast_ip;
   port_id_ = port_id;
@@ -40,7 +40,7 @@ srp::core::ErrorCode UdpMulticastSocket::Init(const std::string &local_ip,
     return srp::core::ErrorCode::kError;
   }
 
-  memset((char *)&groupSock, 0, sizeof(groupSock));  // NOLINT
+  memset((char*)&groupSock, 0, sizeof(groupSock));  // NOLINT
   groupSock.sin_family = AF_INET;
   groupSock.sin_addr.s_addr = inet_addr(multicast_ip.c_str());
   groupSock.sin_port = htons(port_id);
@@ -60,14 +60,14 @@ srp::core::ErrorCode UdpMulticastSocket::Init(const std::string &local_ip,
   srcaddr.sin_port = htons(port_id_);
 
   if (setsockopt(sd, IPPROTO_IP, IP_MULTICAST_IF,
-                 (char *)&srcaddr,  // NOLINT
+                 (char*)&srcaddr,  // NOLINT
                  sizeof(srcaddr)) < 0) {
     return srp::core::ErrorCode::kError;
   }
   {
     int reuse = 1;
 
-    if (setsockopt(sd, SOL_SOCKET, SO_REUSEADDR, (char *)&reuse,  // NOLINT
+    if (setsockopt(sd, SOL_SOCKET, SO_REUSEADDR, (char*)&reuse,  // NOLINT
                    sizeof(reuse)) < 0) {
       return srp::core::ErrorCode::kError;
     }
@@ -81,19 +81,19 @@ srp::core::ErrorCode UdpMulticastSocket::Init(const std::string &local_ip,
     return srp::core::ErrorCode::kError;
   }
 
-  memset((char *)&localSock, 0, sizeof(localSock));  // NOLINT
+  memset((char*)&localSock, 0, sizeof(localSock));  // NOLINT
   localSock.sin_family = AF_INET;
   localSock.sin_port = htons(port_id_);
   localSock.sin_addr.s_addr = INADDR_ANY;
 
-  if (bind(sd, (struct sockaddr *)&localSock, sizeof(localSock))) {
+  if (bind(sd, (struct sockaddr*)&localSock, sizeof(localSock))) {
     close(sd);
     return srp::core::ErrorCode::kError;
   }
 
   group.imr_multiaddr.s_addr = inet_addr(multicast_ip_.c_str());
   group.imr_interface.s_addr = inet_addr(local_ip_.c_str());
-  if (setsockopt(sd, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char *)&group,  // NOLINT
+  if (setsockopt(sd, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char*)&group,  // NOLINT
                  sizeof(group)) < 0) {
     close(sd);
     return srp::core::ErrorCode::kError;
@@ -105,12 +105,33 @@ void UdpMulticastSocket::SetRXCallback(RXCallback callback) {
   this->callback_ = callback;
 }
 
-void UdpMulticastSocket::Transmit(const std::vector<std::uint8_t> &payload) {
-  std::uint8_t *buffor = new std::uint8_t[payload.size()];
+void UdpMulticastSocket::Transmit(const std::vector<std::uint8_t>& payload) {
+  std::uint8_t* buffor = new std::uint8_t[payload.size()];
   std::copy(payload.begin(), payload.end(), buffor);
-  if (sendto(sd, buffor, payload.size(), 0, (struct sockaddr *)&groupSock,
+  if (sendto(sd, buffor, payload.size(), 0, (struct sockaddr*)&groupSock,
              sizeof(groupSock)) < 0) {
     delete[] buffor;
+    // return srp::core::ErrorCode::kError;
+  }
+  delete[] buffor;
+  // return srp::core::ErrorCode::kOk;
+}
+
+void UdpMulticastSocket::TransmitToClient(
+    const std::vector<std::uint8_t>& payload, const std::string& ip,
+    const uint16_t& port) {
+  struct sockaddr_in remote;
+  memset(&remote, 0, sizeof(struct sockaddr_in));
+  remote.sin_family = AF_INET;
+  remote.sin_addr.s_addr = inet_addr(ip.c_str());
+  remote.sin_port = htons(port);
+
+  std::uint8_t* buffor = new std::uint8_t[payload.size()];
+  std::copy(payload.begin(), payload.end(), buffor);
+
+  if (sendto(sd, buffor, payload.size(), 0, (struct sockaddr*)&remote,
+             sizeof(remote)) < 0) {
+    // delete[] buffor;
     // return srp::core::ErrorCode::kError;
   }
   delete[] buffor;
@@ -129,14 +150,14 @@ void UdpMulticastSocket::StartRXThread() {
 
 void UdpMulticastSocket::Loop(std::stop_token stoken) {
   const std::stop_callback stop_wait{stoken,
-                               [this]() { shutdown(this->sd, SHUT_RD); }};
+                                     [this]() { shutdown(this->sd, SHUT_RD); }};
   while (!stoken.stop_requested()) {
     struct sockaddr_in si_other;
     int slen = sizeof(si_other);
     std::array<char, kBufforSize> buffor;
     const int32_t bytes_rec =
-        recvfrom(sd, buffor.data(), kBufforSize, 0,
-                 (struct sockaddr *)&si_other, (socklen_t *)&slen);  // NOLINT
+        recvfrom(sd, buffor.data(), kBufforSize, 0, (struct sockaddr*)&si_other,
+                 (socklen_t*)&slen);  // NOLINT
     if (bytes_rec > 0) {
       if (this->callback_) {
         std::ignore = std::async(

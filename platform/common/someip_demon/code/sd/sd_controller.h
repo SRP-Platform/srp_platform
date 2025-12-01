@@ -1,12 +1,12 @@
 /**
  * @file sd_controller.h
  * @author Bartosz Snieg (snieg45@gmail.com)
- * @brief 
+ * @brief
  * @version 0.1
  * @date 2024-11-26
- * 
+ *
  * @copyright Copyright (c) 2024
- * 
+ *
  */
 #ifndef PLATFORM_COMMON_SOMEIP_DEMON_CODE_SD_SD_CONTROLLER_H_
 #define PLATFORM_COMMON_SOMEIP_DEMON_CODE_SD_SD_CONTROLLER_H_
@@ -17,6 +17,7 @@
 #include <thread>  // NOLINT
 #include <vector>
 
+#include "ara/com/someip/EventEntry.h"
 #include "ara/com/someip/ServiceEntry.h"
 #include "ara/com/someip/someip_sd_frame_builder.h"
 #include "ara/log/logger.h"
@@ -38,8 +39,12 @@ class SdController : public common::IController {
   void SdLoop(std::stop_token token);
   void OfferService() noexcept;
   std::vector<db::FindServiceItem> ParseServiceList(
+      const uint16_t client_id, const uint16_t session_id,
       const std::vector<uint8_t>& raw);
   void FindService() noexcept;
+  void subscribe_to_event(const uint16_t client_id, const uint16_t session_id,
+                          const ara::com::someip::EventEntry& data,
+                          const ara::com::someip::EndpointOption& ip) noexcept;
 
  public:
   void SetTransmitCallback(

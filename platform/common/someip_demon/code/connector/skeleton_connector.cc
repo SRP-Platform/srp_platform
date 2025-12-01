@@ -1,12 +1,12 @@
 /**
  * @file skeleton_connector.cc
  * @author Bartosz Snieg (snieg45@gmail.com)
- * @brief 
+ * @brief
  * @version 0.1
  * @date 2024-11-26
- * 
+ *
  * @copyright Copyright (c) 2024
- * 
+ *
  */
 #include "platform/common/someip_demon/code/connector/skeleton_connector.h"
 
@@ -14,8 +14,9 @@
 #include <utility>
 #include <vector>
 
+#include "ara/com/someip/message_type.h"
+#include "ara/log/logging_menager.h"
 #include "core/common/condition.h"
-
 namespace srp {
 namespace someip_demon {
 namespace connectors {
@@ -23,7 +24,10 @@ namespace {
 constexpr uint64_t kTimeOut{3000000000ul};
 }  // namespace
 
-SkeletonConnector::SkeletonConnector(const std::shared_ptr<IDb> db) : db_{db} {}
+SkeletonConnector::SkeletonConnector(const std::shared_ptr<IDb> db)
+    : db_{db},
+      logger_{ara::log::LoggingMenager::GetInstance()->CreateLogger(
+          "skco", "", ara::log::LogLevel::kInfo)} {}
 
 void SkeletonConnector::Start() noexcept {
   time_out_thread_ = std::make_unique<std::jthread>(
@@ -31,11 +35,41 @@ void SkeletonConnector::Start() noexcept {
 }
 void SkeletonConnector::ProcessFrame(
     uint32_t pid, ara::com::someip::SomeipFrame&& frame) noexcept {
-  const auto& item = req_list_.find(frame.header_.session_id);
-  if (item != req_list_.end()) {
-    SendResult(item->second, frame);
-    req_list_.erase(item->first);
-    return;
+  if (frame.header_.message_type ==
+      ara::com::someip::MessageType::kNotification) {
+    logger_.LogInfo() << "New kNotification";
+    const auto service_opt = db_.get()->GetProviderService(
+        frame.header_.service_id, frame.header_.session_id);
+    if (!service_opt.has_value()) {
+      logger_.LogError() << "Service not found [" << frame.header_.service_id
+                         << ":" << frame.header_.session_id << "]";
+      return;
+    }
+    const auto& service = service_opt.value().get();
+    for (const auto& iter : service.subscription_list_) {
+      if (iter.second.HaveEvent(frame.header_.method_id)) {
+        struct in_addr ip_addr;
+        ip_addr.s_addr = htonl(iter.second.ip_);
+        const std::string ip = inet_ntoa(ip_addr);
+        logger_.LogInfo() << "Sending Event to " << ip << ":"
+                          << iter.second.port_;
+        frame.header_.request_id = iter.second.GetClientId();
+        frame.header_.session_id = iter.second.GetSessionId();
+        this->udp_sock_->Transmit(ip, iter.second.port_, frame.GetRaw());
+      } else {
+        logger_.LogInfo() << "client ip " << iter.second.ip_ << ":"
+                          << iter.second.port_
+                          << " not req event: " << frame.header_.service_id
+                          << ":" << frame.header_.method_id;
+      }
+    }
+  } else {
+    const auto& item = req_list_.find(frame.header_.session_id);
+    if (item != req_list_.end()) {
+      SendResult(item->second, frame);
+      req_list_.erase(item->first);
+      return;
+    }
   }
 }
 

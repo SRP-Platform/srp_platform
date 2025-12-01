@@ -72,8 +72,8 @@ class UdpMulticastSocket {
    * @return core::ErrorCode initialiaze status
    */
   srp::core::ErrorCode Init(const std::string& local_ip,
-                              const std::string& multicast_ip,
-                              const std::uint16_t port_id);
+                            const std::string& multicast_ip,
+                            const std::uint16_t port_id);
   /**
    * @brief Setter for rx callback
    *
@@ -89,6 +89,8 @@ class UdpMulticastSocket {
    * @return core::ErrorCode status
    */
   void Transmit(const std::vector<std::uint8_t>& payload);
+  void TransmitToClient(const std::vector<std::uint8_t>& payload,
+                        const std::string& ip, const uint16_t& port);
   /**
    * @brief This function start RX thread
    *

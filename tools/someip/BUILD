@@ -22,6 +22,6 @@ py_binary(
     srcs = ["test3.py","addition_method_parameters.py","temperature_msg.py"],
     imports = ["."],
     deps = [
-        "@srp_platform//third_party/python/someipy/src:someipy_lib"
+        "@srp_platform//third_party/python:someip_lib"
     ],
 )

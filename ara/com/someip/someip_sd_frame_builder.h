@@ -16,6 +16,7 @@
 #include "ara/com/someip/HeaderStructure.h"
 #include "ara/com/someip/ServiceEntry.h"
 #include "ara/com/someip/EndpointOption.h"
+#include "ara/com/someip/EventEntry.h"
 
 #include "ara/com/someip/message_code.h"
 #include "ara/com/someip/message_type.h"
@@ -50,6 +51,7 @@ class SomeipSdFrameBuilder {
   uint8_t GetSize() const;
   SomeipFrame BuildFrame() noexcept;
   virtual ~SomeipSdFrameBuilder() = default;
+  SomeipFrame BuildEventAck(const EventEntry& event, const EndpointOption& endpoint);
 };
 }  // namespace someip
 }  // namespace com

@@ -68,6 +68,17 @@ class Database {
     }
     return std::reference_wrapper<FindServiceTable::mapped_type>(iter->second);
   }
+
+  const std::optional<std::reference_wrapper<OfferedServiceTable::mapped_type>>
+  FindInProvideService(const uint16_t service_id, const uint16_t instance_id) {
+    const uint32_t key{(static_cast<uint32_t>(instance_id) << 16) + service_id};
+    const auto& iter = offered_service_.find(key);
+    if (iter == offered_service_.cend()) {
+      return std::nullopt;
+    }
+    return std::reference_wrapper<OfferedServiceTable::mapped_type>(iter->second);
+  }
+
   const OfferedServiceTable& GetProvideList() const { return offered_service_; }
   const FindServiceTable& GetConsumeList() const { return find_service_; }
   void WaitForNewService(std::stop_token token) noexcept {

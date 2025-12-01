@@ -1,22 +1,23 @@
 /**
  * @file skeleton_connector.h
  * @author Bartosz Snieg (snieg45@gmail.com)
- * @brief 
+ * @brief
  * @version 0.1
  * @date 2024-11-26
- * 
+ *
  * @copyright Copyright (c) 2024
- * 
+ *
  */
 #ifndef PLATFORM_COMMON_SOMEIP_DEMON_CODE_CONNECTOR_SKELETON_CONNECTOR_H_
 #define PLATFORM_COMMON_SOMEIP_DEMON_CODE_CONNECTOR_SKELETON_CONNECTOR_H_
 #include <memory>
+#include <string>
 #include <thread>  // NOLINT
 #include <unordered_map>
-#include <string>
 
-#include "bindings/common/socket/proccess_socket.h"
 #include "ara/com/someip/someip_frame.h"
+#include "ara/log/logger.h"
+#include "bindings/common/socket/proccess_socket.h"
 #include "platform/common/someip_demon/code/common/udp_socket.h"
 #include "platform/common/someip_demon/code/connector/common_connector.h"
 #include "platform/common/someip_demon/code/connector/i_db.h"
@@ -35,6 +36,7 @@ class SkeletonConnector : public CommonConnector {
   std::unique_ptr<std::jthread> time_out_thread_;
   std::unordered_map<uint32_t, ReqDetails> req_list_;
   uint32_t req_id{1};
+  const ara::log::Logger& logger_;
   const std::shared_ptr<IDb> db_;
   void TimeOutLoop(std::stop_token token);
   void SendResult(const ReqDetails& det, ara::com::someip::SomeipFrame frame);

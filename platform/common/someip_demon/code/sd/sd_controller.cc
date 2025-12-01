@@ -10,14 +10,16 @@
  */
 #include "platform/common/someip_demon/code/sd/sd_controller.h"
 
+#include <arpa/inet.h>
+
 #include <utility>
 
 #include "ara/com/someip/EndpointOption.h"
 #include "ara/com/someip/HeaderStructure.h"
 #include "ara/com/someip/someip_frame.h"
-#include "core/data/type_converter.h"
 #include "ara/log/logging_menager.h"
 #include "core/common/condition.h"
+#include "core/data/type_converter.h"
 
 namespace srp {
 namespace someip_demon {
@@ -25,19 +27,31 @@ namespace someip {
 namespace sd {
 
 std::vector<db::FindServiceItem> SdController::ParseServiceList(
+    const uint16_t client_id, const uint16_t session_id,
     const std::vector<uint8_t>& raw) {
   std::vector<ara::com::someip::ServiceEntry> res{};
   auto count = (srp::data::Convert<uint32_t>::Conv(raw).value_or(0U));
   if constexpr (std::endian::native != std::endian::big) {
     count = srp::data::EndianConvert<std::uint32_t>::Conv(count) / 16;
   }
-
+  std::vector<ara::com::someip::EventEntry> event_subscribe{};
   for (auto i = 0; i < count; i++) {
     if (*(raw.begin() + 4 + (16 * i)) == 0x01) {
       const auto t = srp::data::Convert<ara::com::someip::ServiceEntry>::Conv(
           std::vector<uint8_t>{raw.begin() + 4 + (16 * i), raw.end()});
       if (t.HasValue()) {
         res.push_back(t.Value());
+      } else {
+        logger_.LogError() << "Error in (ParseServiceList): "
+                           << t.Error().Message() << " -> "
+                           << t.Error().SupportData();
+      }
+    } else if (*(raw.begin() + 4 + (16 * i)) == 0x06) {
+      logger_.LogError() << "New sub call";
+      const auto t = srp::data::Convert<ara::com::someip::EventEntry>::Conv(
+          std::vector<uint8_t>{raw.begin() + 4 + (16 * i), raw.end()});
+      if (t.HasValue()) {
+        event_subscribe.push_back(t.Value());
       } else {
         logger_.LogError() << "Error in (ParseServiceList): "
                            << t.Error().Message() << " -> "
@@ -57,6 +71,7 @@ std::vector<db::FindServiceItem> SdController::ParseServiceList(
         std::vector<uint8_t>{ip_raw.begin() + 4 + (12 * i), ip_raw.end()});
     if (t.has_value()) {
       ip_res.push_back(t.value());
+      logger_.LogError() << "Ip yes";
     } else {
       logger_.LogError() << "Error in (EndpointOptionList): ";
     }
@@ -69,6 +84,13 @@ std::vector<db::FindServiceItem> SdController::ParseServiceList(
     new_service.port_ = ip_res.at(item.index_1).port;
     item_list.push_back(std::move(new_service));
   }
+  for (const auto& item : event_subscribe) {
+    logger_.LogError() << "new sub msg for: [" << item.service_id << ":"
+                       << item.instance_id << "]->" << item.eventgroup_id
+                       << " from: [" << ip_res.at(item.index_1).ip << ":"
+                       << ip_res.at(item.index_1).port << "]";
+    subscribe_to_event(client_id, session_id, item, ip_res.at(item.index_1));
+  }
   return std::move(item_list);
 }
 
@@ -76,6 +98,7 @@ void SdController::ProcessFrame(
     const std::string& ip, const std::uint16_t& port,
     const ara::com::someip::SomeipFrame& frame) noexcept {
   const auto list = ParseServiceList(
+      frame.header_.request_id, frame.header_.session_id,
       std::vector<uint8_t>{frame.Payload().begin() + 4, frame.Payload().end()});
 
   bool reboot_db{false};
@@ -131,17 +154,41 @@ void SdController::SdLoop(std::stop_token token) {
     core::condition::wait_for(std::chrono::seconds{1}, token);
     if (multicast_controller_ != nullptr) {
       logger_.LogDebug() << "Find ("
-                        << static_cast<uint8_t>(sd_db_.GetConsumeList().size())
-                        << ")";
+                         << static_cast<uint8_t>(sd_db_.GetConsumeList().size())
+                         << ")";
       this->FindService();
       logger_.LogDebug() << "Offer ("
-                        << static_cast<uint8_t>(sd_db_.GetProvideList().size())
-                        << ")";
+                         << static_cast<uint8_t>(sd_db_.GetProvideList().size())
+                         << ")";
       this->OfferService();
     }
   }
 }
-
+void SdController::subscribe_to_event(
+    const uint16_t client_id, const uint16_t session_id,
+    const ara::com::someip::EventEntry& data,
+    const ara::com::someip::EndpointOption& ip) noexcept {
+  const auto& res =
+      sd_db_.FindInProvideService(data.service_id, data.instance_id);
+  if (!res.has_value()) {
+    logger_.LogError() << " Invalid sub for service: [" << data.service_id
+                       << ":" << data.instance_id
+                       << "] eventgroup: " << data.eventgroup_id;
+    return;
+  }
+  if (res.value()
+          .get()
+          .AddSubscription(ip.ip, ip.port, client_id, session_id,
+                           data.eventgroup_id)
+          .HasValue()) {
+    ara::com::someip::SomeipSdFrameBuilder builder{};
+    auto frame = builder.BuildEventAck(data, ip);
+    struct in_addr ip_addr;
+    ip_addr.s_addr = htonl(ip.ip);
+    this->multicast_controller_->SendFrame(frame.GetRaw(), inet_ntoa(ip_addr),
+                                           30490);
+  }
+}
 void SdController::OfferService() noexcept {
   ara::com::someip::SomeipSdFrameBuilder builder{};
   for (const auto& item : sd_db_.GetProvideList()) {
