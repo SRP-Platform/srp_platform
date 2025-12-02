@@ -36,7 +36,7 @@ class EventSubscription {
   EventSubscription(const uint32_t ip, const uint16_t port)
       : ip_{ip}, port_{port}, session_id_{0} {}
   void AddEvent(const uint16_t event) { events_.insert(event); }
-  bool HaveEvent(const uint16_t event) const { return events_.contains(event); }
+  bool HaveEvent(const uint16_t event) const { return true; }
   uint16_t GetSessionId() const { return session_id_; }
   void SetSessionId(uint16_t session_id) { session_id_ = session_id; }
   uint16_t GetClientId() const { return client_id_; }
