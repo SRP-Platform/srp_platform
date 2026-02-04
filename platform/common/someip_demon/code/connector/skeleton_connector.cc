@@ -37,7 +37,7 @@ void SkeletonConnector::ProcessFrame(
     uint32_t pid, ara::com::someip::SomeipFrame&& frame) noexcept {
   if (frame.header_.message_type ==
       ara::com::someip::MessageType::kNotification) {
-    logger_.LogInfo() << "New kNotification";
+    logger_.LogDebug() << "New kNotification";
     const auto service_opt = db_.get()->GetProviderService(
         frame.header_.service_id, frame.header_.session_id);
     if (!service_opt.has_value()) {

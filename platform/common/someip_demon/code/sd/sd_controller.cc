@@ -47,7 +47,7 @@ std::vector<db::FindServiceItem> SdController::ParseServiceList(
                            << t.Error().SupportData();
       }
     } else if (*(raw.begin() + 4 + (16 * i)) == 0x06) {
-      logger_.LogError() << "New sub call";
+      logger_.LogDebug() << "New sub call";
       const auto t = srp::data::Convert<ara::com::someip::EventEntry>::Conv(
           std::vector<uint8_t>{raw.begin() + 4 + (16 * i), raw.end()});
       if (t.HasValue()) {
@@ -71,7 +71,7 @@ std::vector<db::FindServiceItem> SdController::ParseServiceList(
         std::vector<uint8_t>{ip_raw.begin() + 4 + (12 * i), ip_raw.end()});
     if (t.has_value()) {
       ip_res.push_back(t.value());
-      logger_.LogError() << "Ip yes";
+      logger_.LogDebug() << "Ip yes";
     } else {
       logger_.LogError() << "Error in (EndpointOptionList): ";
     }
@@ -85,7 +85,7 @@ std::vector<db::FindServiceItem> SdController::ParseServiceList(
     item_list.push_back(std::move(new_service));
   }
   for (const auto& item : event_subscribe) {
-    logger_.LogError() << "new sub msg for: [" << item.service_id << ":"
+    logger_.LogDebug() << "new sub msg for: [" << item.service_id << ":"
                        << item.instance_id << "]->" << item.eventgroup_id
                        << " from: [" << ip_res.at(item.index_1).ip << ":"
                        << ip_res.at(item.index_1).port << "]";
