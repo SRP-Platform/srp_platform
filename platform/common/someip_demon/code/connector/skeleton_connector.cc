@@ -51,7 +51,7 @@ void SkeletonConnector::ProcessFrame(
         struct in_addr ip_addr;
         ip_addr.s_addr = htonl(iter.second.ip_);
         const std::string ip = inet_ntoa(ip_addr);
-        logger_.LogInfo() << "Sending Event to " << ip << ":"
+        logger_.LogDebug() << "Sending Event to " << ip << ":"
                           << iter.second.port_;
         frame.header_.request_id = iter.second.GetClientId();
         frame.header_.session_id = iter.second.GetSessionId();
