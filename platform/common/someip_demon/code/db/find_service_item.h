@@ -1,16 +1,17 @@
 /**
  * @file find_service_item.h
  * @author Bartosz Snieg (snieg45@gmail.com)
- * @brief 
+ * @brief
  * @version 0.1
  * @date 2024-11-26
- * 
+ *
  * @copyright Copyright (c) 2024
- * 
+ *
  */
 #ifndef PLATFORM_COMMON_SOMEIP_DEMON_CODE_DB_FIND_SERVICE_ITEM_H_
 #define PLATFORM_COMMON_SOMEIP_DEMON_CODE_DB_FIND_SERVICE_ITEM_H_
 
+#include <algorithm>
 #include <cstdint>
 #include <functional>
 #include <vector>
@@ -22,12 +23,11 @@ class FindServiceItem {
  public:
   using Callback = std::function<void(std::reference_wrapper<FindServiceItem>)>;
 
- private:
- public:
   const uint16_t service_id_;
   const uint16_t instance_id_;
   const std::uint8_t major_version_;
   const std::uint32_t minor_version_;
+  std::vector<uint32_t> subscribed_pid_{};
   std::uint32_t ip_{0U};
   std::uint16_t port_{0U};
   std::vector<Callback> callback_list_{};
@@ -38,6 +38,13 @@ class FindServiceItem {
         instance_id_{instance_id},
         major_version_{major_version},
         minor_version_{minor_version} {}
+  void AddSubscribedService(uint32_t pid_) {
+    if (std::find(this->subscribed_pid_.begin(), this->subscribed_pid_.end(),
+                  pid_) != this->subscribed_pid_.end()) {
+      return;
+    }
+    this->subscribed_pid_.push_back(pid_);
+  }
   ~FindServiceItem() = default;
 };
 }  // namespace db

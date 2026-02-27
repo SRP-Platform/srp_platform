@@ -28,17 +28,17 @@ SomeipSdFrameBuilder::SomeipSdFrameBuilder(/* args */) {
   this->header_.return_code = MessageCode::kEOk;
 }
 
-SomeipSdFrameBuilder& SomeipSdFrameBuilder::SetRequestId(const uint16_t& id) {
+SomeipSdFrameBuilder &SomeipSdFrameBuilder::SetRequestId(const uint16_t &id) {
   this->header_.request_id = id;
   return *this;
 }
-SomeipSdFrameBuilder& SomeipSdFrameBuilder::SetSessionId(const uint16_t& id) {
+SomeipSdFrameBuilder &SomeipSdFrameBuilder::SetSessionId(const uint16_t &id) {
   this->header_.session_id = id;
   return *this;
 }
-SomeipSdFrameBuilder& SomeipSdFrameBuilder::AddFindEntry(
-    const uint16_t& service_id, const uint16_t& instace_id,
-    const uint8_t major_version, const uint32_t& minor_version) {
+SomeipSdFrameBuilder &SomeipSdFrameBuilder::AddFindEntry(
+    const uint16_t &service_id, const uint16_t &instace_id,
+    const uint8_t major_version, const uint32_t &minor_version) {
   this->header_.message_type = MessageType::kNotification;
   ServiceEntry entry{
       0U,    0U,           0U, 0U, service_id, instace_id, major_version,
@@ -46,9 +46,9 @@ SomeipSdFrameBuilder& SomeipSdFrameBuilder::AddFindEntry(
   this->AddEntry(std::move(entry));
   return *this;
 }
-SomeipSdFrameBuilder& SomeipSdFrameBuilder::AddOfferEntry(
-    const uint16_t& service_id, const uint16_t& instace_id,
-    const uint8_t major_version, const uint32_t& minor_version,
+SomeipSdFrameBuilder &SomeipSdFrameBuilder::AddOfferEntry(
+    const uint16_t &service_id, const uint16_t &instace_id,
+    const uint8_t major_version, const uint32_t &minor_version,
     const uint32_t ip, const uint16_t port) {
   this->header_.message_type = MessageType::kNotification;
   ServiceEntry entry{
@@ -58,10 +58,45 @@ SomeipSdFrameBuilder& SomeipSdFrameBuilder::AddOfferEntry(
   this->AddEntry(std::move(entry), std::move(endpoint));
   return *this;
 }
-void SomeipSdFrameBuilder::AddEntry(ServiceEntry&& entry_) {
-  const auto& res =
+SomeipSdFrameBuilder &SomeipSdFrameBuilder::AddSubscribeEntry(
+    const uint16_t &service_id, const uint16_t &instace_id,
+    const uint16_t &event_group, const uint32_t ip, const uint16_t port) {
+  const auto &res = std::find_if(this->event_entry_list_.begin(),
+                                 this->event_entry_list_.end(),
+                                 [&event_group](const EventEntry &item) {
+                                   return item.eventgroup_id == event_group;
+                                 });
+  if (res != this->event_entry_list_.end()) {
+    return *this;
+  }
+  this->header_.message_type = MessageType::kNotification;
+  EventEntry event_t{0x06,       0x00, 0x00, 0x10, service_id,
+                     instace_id, 1,    5,    0x80, event_group};
+  EndpointOption endpoint{0x09U, 0x04U, 0x00U, ip, 0U, 0x11U, port};
+  const auto &endpoint_iter =
+      std::find_if(this->endpoint_list_.begin(), this->endpoint_list_.end(),
+                   [endpoint](const auto &l_endpoint) {
+                     return endpoint.ip == l_endpoint.ip &&
+                            endpoint.port == l_endpoint.port &&
+                            endpoint.protocol_type == l_endpoint.protocol_type;
+                   });
+
+  if (res == this->event_entry_list_.end()) {
+    if (endpoint_iter == this->endpoint_list_.end()) {
+      event_t.index_1 = this->endpoint_list_.size();
+      this->endpoint_list_.push_back(std::move(endpoint));
+    } else {
+      event_t.index_1 = (endpoint_iter - endpoint_list_.begin());
+    }
+    this->event_entry_list_.push_back(std::move(event_t));
+  }
+  return *this;
+}
+
+void SomeipSdFrameBuilder::AddEntry(ServiceEntry &&entry_) {
+  const auto &res =
       std::find_if(this->entry_list_.begin(), this->entry_list_.end(),
-                   [entry_](const ServiceEntry& l_entry) {
+                   [entry_](const ServiceEntry &l_entry) {
                      return entry_.type == l_entry.type &&
                             entry_.service_id == l_entry.service_id &&
                             entry_.instance_id == l_entry.instance_id;
@@ -71,18 +106,18 @@ void SomeipSdFrameBuilder::AddEntry(ServiceEntry&& entry_) {
     this->entry_list_.push_back(std::move(entry_));
   }
 }
-void SomeipSdFrameBuilder::AddEntry(ServiceEntry&& entry_,
-                                    EndpointOption&& endpoint) {
-  const auto& res =
+void SomeipSdFrameBuilder::AddEntry(ServiceEntry &&entry_,
+                                    EndpointOption &&endpoint) {
+  const auto &res =
       std::find_if(this->entry_list_.begin(), this->entry_list_.end(),
-                   [entry_](const ServiceEntry& l_entry) {
+                   [entry_](const ServiceEntry &l_entry) {
                      return entry_.type == l_entry.type &&
                             entry_.service_id == l_entry.service_id &&
                             entry_.instance_id == l_entry.instance_id;
                    });
-  const auto& endpoint_iter =
+  const auto &endpoint_iter =
       std::find_if(this->endpoint_list_.begin(), this->endpoint_list_.end(),
-                   [endpoint](const auto& l_endpoint) {
+                   [endpoint](const auto &l_endpoint) {
                      return endpoint.ip == l_endpoint.ip &&
                             endpoint.port == l_endpoint.port &&
                             endpoint.protocol_type == l_endpoint.protocol_type;
@@ -106,8 +141,9 @@ SomeipFrame SomeipSdFrameBuilder::BuildFrame() noexcept {
   const uint8_t res1{0x00};
   const uint8_t res2{0x00};
   const uint8_t res3{0x00};
-  const uint32_t entry_length{16U *
-                              static_cast<uint32_t>(this->entry_list_.size())};
+  const uint32_t entry_length{
+      16U * (static_cast<uint32_t>(this->entry_list_.size()) +
+             static_cast<uint32_t>(this->event_entry_list_.size()))};
 
   std::vector<uint8_t> payload{flag, res1, res2, res3};
 
@@ -121,9 +157,14 @@ SomeipFrame SomeipSdFrameBuilder::BuildFrame() noexcept {
     payload.insert(payload.end(), res.begin(), res.end());
   }
 
-  for (const auto& item : this->entry_list_) {
+  for (const auto &item : this->entry_list_) {
     const auto t =
         srp::data::Convert2Vector<ara::com::someip::ServiceEntry>::Conv(item);
+    payload.insert(payload.end(), t.begin(), t.end());
+  }
+  for (const auto &item : this->event_entry_list_) {
+    const auto t =
+        srp::data::Convert2Vector<ara::com::someip::EventEntry>::Conv(item);
     payload.insert(payload.end(), t.begin(), t.end());
   }
   if (this->endpoint_list_.size() > 0) {
@@ -141,7 +182,7 @@ SomeipFrame SomeipSdFrameBuilder::BuildFrame() noexcept {
       payload.insert(payload.end(), res.begin(), res.end());
     }
 
-    for (const auto& item : this->endpoint_list_) {
+    for (const auto &item : this->endpoint_list_) {
       const auto t =
           srp::data::Convert2Vector<ara::com::someip::EndpointOption>::Conv(
               item);
@@ -152,12 +193,12 @@ SomeipFrame SomeipSdFrameBuilder::BuildFrame() noexcept {
   return SomeipFrame{header_, payload};
 }
 
-SomeipFrame SomeipSdFrameBuilder::BuildEventAck(const EventEntry& event, const EndpointOption& endpoint) {
+SomeipFrame SomeipSdFrameBuilder::BuildEventAck(
+    const EventEntry &event, const EndpointOption &endpoint) {
   const uint8_t res1{0x00};
   const uint8_t res2{0x00};
   const uint8_t res3{0x00};
-  const uint32_t entry_length{16U *
-                              static_cast<uint32_t>(1)};
+  const uint32_t entry_length{16U * static_cast<uint32_t>(1)};
 
   this->header_.message_type = MessageType::kNotification;
   std::vector<uint8_t> payload{0xc0, res1, res2, res3};

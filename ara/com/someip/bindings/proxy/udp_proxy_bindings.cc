@@ -1,19 +1,19 @@
 /**
  * @file udp_proxy_bindings.cc
  * @author Bartosz Snieg (snieg45@gmail.com)
- * @brief 
+ * @brief
  * @version 0.1
  * @date 2024-11-26
- * 
+ *
  * @copyright Copyright (c) 2024
- * 
+ *
  */
 #include "ara/com/someip/bindings/proxy/udp_proxy_bindings.h"
 
 #include <unistd.h>
 
-#include <vector>
 #include <utility>
+#include <vector>
 
 #include "ara/com/log.h"
 #include "ara/com/someip/HeaderStructure.h"
@@ -110,7 +110,11 @@ void UdpProxyBindings::HandleEvent(const uint16_t& method_id,
                                    const std::vector<uint8_t>& payload) {}
 
 void UdpProxyBindings::SubscribeToEvent(const uint16_t& event_id) {
-  this->subscribe_new_status_(event_id, SubscribeStatus::kSubscribePending);
+  SomeipSdFrameBuilder builder{};
+  builder.AddSubscribeEntry(service_id_, instance_id_, 0x0001, 0x00000,
+                            0x000000);
+  this->controller_->SendByUdp(port_, builder.BuildFrame().GetRaw());
+  // this->subscribe_new_status_(event_id, SubscribeStatus::kSubscribePending);
 }
 
 }  // namespace bindings

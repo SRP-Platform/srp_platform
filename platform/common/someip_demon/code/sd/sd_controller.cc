@@ -115,6 +115,18 @@ void SdController::ProcessFrame(
                           << item.instance_id_ << " founded! ("
                           << service_sd.ip_ << ":" << service_sd.port_ << ")";
       }
+      if (service_sd.subscribed_pid_.size() > 0) {
+        ara::com::someip::SomeipSdFrameBuilder builder{};
+        builder.AddSubscribeEntry(service_sd.service_id_,
+                                  service_sd.instance_id_, 0x8001, 3232238181,
+                                  1001);
+        in_addr addr{};
+        addr.s_addr = htonl(service_sd.ip_);
+        const std::string ip{inet_ntoa(addr)};
+        logger_.LogInfo() << "Send subscribe to " << ip;
+        this->multicast_controller_->SendFrame(builder.BuildFrame().GetRaw(),
+                                               ip, 30490);
+      }
     }
   }
   if (reboot_db) {
@@ -191,7 +203,13 @@ void SdController::subscribe_to_event(
 }
 void SdController::OfferService() noexcept {
   ara::com::someip::SomeipSdFrameBuilder builder{};
-  for (const auto& item : sd_db_.GetProvideList()) {
+  builder.GetHeader().session_id = session_counter;
+  session_counter++;
+  if (session_counter == 0) {
+    session_counter = 1;
+  }
+  for (auto& item : sd_db_.GetProvideList()) {
+    item.second.DegradeCounter();
     builder.AddOfferEntry(item.second.service_id_, item.second.instance_id_,
                           item.second.major_version_,
                           item.second.minor_version_, item.second.ip_,

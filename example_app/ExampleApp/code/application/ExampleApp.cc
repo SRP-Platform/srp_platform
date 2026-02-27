@@ -11,6 +11,7 @@
 #include "example_app/ExampleApp/code/application/ExampleApp.h"
 
 #include <iostream>
+#include <utility>
 
 #include "ara/log/log.h"
 #include "core/common/condition.h"
@@ -38,7 +39,23 @@ int ExampleApp::Run(const std::stop_token& token) {
       "/srp/example/ExampleApp/dtcMonitor1"};
   MyExampleService serv{
       ara::core::InstanceSpecifier{"srp/example/ExampleApp/service2"}};
-
+  srp::example::ExampleServiceProxy proxy1{
+      ara::core::InstanceSpecifier{"srp/example/ExampleApp/service3"}};
+  proxy1.StartFindService([this](auto handler) {
+    ara::log::LogInfo() << "Proxy Found";
+    this->handler_ = std::move(handler);
+    this->handler_->Status.Subscribe(1, [this](auto status) {
+      ara::log::LogInfo() << "Subscribe status" << static_cast<uint8_t>(status);
+      this->handler_->Status.SetReceiveHandler([this]() {
+        const auto val = this->handler_->Status.GetNewSamples();
+        if (val.HasValue()) {
+          ara::log::LogInfo() << "Event new Value: " << val.Value();
+        } else {
+          ara::log::LogInfo() << "Error1";
+        }
+      });
+    });
+  });
   serv.StartOffer();
 
   ara::log::LogInfo() << "App started";

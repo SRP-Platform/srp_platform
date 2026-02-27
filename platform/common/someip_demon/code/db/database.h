@@ -79,8 +79,14 @@ class Database {
     return std::reference_wrapper<OfferedServiceTable::mapped_type>(iter->second);
   }
 
-  const OfferedServiceTable& GetProvideList() const { return offered_service_; }
+  OfferedServiceTable& GetProvideList() { return offered_service_; }
   const FindServiceTable& GetConsumeList() const { return find_service_; }
+  void AddSubscription(const uint16_t service_id, const uint16_t instance_id, uint32_t pid) {
+    const auto item = FindInFindService(service_id, instance_id);
+    if (item.has_value()) {
+      item.value().get().AddSubscribedService(pid);
+    }
+  }
   void WaitForNewService(std::stop_token token) noexcept {
     uint8_t i{0};
     std::unique_lock<std::mutex> ul_{mutex_};

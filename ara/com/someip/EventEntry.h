@@ -1,12 +1,12 @@
 /**
  * @file EventEntry.h
  * @author Bartosz Snieg (snieg45@gmail.com)
- * @brief 
+ * @brief
  * @version 0.1
  * @date 2024-09-15
- * 
+ *
  * @copyright Copyright (c) 2024
- * 
+ *
  */
 #ifndef ARA_COM_SOMEIP_EVENTENTRY_H_
 #define ARA_COM_SOMEIP_EVENTENTRY_H_
@@ -15,8 +15,8 @@
 #include <vector>
 
 #include "ara/com/com_error_domain.h"
-#include "core/data/type_converter.h"
 #include "ara/core/result.h"
+#include "core/data/type_converter.h"
 
 namespace ara {
 namespace com {
@@ -50,7 +50,7 @@ struct Convert<ara::com::someip::EventEntry> {
       return ara::com::MakeErrorCode(ara::com::ComErrc::kFieldValueIsNotValid,
                                      "The given buffer is of inadequate size");
     }
-    {
+    {  // OK Row 1: [0-7]
       const auto tem_v = srp::data::Convert<std::uint8_t>::Conv(
           std::vector<uint8_t>{in.begin() + 0, in.begin() + 1});
       if (!tem_v.has_value()) {
@@ -60,7 +60,7 @@ struct Convert<ara::com::someip::EventEntry> {
       }
       res.type = tem_v.value();
     }
-    {
+    {  // OK Row 1: [8-15]
       const auto tem_v = srp::data::Convert<std::uint8_t>::Conv(
           std::vector<uint8_t>{in.begin() + 1, in.begin() + 2});
       if (!tem_v.has_value()) {
@@ -70,7 +70,7 @@ struct Convert<ara::com::someip::EventEntry> {
       }
       res.index_1 = tem_v.value();
     }
-    {
+    {  // OK Row 1: [15-23]
       const auto tem_v = srp::data::Convert<std::uint8_t>::Conv(
           std::vector<uint8_t>{in.begin() + 2, in.begin() + 3});
       if (!tem_v.has_value()) {
@@ -182,26 +182,27 @@ template <>
 struct Convert2Vector<ara::com::someip::EventEntry> {
   static std::vector<uint8_t> Conv(const ara::com::someip::EventEntry& in) {
     std::vector<uint8_t> out{};
-    {
+    {  // ok
       const auto temp_r_v =
           srp::data::Convert2Vector<std::uint8_t>::Conv(in.type);
       out.insert(out.end(), temp_r_v.begin(), temp_r_v.end());
     }
-    {
+    {  // ok
       const auto temp_r_v =
           srp::data::Convert2Vector<std::uint8_t>::Conv(in.index_1);
       out.insert(out.end(), temp_r_v.begin(), temp_r_v.end());
     }
-    {
+    {  // ok
       const auto temp_r_v =
           srp::data::Convert2Vector<std::uint8_t>::Conv(in.index_2);
       out.insert(out.end(), temp_r_v.begin(), temp_r_v.end());
     }
-    {
+    {  // ok
       const auto temp_r_v =
           srp::data::Convert2Vector<std::uint8_t>::Conv(in.opt);
       out.insert(out.end(), temp_r_v.begin(), temp_r_v.end());
     }
+    // ok
     if constexpr (std::endian::native == std::endian::big) {
       const auto temp_r_v =
           srp::data::Convert2Vector<std::uint16_t>::Conv(in.service_id);
@@ -213,6 +214,7 @@ struct Convert2Vector<ara::com::someip::EventEntry> {
           srp::data::Convert2Vector<std::uint16_t>::Conv(temp_v);
       out.insert(out.end(), temp_r_v.begin(), temp_r_v.end());
     }
+    // ok
     if constexpr (std::endian::native == std::endian::big) {
       const auto temp_r_v =
           srp::data::Convert2Vector<std::uint16_t>::Conv(in.instance_id);
@@ -234,7 +236,8 @@ struct Convert2Vector<ara::com::someip::EventEntry> {
           srp::data::Convert2Vector<std::uint32_t>::Conv(in.ttl);
       out.insert(out.end(), temp_r_v.begin(), temp_r_v.end());
     } else {
-      const auto temp_v = srp::data::EndianConvert<std::uint32_t>::Conv(in.ttl);
+      const auto temp_v =
+          srp::data::EndianConvert<std::uint32_t>::Conv(in.ttl << 8);
       const auto temp_r_v =
           srp::data::Convert2Vector<std::uint32_t>::Conv(temp_v);
       out.insert(out.end(), temp_r_v.begin(), temp_r_v.end());
