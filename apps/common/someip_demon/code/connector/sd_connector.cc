@@ -102,27 +102,23 @@ void SDConnector::AddNewFindService(const apps::com::someip::ServiceEntry& entry
   const auto item =
       db::FindServiceItem{s_id, i_id, entry.major_version, entry.minor_version};
   sd_db_.AddNewConsumeService(std::move(item));
-  apps::log::LogError() << "Offer 1";
   const auto i = sd_db_.FindInFindService(s_id, i_id);
   if (!i.has_value()) {
     std::runtime_error("Consume Service not exist in DB");
   }
   const auto& pid_iter = this->consume_service_list_.find(pid);
   if (pid_iter != consume_service_list_.end()) {
-    apps::log::LogError() << "Offer 2";
     const auto& service_list = pid_iter->second;
     if (!pid_iter->second.contains(s_id)) {
-      apps::log::LogError() << "Offer 3";
       pid_iter->second.insert({s_id, {i.value().get().ip_ != 0, i.value()}});
     }
   } else {
-    apps::log::LogError() << "Offer 4";
     auto temp = decltype(consume_service_list_)::value_type{
         pid, decltype(consume_service_list_)::mapped_type{
                  std::pmr::new_delete_resource()}};
     temp.second.insert({s_id, {(i.value().get().ip_ != 0), i.value()}});
     consume_service_list_.insert(std::move(temp));
-    apps::log::LogError() << "Offer 4: "
+    apps::log::LogDebug() << "Offered : "
                          << static_cast<uint32_t>(consume_service_list_.size());
   }
   if (i.value().get().ip_ != 0) {
@@ -150,7 +146,7 @@ void SDConnector::AddNewOfferService(
 }
 void SDConnector::SdLoop(std::stop_token token) {
   while (!token.stop_requested()) {
-    apps::log::LogError() << "[" << local_ip_ << ":" << port_ << "]: Loop start";
+    apps::log::LogDebug() << "[" << local_ip_ << ":" << port_ << "]: Loop start";
     sd_db_.WaitForNewService(token);
     if (token.stop_requested()) {
       break;
