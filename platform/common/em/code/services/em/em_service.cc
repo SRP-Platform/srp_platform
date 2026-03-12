@@ -111,11 +111,29 @@ pid_t EmService::StartApp(const srp::em::service::data::AppConfig& app) {
   posix_spawnattr_setflags(&attr, POSIX_SPAWN_SETSID);
   auto path = app.GetBinPath();
   auto parms = app.GetParms();
-  char* argv[] = {path.data(), parms.data(), NULL};
-  posix_spawnp(&pid, app.GetBinPath().c_str(), NULL, &attr, argv, NULL);
+
+  std::vector<std::string> tokens;
+  std::istringstream iss(parms);
+  std::string token;
+  while (iss >> token) {
+    tokens.push_back(std::move(token));
+  }
+
+  std::vector<char*> argv;
+  argv.reserve(tokens.size() + 2);
+  argv.push_back(const_cast<char*>(path.c_str()));
+  for (auto& t : tokens) {
+    argv.push_back(t.data());
+  }
+  argv.push_back(NULL);
+
+  posix_spawnp(&pid, app.GetBinPath().c_str(), NULL, &attr, argv.data(), NULL);
+
+  posix_spawnattr_destroy(&attr);
+
   ara::log::LogInfo() << "Spawning app: " << app.GetAppName()
                       << " pid: " << std::to_string(pid);
-  return pid;
+    return pid;
 }
 
 }  // namespace service
