@@ -1,7 +1,7 @@
 package(default_visibility = ["//visibility:public"])
 
 load(":cc_toolchain_config.bzl", "cc_toolchain_config")
-
+load(":cc_toolchain_config_macos.bzl", "cc_toolchain_config_macos")
 filegroup(name = "empty")
 
 filegroup(
@@ -55,5 +55,38 @@ toolchain(
         "@platforms//cpu:armv7",
     ],
     toolchain = ":armv7_toolchain",
+    toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
+)
+
+cc_toolchain_config_macos(name = "armv7_toolchain_config_macos")
+
+filegroup(
+    name = "sysroot_files",
+    srcs = ['@arm-cortex_a8-linux-gnueabihf-sysroot//:sysroot',],
+)
+
+cc_toolchain(
+    name = "bbb_cc_toolchain_inner",
+    all_files = ":sysroot_files",
+    compiler_files = ":sysroot_files",
+    linker_files = ":sysroot_files",
+    dwp_files = ":empty",
+    objcopy_files = ":empty",
+    strip_files = ":empty",
+    toolchain_config = ":armv7_toolchain_config_macos",
+    toolchain_identifier = "bbb-toolchain",
+)
+
+toolchain(
+    name = "armv7_linux_toolchain_macos",
+    exec_compatible_with = [
+        "@platforms//os:macos",
+        "@platforms//cpu:aarch64",
+    ],
+    target_compatible_with = [
+        "@platforms//os:linux",
+        "@platforms//cpu:armv7",
+    ],
+    toolchain = ":bbb_cc_toolchain_inner",
     toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
 )

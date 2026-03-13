@@ -1,5 +1,7 @@
 def _flash_script(ctx):
     user = ctx.attr.user_name + "@" + ctx.attr.ip
+    path = ctx.files.file[0].path
+    path = path.split("/bin/")[-1]
     content = """ 
 #!/bin/sh
 ################################################################################
@@ -9,7 +11,7 @@ def _flash_script(ctx):
 ################################################################################
 #
 now=`date '+%Y_%m_%d_%H_%M_%S'`
-file_name=\""""+ctx.files.file[0].path[21:]+"""\"
+file_name=\""""+path+"""\"
 echo "SRP 2.0 Flash tool [Start]"
 echo "Flash tool: removing old sw"
 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null """+user+""" "rm -rf /srp/opt/*"
@@ -21,7 +23,7 @@ ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null """+user+""" "ta
 echo "Flash tool: Cleaning"
 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null """+user+""" " sleep 2 & rm -rf /srp/update/new/"""+ctx.files.file[0].basename.replace(".tar","")+"""-$now.tar"
 echo "Flash tool: ECU reboot"
-timeout 2 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=2  """+user+""" " sleep 2 & reboot"
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=2  """+user+""" " sleep 2 & reboot"
 echo "SRP 2.0 Flash tool [Stop]"
 """
     return content
