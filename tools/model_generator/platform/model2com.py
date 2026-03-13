@@ -29,8 +29,8 @@ COMMON_TYPES = ["/uint8",
                 "/void"]
 
 def CreateDir(start:str,finish:str):
-    for p in finish.split("/"):
-            start+="/"+p
+    for p in finish.split('/'):
+            start+='/'+p
             try:
                 os.makedirs(start)
             except:
@@ -45,8 +45,8 @@ def CheckType(typ,db,src_db):
 def LoadJson(path:str):
     CommonParser.LoadJson(path)
 def CreateDir(start:str,finish:str):
-    for p in finish.split("/"):
-            start+="/"+p
+    for p in finish.split('/'):
+            start+='/'+p
             try:
                 os.makedirs(start)
             except:
@@ -77,24 +77,24 @@ if __name__ == "__main__":
 
     for item in proxy_list:
         for key, obj in item.methods.items():
-            CheckType("/"+obj.input_type.replace(".","/"),structure_to_gen,db)
-            CheckType("/"+obj.output_type.replace(".","/"),structure_to_gen,db)
+            CheckType('/'+obj.input_type.replace('.','/'),structure_to_gen,db)
+            CheckType('/'+obj.output_type.replace('.','/'),structure_to_gen,db)
         for key, obj in item.attributes.items():
-             CheckType("/"+obj.output_type.replace(".","/"),structure_to_gen,db)
+             CheckType('/'+obj.output_type.replace('.','/'),structure_to_gen,db)
         for key, obj in item.broadcasts.items():
-             CheckType("/"+obj.output_type.replace(".","/"),structure_to_gen,db)
+             CheckType('/'+obj.output_type.replace('.','/'),structure_to_gen,db)
     for item in skeleton_list:
         for key, obj in item.methods.items():
-            CheckType("/"+obj.input_type.replace(".","/"),structure_to_gen,db)
-            CheckType("/"+obj.output_type.replace(".","/"),structure_to_gen,db)
+            CheckType('/'+obj.input_type.replace('.','/'),structure_to_gen,db)
+            CheckType('/'+obj.output_type.replace('.','/'),structure_to_gen,db)
         for key, obj in item.attributes.items():
-             CheckType("/"+obj.output_type.replace(".","/"),structure_to_gen,db)
+             CheckType('/'+obj.output_type.replace('.','/'),structure_to_gen,db)
         for key, obj in item.broadcasts.items():
-             CheckType("/"+obj.output_type.replace(".","/"),structure_to_gen,db)
+             CheckType('/'+obj.output_type.replace('.','/'),structure_to_gen,db)
     
 
     for struc in structure_to_gen:
-        CreateDir(copy.copy(out_path),struc.name.replace(".","/")[0:struc.name.rfind(".")])
+        CreateDir(copy.copy(out_path),struc.name.replace('.','/')[0:struc.name.rfind('.')])
         DataStructureExtractor.ExtractStructure(copy.copy(out_path), struc)
     for p_model in proxy_list:
          CreateDir(copy.copy(out_path),p_model.package[1:])

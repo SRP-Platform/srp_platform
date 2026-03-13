@@ -7,4 +7,4 @@ class InterfaceDb(metaclass=SingletonMeta):
     def __init__(self):
         self.interfaces:dict[str,Interface] = {}
     def AddInterface(self, interface:Interface):
-        self.interfaces[interface.package+"/"+interface.name] = interface
+        self.interfaces[interface.package+'/'+interface.name] = interface

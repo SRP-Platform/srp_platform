@@ -7,8 +7,8 @@ from tools.model_generator.platform.sm.sm_parser import SmParser
 from tools.model_generator.platform.sm.cpp_extractor import CppExtractor
 
 def CreateDir(start:str,finish:str):
-    for p in finish.split("/"):
-            start+="/"+p
+    for p in finish.split('/'):
+            start+='/'+p
             try:
                 os.makedirs(start)
             except:
@@ -23,15 +23,15 @@ with open(input_file,"r") as input_f:
     SmParser.Read(json_o,db_)
     print(len(db_.states))
     print(out_path)
-    CreateDir(out_path,db_.package.replace(".","/"))
+    CreateDir(out_path,db_.package.replace('.','/'))
     for name,state in db_.states.items():
         CppExtractor.CreateState(out_path,state,db_.package)
     with open(out2_path,"w") as init_file:
         include_list = ""
         init_list=""
         for name,state in db_.states.items():
-            include_list+=f"""#include "{db_.package.replace(".","/")}/{name}_impl.h"\n"""
-            init_list+=f"""        std::ignore = con->AddNewState(std::make_shared<{db_.package.replace(".","::")}::{name}Impl>());\n"""
+            include_list+=f"""#include "{db_.package.replace('.','/')}/{name}_impl.h"\n"""
+            init_list+=f"""        std::ignore = con->AddNewState(std::make_shared<{db_.package.replace('.',"::")}::{name}Impl>());\n"""
         
         out = """/**
 ################################################################################

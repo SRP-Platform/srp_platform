@@ -23,8 +23,7 @@ namespace proxy {
 
 IpcProxy::IpcProxy(const uint16_t& session_id, const std::string& desc)
     : srp::bindings::com::ipc::Handler{session_id},
-      desc_{desc},
-      thread_pool_{} {}
+      desc_{desc} {}
 
 void IpcProxy::ProceedFrame(const platform::com::IpcMsg& msg) noexcept {
   srp::bindings::LogInfo() << "[Proxy] " << "New Msg. msg type: "

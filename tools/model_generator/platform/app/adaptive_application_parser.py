@@ -7,7 +7,7 @@ class AdaptiveApplicationParser:
         # name = ""
         # package = json_object["package"]
         # if "package" in json_object:
-        #     name = json_object["package"]+"."
+        #     name = json_object["package"]+'.'
         # name += s_name
         
         # if name in AdaptiveApplicationDb().app_list:

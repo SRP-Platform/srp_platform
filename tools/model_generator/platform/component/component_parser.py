@@ -13,25 +13,25 @@ class ComponentParser:
         desc_name = name.split(" as ")[1]
         return src_name, desc_name
     def _ExtractDiag(json_obj, name, model):
-        return DiagItem(name,"/"+model.replace(".","/"),json_obj["instanceID"])
+        return DiagItem(name,'/'+model.replace('.','/'),json_obj["instanceID"])
     def _ExtractIpc(json_obj, name, model):
         instance = 0
         if "instanceID" in json_obj:
             instance = json_obj["instanceID"]
-        return IpcItem(name,"/"+model.replace(".","/"),"/"+json_obj["using"].replace(".","/"), instance)
+        return IpcItem(name,'/'+model.replace('.','/'),'/'+json_obj["using"].replace('.','/'), instance)
 
     def _ProvideParser(json_obj,pkg:str):
         list = {}
         for key, obj in json_obj.items():
             model_name, item_name = ComponentParser._NameResolver(key)
             if obj["on"] in ["IPC", "ipc"]:
-                item = ComponentParser._ExtractIpc(obj, pkg+"/"+item_name, model_name)
+                item = ComponentParser._ExtractIpc(obj, pkg+'/'+item_name, model_name)
                 if item.instance == 0:
                     raise logger.critical("Missing InstanceId in provide")
                     
-                list[pkg+"/"+item_name] = item
+                list[pkg+'/'+item_name] = item
             elif obj["on"].upper() in ["DIAG"]:
-                item = ComponentParser._ExtractDiag(obj, pkg+"/"+item_name, model_name)
+                item = ComponentParser._ExtractDiag(obj, pkg+'/'+item_name, model_name)
                 list[item.name] = item
         return list
                 
@@ -42,10 +42,10 @@ class ComponentParser:
         for key, obj in json_obj.items():
             model_name, item_name = ComponentParser._NameResolver(key)
             if obj["on"].upper() in ["IPC"]:
-                item = ComponentParser._ExtractIpc(obj, pkg+"/"+item_name, model_name)
+                item = ComponentParser._ExtractIpc(obj, pkg+'/'+item_name, model_name)
                 if item.instance == 0:
                     item.instance == 0xFFFF
-                list[pkg+"/"+item_name] = item
+                list[pkg+'/'+item_name] = item
         return list
                 
     def Parser(json_obj):
@@ -56,10 +56,10 @@ class ComponentParser:
             if "parms" in json_obj:
                 parms = json_obj["parms"]
             logger = ComponentParser._LoggerParser(obj["logger"])
-            comp = Component("/"+package.replace(".","/")+"/"+key,logger,obj["functional_groups"],obj["reporting_mode"],parms)
-            comp.provide = ComponentParser._ProvideParser(obj["provide"], "/"+package.replace(".","/")+"/"+key+"_SWRoot")
-            comp.required = ComponentParser._RequireParser(obj["require"], "/"+package.replace(".","/")+"/"+key+"_SWRoot")
-            ComponentDb().list["/"+package.replace(".","/")+"/"+key] = comp
+            comp = Component('/'+package.replace('.','/')+'/'+key,logger,obj["functional_groups"],obj["reporting_mode"],parms)
+            comp.provide = ComponentParser._ProvideParser(obj["provide"], '/'+package.replace('.','/')+'/'+key+"_SWRoot")
+            comp.required = ComponentParser._RequireParser(obj["require"], '/'+package.replace('.','/')+'/'+key+"_SWRoot")
+            ComponentDb().list['/'+package.replace('.','/')+'/'+key] = comp
 
 
     def _LoggerParser(json_object) -> LogerConfig:

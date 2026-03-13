@@ -64,9 +64,9 @@ class DataStructureDB(metaclass=SingletonMeta):
         elif v_type == "void":
             return Void(name)
         else:
-            if package+"."+v_type in self.data_structure:
-                return self.data_structure[package+"."+v_type]
+            if package+'.'+v_type in self.data_structure:
+                return self.data_structure[package+'.'+v_type]
             elif v_type in self.data_structure:
                 return self.data_structure[v_type]
             else:
-                assert False, package+"."+v_type +" or "+v_type+" Not found"
+                assert False, package+'.'+v_type +" or "+v_type+" Not found"

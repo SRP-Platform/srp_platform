@@ -169,7 +169,7 @@ def model2com(name, src, visibility = []):
     )
     native.cc_library(
         name = name,
-        deps = ["@srp_platform//platform/com/proxy","//platform/com/skeleton"],
+        deps = ["@srp_platform//platform/com/proxy", "//platform/com/skeleton"],
         srcs = [":" + name + ".src"],
         includes = ["./com_lib.h"],
         visibility = visibility,

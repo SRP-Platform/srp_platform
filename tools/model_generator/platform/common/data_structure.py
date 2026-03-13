@@ -75,7 +75,7 @@ class String(data_type):
         super().__init__(name,"std::string",0, ["<string>"])           
 class Structure(data_type):
     def __init__(self, name: str) -> None:
-        path = name.replace(".","/")
+        path = name.replace('.','/')
         super().__init__(name, "struct",0,[])
         
     def AddVariable(self, name:str,variable:data_type):

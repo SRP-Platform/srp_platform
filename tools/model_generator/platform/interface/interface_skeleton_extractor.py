@@ -4,8 +4,8 @@ from tools.model_generator.platform.interface.interface import *
 from tools.model_generator.platform.common.data_structure_db import DataStructureDB
 class InterfaceSkeletonExtractor:
     def ExtractSkeleton(out_path:str, model:Interface):
-        header_guard = model.package.upper().replace("/","_")[1:]+"_"+model.name.upper()+"_INTERFACE_H_"
-        namespace_list = model.package[1:].split("/")
+        header_guard = model.package.upper().replace('/',"_")[1:]+"_"+model.name.upper()+"_INTERFACE_H_"
+        namespace_list = model.package[1:].split('/')
         includes = ""
         temp_s = "  ////////////// METHODS SECTION //////////////\n"
         for key, item in model.methods.items():
@@ -17,8 +17,8 @@ class InterfaceSkeletonExtractor:
                         includes+=include+"\n"
                 var1= var1.GetTypeOnly()
             else:
-                var1 = item.output_type.replace(".","::")
-                include = f"#include \"{item.output_type.replace(".","/")}.h\""
+                var1 = item.output_type.replace('.',"::")
+                include = f"#include \"{item.output_type.replace('.','/')}.h\""
                 if include not in includes:
                         includes+=include+"\n"
             if var2 is not None:
@@ -27,8 +27,8 @@ class InterfaceSkeletonExtractor:
                         includes+=include+"\n"
                 var2= var2.GetTypeOnly()
             else:
-                var2 = item.input_type.replace(".","::")
-                include = f"#include \"{item.input_type.replace(".","/")}.h\""
+                var2 = item.input_type.replace('.',"::")
+                include = f"#include \"{item.input_type.replace('.','/')}.h\""
                 if include not in includes:
                         includes+=include+"\n"
             temp_s+=f"""  using {item.name}T = ::platform::com::skeleton::MethodImpl<{var1}, {var2}>;
@@ -44,8 +44,8 @@ class InterfaceSkeletonExtractor:
                         includes+=include+"\n"
                 var1= var1.GetTypeOnly()
             else:
-                var1 = item.output_type.replace(".","::")
-                include = f"#include \"{item.output_type.replace(".","/")}.h\""
+                var1 = item.output_type.replace('.',"::")
+                include = f"#include \"{item.output_type.replace('.','/')}.h\""
                 if include not in includes:
                         includes+=include+"\n"
             temp_s+=f"""  using {item.name}T = ::platform::com::skeleton::Event<{var1}>;
@@ -53,7 +53,7 @@ class InterfaceSkeletonExtractor:
   
 """
         res = f"""/**
-* @file {model.name.split("/")[-1]}Interface.h
+* @file {model.name.split('/')[-1]}Interface.h
 * Data structure by Bartosz Snieg (snieg45@gmail.com)
 * @brief 
 * @version 0.1
@@ -103,5 +103,5 @@ class InterfaceSkeletonExtractor:
             res+=f"""{"}"}  // namespace {name}\n"""
         res+= f"""#endif  // {header_guard}
 """
-        with open(out_path+model.package+"/"+model.name+".h","w") as file:
+        with open(out_path+model.package+'/'+model.name+".h","w") as file:
             file.write(res)

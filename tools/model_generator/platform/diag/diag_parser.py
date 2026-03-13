@@ -12,7 +12,7 @@ class DiagParser:
 
     def ParseGlobalJob(json_object, package:str):
         for key, obj in json_object.items():
-            name = "/"+package.replace(".","/")+"/"+key
+            name = '/'+package.replace('.','/')+'/'+key
             uds_id = []
             if "UdsId" in obj:
                 uds_id = obj["UdsId"]

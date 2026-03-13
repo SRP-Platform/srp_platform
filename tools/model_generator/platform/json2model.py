@@ -13,8 +13,8 @@ from tools.model_generator.platform.diag.diag_db import DiagDb
 def LoadJson(path:str):
     CommonParser.LoadJson(path)
 def CreateDir(start:str,finish:str):
-    for p in finish.split("/"):
-            start+="/"+p
+    for p in finish.split('/'):
+            start+='/'+p
             try:
                 os.makedirs(start)
             except:

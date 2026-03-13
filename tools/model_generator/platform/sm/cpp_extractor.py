@@ -7,15 +7,15 @@ from tools.model_generator.platform.sm.db import DB
 
 class CppExtractor:
     def CreateState(path: str, state: State, name_space: str = ""):
-        with open(path + "/" + name_space.replace(".", "/") + "/" + state.name + "_impl.h", "w") as out:
+        with open(path + '/' + name_space.replace('.', '/') + '/' + state.name + "_impl.h", "w") as out:
             b_namespace = ""
             e_namespace = ""
                         
-            for n in DB().package.split("."):
+            for n in DB().package.split('.'):
                 b_namespace += "namespace " + n + " {\n"
                 e_namespace += "}  // namespace " + n + "\n"
             
-            header_g = name_space.replace(".", "_").upper() + "_" + state.name.upper() + "_IMPL_H_"
+            header_g = name_space.replace('.', "_").upper() + "_" + state.name.upper() + "_IMPL_H_"
             kReset = ""
             kShutdown = ""
             

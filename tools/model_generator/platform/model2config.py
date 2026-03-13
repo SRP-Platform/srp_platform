@@ -27,7 +27,7 @@ def CreateSrpAppJson(app: Component):
         out_json = {}
         out_json["app_name"] = app.name
         out_json["app_id"] = app.id
-        out_json["bin_path"] = f"/srp/opt/{app.name.split("/")[-1]}/bin/{app.name.split("/")[-1]}"
+        out_json["bin_path"] = f"/srp/opt/{app.name.split('/')[-1]}/bin/{app.name.split('/')[-1]}"
         out_json["parms"] = app.parms
         out_json["fg_list"] = app.functional_groups
         return out_json

@@ -14,14 +14,14 @@ Result<void> InitializeDiagDb(ModelDataBase& db_) noexcept {
           res+= """
   {
     const auto res = platform::core::model::ModelDtc::CreatItem(\""""+hex_id+"""\","""+str(dtc.id)+""");
-    std::ignore = db_.AddNewItem(\"/"""+app_name+"/"+key+"""\",{res.Value()});
+    std::ignore = db_.AddNewItem(\'/'""+app_name+'/'+key+"""\",{res.Value()});
   }
           """
     for key, job in job_list.items():
       res +="""
   {
     const auto res = platform::core::model::ModelUds::CreatItem("""+str(job.s_id)+"""U, """+str(job.sub_id)+"""U, \""""+str(int(job.s_id<<16)+job.sub_id)+"""\",platform::core::model::ModelUds::Direction::kOut);
-    std::ignore = db_.AddNewItem(\"/"""+app_name+"/"+key+"""\",{res.Value()});
+    std::ignore = db_.AddNewItem(\'/'""+app_name+'/'+key+"""\",{res.Value()});
   }
       """
     res += """

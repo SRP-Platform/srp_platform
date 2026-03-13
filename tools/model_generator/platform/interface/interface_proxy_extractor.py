@@ -4,8 +4,8 @@ from tools.model_generator.platform.interface.interface import *
 from tools.model_generator.platform.common.data_structure_db import DataStructureDB
 class InterfaceProxyExtractor:
     def ExtractProxy(out_path:str, model:Interface):
-        header_guard = model.package.upper().replace("/","_")[1:]+"_"+model.name.upper()+"_HANDLER_H_"
-        namespace_list = model.package[1:].split("/")
+        header_guard = model.package.upper().replace('/',"_")[1:]+"_"+model.name.upper()+"_HANDLER_H_"
+        namespace_list = model.package[1:].split('/')
         includes = ""
         temp_s = "  ////////////// METHODS SECTION //////////////\n"
         for key, item in model.methods.items():
@@ -17,8 +17,8 @@ class InterfaceProxyExtractor:
                         includes+=include+"\n"
                 var1= var1.GetTypeOnly()
             else:
-                var1 = item.output_type.replace(".","::")
-                include = f"#include \"{item.output_type.replace(".","/")}.h\""
+                var1 = item.output_type.replace('.',"::")
+                include = f"#include \"{item.output_type.replace('.','/')}.h\""
                 if include not in includes:
                         includes+=include+"\n"
             if var2 is not None:
@@ -27,8 +27,8 @@ class InterfaceProxyExtractor:
                         includes+=include+"\n"
                 var2= var2.GetTypeOnly()
             else:
-                var2 = item.input_type.replace(".","::")
-                include = f"#include \"{item.input_type.replace(".","/")}.h\""
+                var2 = item.input_type.replace('.',"::")
+                include = f"#include \"{item.input_type.replace('.','/')}.h\""
                 if include not in includes:
                         includes+=include+"\n"
             temp_s+=f"""  using {item.name}T = ::platform::com::proxy::MethodImpl<{var1}, {var2}>;
@@ -44,8 +44,8 @@ class InterfaceProxyExtractor:
                         includes+=include+"\n"
                 var1= var1.GetTypeOnly()
             else:
-                var1 = item.output_type.replace(".","::")
-                include = f"#include \"{item.output_type.replace(".","/")}.h\""
+                var1 = item.output_type.replace('.',"::")
+                include = f"#include \"{item.output_type.replace('.','/')}.h\""
                 if include not in includes:
                         includes+=include+"\n"
             temp_s+=f"""  using {item.name}T = ::platform::com::proxy::Event<{var1}>;
@@ -66,8 +66,8 @@ class InterfaceProxyExtractor:
                         includes+=include+"\n"
                 var1= var1.GetTypeOnly()
             else:
-                var1 = item.output_type.replace(".","::")
-                include = f"#include \"{item.output_type.replace(".","/")}.h\""
+                var1 = item.output_type.replace('.',"::")
+                include = f"#include \"{item.output_type.replace('.','/')}.h\""
                 if include not in includes:
                         includes+=include+"\n"
             temp_s+=f"""  using {item.name}T = ::platform::com::proxy::FieldsImpl<{var1}, {var2}>;
@@ -75,7 +75,7 @@ class InterfaceProxyExtractor:
 
 """
         res = f"""/**
-* @file {model.name.split("/")[-1]}Handler.h
+* @file {model.name.split('/')[-1]}Handler.h
 * Data structure by Bartosz Snieg (snieg45@gmail.com)
 * @brief 
 * @version 0.1
@@ -126,5 +126,5 @@ using {model.name}Proxy = ::platform::com::Proxy<{model.name}Handler>;
             res+=f"""{"}"}  // namespace {name}\n"""
         res+= f"""#endif  // {header_guard}
 """
-        with open(out_path+model.package+"/"+model.name+"Handler.h","w") as file:
+        with open(out_path+model.package+'/'+model.name+"Handler.h","w") as file:
             file.write(res)

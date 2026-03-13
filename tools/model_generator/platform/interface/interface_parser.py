@@ -72,6 +72,6 @@ class InterfaceParser:
         if "minor_version" in interface_obj:
             minor_version = interface_obj["minor_version"]
 
-        temp_i = Interface(key,"/"+package.replace(".","/"),major_version,minor_version,methods,broadcasts,attributes)
+        temp_i = Interface(key,'/'+package.replace('.','/'),major_version,minor_version,methods,broadcasts,attributes)
         InterfaceDb().AddInterface(temp_i)
 

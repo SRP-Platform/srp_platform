@@ -10,8 +10,8 @@ class DeploymentParser:
     def _ResolvePkg(name:str, pkg):
         src_name = name.split(" as ")[0]
         desc_name = name.split(" as ")[1]
-        if "." not in src_name:
-            src_name = pkg+"."+src_name
+        if '.' not in src_name:
+            src_name = pkg+'.'+src_name
         return src_name, desc_name
 
     def Parser(json_obj):
@@ -39,7 +39,7 @@ class DeploymentParser:
     def _InterfaceParser(json_obj, pkg_name:str):
         for key, obj in json_obj.items():
             src_name, desc_name = DeploymentParser._ResolvePkg(key,pkg_name)
-            general_config = InterfaceCommonConfig(obj["ServiceId"], "/"+src_name.replace(".","/"))
+            general_config = InterfaceCommonConfig(obj["ServiceId"], '/'+src_name.replace('.','/'))
             endpoint:dict[str:InterfaceEndpointConfig] = {}
 
             if "methods" in obj:
@@ -48,11 +48,11 @@ class DeploymentParser:
                 DeploymentParser._BasicEndpointParser(obj["broadcasts"],endpoint)
             if "attributes" in obj:
                 DeploymentParser._AttributesParser(obj["attributes"],endpoint)
-            model = InterfaceDepl(desc_name,"/"+src_name.replace(".","/"),general_config,endpoint)
-            DeploymentDb().InsterModel("/"+pkg_name.replace(".","/")+"/"+desc_name, model)
+            model = InterfaceDepl(desc_name,'/'+src_name.replace('.','/'),general_config,endpoint)
+            DeploymentDb().InsterModel('/'+pkg_name.replace('.','/')+'/'+desc_name, model)
     
     def _DiagnosticInterfaceParser(json_obj, pkg_name:str):
         for key,obj in json_obj.items():
             # src_name, desc_name = DeploymentParser._ResolvePkg(key,pkg_name)
-            model = DiagJobDepl("/"+obj["ServiceType"].replace(".","/"),obj["SubsServiceID"],obj["ActiveSesion"],obj["EcuMode"])
-            DeploymentDb().InsterModel("/"+pkg_name.replace(".","/")+"/"+key, model)
+            model = DiagJobDepl('/'+obj["ServiceType"].replace('.','/'),obj["SubsServiceID"],obj["ActiveSesion"],obj["EcuMode"])
+            DeploymentDb().InsterModel('/'+pkg_name.replace('.','/')+'/'+key, model)

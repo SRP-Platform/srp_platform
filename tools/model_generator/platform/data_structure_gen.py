@@ -10,8 +10,8 @@ from tools.model_generator.platform.common.data_structure_db import DataStructur
 def LoadJson(path:str):
     CommonParser.LoadJson(path)
 def CreateDir(start:str,finish:str):
-    for p in finish.split("/"):
-            start+="/"+p
+    for p in finish.split('/'):
+            start+='/'+p
             try:
                 os.makedirs(start)
             except:
@@ -27,5 +27,5 @@ if __name__ == "__main__":
         LoadJson(sys.argv[arg_id])
     db_ = DataStructureDB()
     for name,v in db_.data_structure.items():
-        CreateDir(copy.copy(out_path),name.replace(".","/").replace("/"+name.split(".")[-1], ""))
+        CreateDir(copy.copy(out_path),name.replace('.','/').replace('/'+name.split('.')[-1], ""))
         DataStructureExtractor.ExtractStructure(out_path,v)
