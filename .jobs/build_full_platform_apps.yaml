@@ -1,0 +1,10 @@
+- hosts: all
+  tasks:
+    - name: Build All Platform Apps - x86
+      shell:
+        executable: /bin/bash
+        cmd: cd {{ zuul.project.src_dir }} && bazel build --config=adaptive `bazel query 'kind(cc_binary, //platform/...)'`
+    - name: Build All Platform Apps - arm
+      shell:
+        executable: /bin/bash
+        cmd: cd {{ zuul.project.src_dir }} && bazel build --config=bbb-platform  `bazel query 'kind(cc_binary, //platform/...)'`

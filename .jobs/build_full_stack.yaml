@@ -1,0 +1,10 @@
+- hosts: all
+  tasks:
+    - name: Build Stack - x86
+      shell:
+        executable: /bin/bash
+        cmd: cd {{ zuul.project.src_dir }} && bazel build --config=adaptive `bazel query 'kind(cc_library, //ara/...)'`
+    - name: Build Stack - arm
+      shell:
+        executable: /bin/bash
+        cmd: cd {{ zuul.project.src_dir }} && bazel build --config=bbb-platform  `bazel query 'kind(cc_library, //ara/...)'`

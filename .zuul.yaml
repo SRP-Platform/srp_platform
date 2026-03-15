@@ -11,12 +11,44 @@
     name: itf-core
     run: .jobs/itf.yaml
 
+- job:
+    name: build_example_ecu_x86
+    run: .jobs/build_example_ecu_x86.yaml
+- job:
+    name: build_example_ecu_arm
+    run: .jobs/build_example_ecu_arm.yaml
+
+- job:
+    name: build_example_ecu_x86_fast
+    run: .jobs/build_example_ecu_x86_fast.yaml
+
+- job:
+    name: build_example_ecu_arm_fast
+    run: .jobs/build_example_ecu_arm_fast.yaml
+- job:
+    name: build_full_platform_apps
+    run: .jobs/build_full_platform_apps.yaml
+- job:
+    name: build_full_stack
+    run: .jobs/build_full_stack.yaml
+- job:
+    name: build_full_platform_apps_fast
+    run: .jobs/build_full_platform_apps_fast.yaml
+- job:
+    name: build_full_stack_fast
+    run: .jobs/build_full_stack_fast.yaml
+
 - project:
     check:
       jobs:
         - noop
         - cpplint
         - unit_tests_platform
+        - build_full_stack_fast
+        - build_full_platform_apps_fast
+        - build_example_ecu_x86_fast
+        - build_example_ecu_arm_fast
+
     gate:
       jobs:
         - noop
@@ -25,6 +57,11 @@
       jobs:
         - noop
         - unit_tests_platform
+        - build_full_stack
+        - build_full_platform_apps
+        - build_example_ecu_arm
+        - build_example_ecu_x86
+
     integrity-tests:
       jobs:
         - noop
