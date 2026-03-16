@@ -12,9 +12,10 @@
 #define EXAMPLE_APP_EXAMPLEAPP_CODE_APPLICATION_EXAMPLEAPP_H_
 
 #include <map>
-
+#include <memory>
 
 #include "ara/exec/adaptive_application.h"
+#include "srp/example/ExampleService/ExampleServiceHandler.h"
 
 namespace srp {
 namespace example {
@@ -37,6 +38,9 @@ class ExampleApp : public ara::exec::AdaptiveApplication {
  public:
   ExampleApp();
   ~ExampleApp();
+
+ private:
+  std::shared_ptr<srp::example::ExampleServiceHandler> handler_;
 };
 }  // namespace example
 }  // namespace srp

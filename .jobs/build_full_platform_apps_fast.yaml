@@ -1,0 +1,6 @@
+- hosts: all
+  tasks:
+    - name: Build All Platform Apps
+      shell:
+        executable: /bin/bash
+        cmd: cd {{ zuul.project.src_dir }} && bazel build --config=adaptive `bazel query 'kind(cc_binary, //platform/...)'`

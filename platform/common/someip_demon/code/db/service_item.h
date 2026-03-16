@@ -42,6 +42,12 @@ class EventSubscription {
   uint16_t GetClientId() const { return client_id_; }
   void SetClientId(uint16_t client_id) { client_id_ = client_id; }
   void ResetCounter() { counter_ = kCounterVal; }
+  void DegradeCounter() {
+    if (counter_ > 1)
+      counter_--;
+    else
+      counter_ = 0;
+  }
   bool IsSubscriptionValid() const { return counter_ > 0; }
   ~EventSubscription() = default;
 };
@@ -85,6 +91,11 @@ class ServiceItem {
     iter->second.AddEvent(event);
 
     return ara::core::Result<void>{};
+  }
+  void DegradeCounter() {
+    for (auto& iter : subscription_list_) {
+      iter.second.DegradeCounter();
+    }
   }
   ~ServiceItem() = default;
 };

@@ -1,0 +1,10 @@
+- hosts: all
+  tasks:
+    - name: Build Example ECU 1
+      shell:
+        executable: /bin/bash
+        cmd: cd {{ zuul.project.src_dir }} && bazel build --config=adaptive  //test_cpu/cpu/ec:pkg
+    - name: Build Example ECU 2
+      shell:
+        executable: /bin/bash
+        cmd: cd {{ zuul.project.src_dir }} && bazel build --config=adaptive  //test_cpu/cpu/fc:pkg

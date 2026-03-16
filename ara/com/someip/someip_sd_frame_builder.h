@@ -1,23 +1,22 @@
 /**
  * @file someip_sd_frame_builder.h
  * @author Bartosz Snieg (snieg45@gmail.com)
- * @brief 
+ * @brief
  * @version 0.1
  * @date 2024-11-26
- * 
+ *
  * @copyright Copyright (c) 2024
- * 
+ *
  */
 #ifndef ARA_COM_SOMEIP_SOMEIP_SD_FRAME_BUILDER_H_
 #define ARA_COM_SOMEIP_SOMEIP_SD_FRAME_BUILDER_H_
 
 #include <vector>
 
-#include "ara/com/someip/HeaderStructure.h"
-#include "ara/com/someip/ServiceEntry.h"
 #include "ara/com/someip/EndpointOption.h"
 #include "ara/com/someip/EventEntry.h"
-
+#include "ara/com/someip/HeaderStructure.h"
+#include "ara/com/someip/ServiceEntry.h"
 #include "ara/com/someip/message_code.h"
 #include "ara/com/someip/message_type.h"
 #include "ara/com/someip/someip_frame.h"
@@ -31,27 +30,38 @@ class SomeipSdFrameBuilder {
   uint8_t flag{0xc0};
   std::vector<ServiceEntry> entry_list_{};
   std::vector<EndpointOption> endpoint_list_{};
-  void AddEntry(ServiceEntry&& entry_);
-    void AddEntry(ServiceEntry&& entry_, EndpointOption&& endpoint);
+  std::vector<EventEntry> event_entry_list_{};
+
+  void AddEntry(ServiceEntry &&entry_);
+  void AddEntry(ServiceEntry &&entry_, EndpointOption &&endpoint);
 
  public:
+  HeaderStructure &GetHeader() noexcept { return header_; }
   SomeipSdFrameBuilder(/* args */);
 
-  SomeipSdFrameBuilder& SetRequestId(const uint16_t& id);
-  SomeipSdFrameBuilder& SetSessionId(const uint16_t& id);
-  SomeipSdFrameBuilder& AddFindEntry(const uint16_t& service_id,
-                                     const uint16_t& instace_id,
+  SomeipSdFrameBuilder &SetRequestId(const uint16_t &id);
+  SomeipSdFrameBuilder &SetSessionId(const uint16_t &id);
+  SomeipSdFrameBuilder &AddFindEntry(const uint16_t &service_id,
+                                     const uint16_t &instace_id,
                                      const uint8_t major_version,
-                                     const uint32_t& minor_version);
-  SomeipSdFrameBuilder& AddOfferEntry(const uint16_t& service_id,
-                                      const uint16_t& instace_id,
+                                     const uint32_t &minor_version);
+  SomeipSdFrameBuilder &AddOfferEntry(const uint16_t &service_id,
+                                      const uint16_t &instace_id,
                                       const uint8_t major_version,
-                                      const uint32_t& minor_version,
+                                      const uint32_t &minor_version,
                                       const uint32_t ip, const uint16_t port);
+
+  SomeipSdFrameBuilder &AddSubscribeEntry(const uint16_t &service_id,
+                                          const uint16_t &instace_id,
+                                          const uint16_t &event_group,
+                                          const uint32_t ip,
+                                          const uint16_t port);
+
   uint8_t GetSize() const;
   SomeipFrame BuildFrame() noexcept;
   virtual ~SomeipSdFrameBuilder() = default;
-  SomeipFrame BuildEventAck(const EventEntry& event, const EndpointOption& endpoint);
+  SomeipFrame BuildEventAck(const EventEntry &event,
+                            const EndpointOption &endpoint);
 };
 }  // namespace someip
 }  // namespace com

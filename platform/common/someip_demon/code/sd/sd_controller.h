@@ -31,6 +31,7 @@ namespace someip {
 namespace sd {
 class SdController : public common::IController {
  private:
+  uint16_t session_counter{0x01};
   std::shared_ptr<common::com::IMulticastController> multicast_controller_;
   db::Database& sd_db_;
   common::IController::TransmitCallback callback_;

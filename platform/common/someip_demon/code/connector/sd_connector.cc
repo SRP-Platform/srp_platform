@@ -11,6 +11,7 @@
 #include "platform/common/someip_demon/code/connector/sd_connector.h"
 
 #include "ara/com/someip/EndpointOption.h"
+#include "ara/com/someip/EventEntry.h"
 #include "ara/com/someip/HeaderStructure.h"
 #include "ara/com/someip/someip_sd_frame_builder.h"
 #include "ara/log/log.h"
@@ -85,6 +86,18 @@ void SDConnector::SdMsgHandler(const uint32_t pid,
         ara::log::LogError() << "Parssing error";
       }
     } else if (*(raw.begin() + 8 + (16 * i)) == 0x06) {
+      const auto t = srp::data::Convert<ara::com::someip::EventEntry>::Conv(
+          std::vector<uint8_t>{raw.begin() + 8 + (16 * i), raw.end()});
+      if (t.HasValue()) {
+        ara::log::LogError() << "From pid: " << pid
+                             << " Subscribe msg for: " << t.Value().service_id
+                             << ":" << t.Value().instance_id
+                             << " Event group: " << t.Value().eventgroup_id;
+        this->sd_db_.AddSubscription(t.Value().service_id,
+                                     t.Value().instance_id, pid);
+      } else {
+        ara::log::LogError() << "Parssing error (Subscribe)";
+      }
       // subscribe to event
     } else if (*(raw.begin() + 8 + (16 * i)) == 0x06) {
       // subscribe to event ACK
@@ -187,6 +200,23 @@ void SDConnector::SendIPCSdOffer(
   this->ipc_soc_->TransmitToPid(pid, std::move(raw));
 }
 
+std::vector<uint32_t> SDConnector::GetSubscriptionList(
+    const uint16_t service_id) const noexcept {
+  std::vector<uint32_t> subscription_list{};
+  const auto temp = this->sd_db_.GetAllReqInstance(service_id);
+  if (!temp.has_value()) {
+    return {};
+  }
+  for (const auto& instance_id : temp.value().get()) {
+    const auto res = this->sd_db_.FindInFindService(service_id, instance_id);
+    if (res.has_value()) {
+      subscription_list.insert(subscription_list.end(),
+                               res.value().get().subscribed_pid_.begin(),
+                               res.value().get().subscribed_pid_.end());
+    }
+  }
+  return subscription_list;
+}
 }  // namespace connectors
 }  // namespace someip_demon
 }  // namespace srp

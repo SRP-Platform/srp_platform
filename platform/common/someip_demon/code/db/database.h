@@ -1,18 +1,19 @@
 /**
  * @file database.h
  * @author Bartosz Snieg (snieg45@gmail.com)
- * @brief 
+ * @brief
  * @version 0.1
  * @date 2024-11-26
- * 
+ *
  * @copyright Copyright (c) 2024
- * 
+ *
  */
 #ifndef PLATFORM_COMMON_SOMEIP_DEMON_CODE_DB_DATABASE_H_
 #define PLATFORM_COMMON_SOMEIP_DEMON_CODE_DB_DATABASE_H_
 
 #include <condition_variable>  // NOLINT
 #include <memory_resource>
+#include <set>
 #include <stop_token>  // NOLINT
 #include <unordered_map>
 #include <unordered_set>
@@ -30,7 +31,7 @@ class Database {
   using FindServiceTable = std::pmr::unordered_map<uint32_t, FindServiceItem>;
   // List with Service witch we need
   using ReqServiceTable =
-      std::pmr::unordered_map<uint32_t, std::pmr::unordered_set<uint32_t>>;
+      std::pmr::unordered_map<uint32_t, std::unordered_set<uint32_t>>;
 
  private:
   OfferedServiceTable offered_service_;
@@ -50,6 +51,13 @@ class Database {
   }
 
   bool AddNewConsumeService(const FindServiceItem& item) {
+    if (req_table_.find(item.service_id_) != req_table_.end()) {
+      req_table_.at(item.service_id_).insert(item.instance_id_);
+    } else {
+      std::unordered_set<uint32_t> temp{};
+      temp.emplace(item.instance_id_);
+      req_table_.emplace(item.service_id_, temp);
+    }
     return AddService(find_service_, item);
   }
 
@@ -59,6 +67,7 @@ class Database {
                        item.service_id_};
     return section.insert({key, item}).second;
   }
+
   const std::optional<std::reference_wrapper<FindServiceTable::mapped_type>>
   FindInFindService(const uint16_t service_id, const uint16_t instance_id) {
     const uint32_t key{(static_cast<uint32_t>(instance_id) << 16) + service_id};
@@ -68,6 +77,15 @@ class Database {
     }
     return std::reference_wrapper<FindServiceTable::mapped_type>(iter->second);
   }
+  std::optional<std::reference_wrapper<const ReqServiceTable::mapped_type>>
+  GetAllReqInstance(const uint16_t& service_id) const {
+    const auto& iter = req_table_.find(service_id);
+    if (iter == req_table_.cend()) {
+      return std::nullopt;
+    }
+    return std::reference_wrapper<const ReqServiceTable::mapped_type>(
+        iter->second);
+  }
 
   const std::optional<std::reference_wrapper<OfferedServiceTable::mapped_type>>
   FindInProvideService(const uint16_t service_id, const uint16_t instance_id) {
@@ -76,11 +94,19 @@ class Database {
     if (iter == offered_service_.cend()) {
       return std::nullopt;
     }
-    return std::reference_wrapper<OfferedServiceTable::mapped_type>(iter->second);
+    return std::reference_wrapper<OfferedServiceTable::mapped_type>(
+        iter->second);
   }
 
-  const OfferedServiceTable& GetProvideList() const { return offered_service_; }
+  OfferedServiceTable& GetProvideList() { return offered_service_; }
   const FindServiceTable& GetConsumeList() const { return find_service_; }
+  void AddSubscription(const uint16_t service_id, const uint16_t instance_id,
+                       uint32_t pid) {
+    const auto item = FindInFindService(service_id, instance_id);
+    if (item.has_value()) {
+      item.value().get().AddSubscribedService(pid);
+    }
+  }
   void WaitForNewService(std::stop_token token) noexcept {
     uint8_t i{0};
     std::unique_lock<std::mutex> ul_{mutex_};

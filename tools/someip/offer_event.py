@@ -1,15 +1,17 @@
 import asyncio
 import ipaddress
 import logging
-from typing import Tuple
 
-from someipy import TransportLayerProtocol
-from someipy.service import ServiceBuilder, Method
+from someipy import (
+    TransportLayerProtocol,
+    ServiceBuilder,
+    EventGroup,
+    construct_server_service_instance,
+)
 from someipy.service_discovery import construct_service_discovery
-from someipy.server_service_instance import construct_server_service_instance
 from someipy.logging import set_someipy_log_level
-from someipy.serialization import Sint32
-from addition_method_parameters import Addends, Sum
+from someipy.serialization import Uint8, Uint64, Float32
+from temperature_msg import TemparatureMsg
 
 SD_MULTICAST_GROUP = "224.224.224.245"
 SD_PORT = 30490
@@ -17,36 +19,11 @@ INTERFACE_IP = "192.168.10.4"
 
 SAMPLE_SERVICE_ID = 100
 SAMPLE_INSTANCE_ID = 4
-SAMPLE_METHOD_ID = 0x0123
-
-
-def add_method_handler(input_data: bytes, addr: Tuple[str, int]) -> Tuple[bool, bytes]:
-    # Process the data and return True/False indicating the success of the operation
-    # and the result of the method call in serialized form (bytes object)
-    # If False is returned an error message will be sent back to the client. In that case
-    # the payload can be an empty bytes-object, e.g. return False, b""
-
-    print(
-        f"Received data: {' '.join(f'0x{b:02x}' for b in input_data)} from IP: {addr[0]} Port: {addr[1]}"
-    )
-
-    try:
-        # Deserialize the input data
-        addends = Addends()
-        addends.deserialize(input_data)
-    except Exception as e:
-        print(f"Error during deserialization: {e}")
-        return False, b""
-
-    # Perform the addition
-    sum = Sum()
-    sum.value = Sint32(addends.addend1.value + addends.addend2.value)
-    print(f"Send back: {' '.join(f'0x{b:02x}' for b in sum.serialize())}")
-    return True, sum.serialize()
+SAMPLE_EVENTGROUP_ID = 0x8001
+SAMPLE_EVENT_ID = 32769
 
 
 async def main():
-
     # It's possible to configure the logging level of the someipy library, e.g. logging.INFO, logging.DEBUG, logging.WARN, ..
     set_someipy_log_level(logging.DEBUG)
 
@@ -57,19 +34,20 @@ async def main():
         SD_MULTICAST_GROUP, SD_PORT, INTERFACE_IP
     )
 
-    addition_method = Method(id=SAMPLE_METHOD_ID, method_handler=add_method_handler)
-
-    addition_service = (
+    temperature_eventgroup = EventGroup(
+        id=SAMPLE_EVENTGROUP_ID, event_ids=[SAMPLE_EVENT_ID]
+    )
+    temperature_service = (
         ServiceBuilder()
         .with_service_id(SAMPLE_SERVICE_ID)
         .with_major_version(1)
-        .with_method(addition_method)
+        .with_eventgroup(temperature_eventgroup)
         .build()
     )
 
-    # For offering methods use a ServerServiceInstance
-    service_instance_addition = await construct_server_service_instance(
-        addition_service,
+    # For sending events use a ServerServiceInstance
+    service_instance_temperature = await construct_server_service_instance(
+        temperature_service,
         instance_id=SAMPLE_INSTANCE_ID,
         endpoint=(
             ipaddress.IPv4Address(INTERFACE_IP),
@@ -83,7 +61,7 @@ async def main():
 
     # The service instance has to be attached always to the ServiceDiscoveryProtocol object, so that the service instance
     # is notified by the ServiceDiscoveryProtocol about e.g. subscriptions from other ECUs
-    service_discovery.attach(service_instance_addition)
+    service_discovery.attach(service_instance_temperature)
 
     # ..it's also possible to construct another ServerServiceInstance and attach it to service_discovery as well
 
@@ -91,14 +69,36 @@ async def main():
     # start_offer method has to be called. This will start an internal timer, which will periodically send
     # Offer service entries with a period of "cyclic_offer_delay_ms" which has been passed above
     print("Start offering service..")
-    service_instance_addition.start_offer()
+    service_instance_temperature.start_offer()
+
+    tmp_msg = TemparatureMsg()
+
+    # Reminder: Do NOT use "tmp_msg.version.major = 1". Always use the provided classes in someipy like Uint8,
+    # so that the data can be propery serialized. Python literals won't be serialized properly
+    tmp_msg.version.major = Uint8(1)
+    tmp_msg.version.minor = Uint8(0)
+
+    tmp_msg.measurements.data[0] = Float32(20.0)
+    tmp_msg.measurements.data[1] = Float32(21.0)
+    tmp_msg.measurements.data[2] = Float32(22.0)
+    tmp_msg.measurements.data[3] = Float32(23.0)
 
     try:
-        # Keep the task alive
-        await asyncio.Future()
+        # Either cyclically send events in an endless loop..
+        while True:
+            await asyncio.sleep(1)
+            tmp_msg.timestamp = Uint64(tmp_msg.timestamp.value + 1)
+            payload = tmp_msg.serialize()
+            service_instance_temperature.send_event(
+                SAMPLE_EVENTGROUP_ID, SAMPLE_EVENT_ID, b'\x01'
+            )
+
+        # .. or in case your app is waiting for external events, use await asyncio.Future() to
+        # keep the task alive
+        # await asyncio.Future()
     except asyncio.CancelledError:
         print("Stop offering service..")
-        await service_instance_addition.stop_offer()
+        await service_instance_temperature.stop_offer()
     finally:
         print("Service Discovery close..")
         service_discovery.close()

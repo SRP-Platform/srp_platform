@@ -47,7 +47,7 @@ void SkeletonConnector::ProcessFrame(
     }
     const auto& service = service_opt.value().get();
     for (const auto& iter : service.subscription_list_) {
-      if (iter.second.HaveEvent(frame.header_.method_id)) {
+      if (iter.second.HaveEvent(frame.header_.method_id) && iter.second.IsSubscriptionValid()) {
         struct in_addr ip_addr;
         ip_addr.s_addr = htonl(iter.second.ip_);
         const std::string ip = inet_ntoa(ip_addr);
@@ -56,11 +56,6 @@ void SkeletonConnector::ProcessFrame(
         frame.header_.request_id = iter.second.GetClientId();
         frame.header_.session_id = iter.second.GetSessionId();
         this->udp_sock_->Transmit(ip, iter.second.port_, frame.GetRaw());
-      } else {
-        logger_.LogInfo() << "client ip " << iter.second.ip_ << ":"
-                          << iter.second.port_
-                          << " not req event: " << frame.header_.service_id
-                          << ":" << frame.header_.method_id;
       }
     }
   } else {
