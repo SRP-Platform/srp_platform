@@ -119,7 +119,7 @@ void SdController::ProcessFrame(
         ara::com::someip::SomeipSdFrameBuilder builder{};
         builder.AddSubscribeEntry(service_sd.service_id_,
                                   service_sd.instance_id_, 0x8001, 3232238181,
-                                  1001);
+                                  10003);
         in_addr addr{};
         addr.s_addr = htonl(service_sd.ip_);
         const std::string ip{inet_ntoa(addr)};

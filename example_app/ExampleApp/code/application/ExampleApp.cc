@@ -61,7 +61,7 @@ int ExampleApp::Run(const std::stop_token& token) {
   ara::log::LogInfo() << "App started";
   while (!token.stop_requested()) {
     core::condition::wait_for(std::chrono::milliseconds(100), token);
-    serv.Status.Update(10);
+    // serv.Status.Update(10);
   }
   ara::log::LogInfo() << "App Stop";
   serv.StopOffer();

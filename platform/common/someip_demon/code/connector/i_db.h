@@ -14,7 +14,7 @@
 #include <cstdint>
 #include <functional>
 #include <optional>
-#include <unordered_map>
+#include <vector>
 
 #include "platform/common/someip_demon/code/db/find_service_item.h"
 #include "platform/common/someip_demon/code/db/service_item.h"
@@ -33,6 +33,8 @@ class IDb {
   virtual std::optional<std::reference_wrapper<const db::ServiceItem>>
   GetProviderService(const uint16_t service_id,
                      const uint16_t instance_id) const noexcept = 0;
+
+    virtual std::vector<uint32_t> GetSubscriptionList(const uint16_t service_id) const noexcept = 0;
 };
 }  // namespace connectors
 }  // namespace someip_demon

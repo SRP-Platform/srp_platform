@@ -200,6 +200,23 @@ void SDConnector::SendIPCSdOffer(
   this->ipc_soc_->TransmitToPid(pid, std::move(raw));
 }
 
+std::vector<uint32_t> SDConnector::GetSubscriptionList(
+    const uint16_t service_id) const noexcept {
+  std::vector<uint32_t> subscription_list{};
+  const auto temp = this->sd_db_.GetAllReqInstance(service_id);
+  if (!temp.has_value()) {
+    return {};
+  }
+  for (const auto& instance_id : temp.value().get()) {
+    const auto res = this->sd_db_.FindInFindService(service_id, instance_id);
+    if (res.has_value()) {
+      subscription_list.insert(subscription_list.end(),
+                               res.value().get().subscribed_pid_.begin(),
+                               res.value().get().subscribed_pid_.end());
+    }
+  }
+  return subscription_list;
+}
 }  // namespace connectors
 }  // namespace someip_demon
 }  // namespace srp

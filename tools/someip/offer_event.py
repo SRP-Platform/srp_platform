@@ -20,7 +20,7 @@ INTERFACE_IP = "192.168.10.4"
 SAMPLE_SERVICE_ID = 100
 SAMPLE_INSTANCE_ID = 4
 SAMPLE_EVENTGROUP_ID = 0x8001
-SAMPLE_EVENT_ID = 0x0123
+SAMPLE_EVENT_ID = 32769
 
 
 async def main():
@@ -90,7 +90,7 @@ async def main():
             tmp_msg.timestamp = Uint64(tmp_msg.timestamp.value + 1)
             payload = tmp_msg.serialize()
             service_instance_temperature.send_event(
-                SAMPLE_EVENTGROUP_ID, SAMPLE_EVENT_ID, payload
+                SAMPLE_EVENTGROUP_ID, SAMPLE_EVENT_ID, b'\x01'
             )
 
         # .. or in case your app is waiting for external events, use await asyncio.Future() to

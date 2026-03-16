@@ -114,7 +114,7 @@ void UdpProxyBindings::SubscribeToEvent(const uint16_t& event_id) {
   builder.AddSubscribeEntry(service_id_, instance_id_, 0x0001, 0x00000,
                             0x000000);
   this->controller_->SendByUdp(port_, builder.BuildFrame().GetRaw());
-  // this->subscribe_new_status_(event_id, SubscribeStatus::kSubscribePending);
+  this->subscribe_new_status_(event_id, SubscribeStatus::kSubscribe);
 }
 
 }  // namespace bindings

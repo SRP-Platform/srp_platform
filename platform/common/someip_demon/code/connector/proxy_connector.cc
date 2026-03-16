@@ -66,19 +66,32 @@ void ProxyConnector::ProcessFrame(
 void ProxyConnector::ProcessFrame(
     const std::string& ip, std::uint16_t port,
     ara::com::someip::SomeipFrame&& frame) noexcept {
-  const auto old_req = frame.header_.request_id;
-  {
-    const auto& iter = req_list_.find(frame.header_.request_id);
-    if (iter == req_list_.end()) {
-      return;
+  if (frame.header_.message_type ==
+      ara::com::someip::MessageType::kNotification) {
+    auto f = std::move(frame);
+    for (const auto& key :
+         this->db_->GetSubscriptionList(frame.header_.service_id)) {
+      f.header_.session_id = static_cast<uint16_t>(key);
+      const auto raw = f.GetRaw();
+      std::vector<uint8_t> data{0x01};
+      data.insert(data.end(), raw.begin(), raw.end());
+      this->ipc_soc_->TransmitToPid(key, data);
     }
-    frame.header_.request_id = iter->second.ses_id;
-    const auto raw = frame.GetRaw();
-    std::vector<uint8_t> data{0x01};
-    data.insert(data.end(), raw.begin(), raw.end());
-    this->ipc_soc_->TransmitToPid(iter->second.process_id, std::move(data));
+  } else {
+    const auto old_req = frame.header_.request_id;
+    {
+      const auto& iter = req_list_.find(frame.header_.request_id);
+      if (iter == req_list_.end()) {
+        return;
+      }
+      frame.header_.request_id = iter->second.ses_id;
+      const auto raw = frame.GetRaw();
+      std::vector<uint8_t> data{0x01};
+      data.insert(data.end(), raw.begin(), raw.end());
+      this->ipc_soc_->TransmitToPid(iter->second.process_id, std::move(data));
+    }
+    this->req_list_.erase(old_req);
   }
-  this->req_list_.erase(old_req);
 }
 
 void ProxyConnector::SendResult(const ReqDetails& det,
