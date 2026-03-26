@@ -31,7 +31,7 @@ cc_library(
     hdrs = ["com_thread_pool.h"],
     visibility = ["//bindings/com/ipc:__subpackages__"],
     deps = [
-        "@boost//:asio",
-        "@boost//:thread",
+        "@boost.asio",
+        "@boost.thread",
     ],
 )

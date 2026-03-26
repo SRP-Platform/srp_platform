@@ -4,3 +4,34 @@
 #
 # For more details, please check https://github.com/bazelbuild/bazel/issues/18958
 ###############################################################################
+module(name = "srp_platform", version = "0.1")
+
+bazel_dep(name = "nlohmann_json", version = "3.12.0", repo_name="com_json")
+bazel_dep(name = "google_benchmark", version = "1.9.4")
+bazel_dep(name = "googletest", version = "1.17.0")
+bazel_dep(name = "rules_python", version = "1.5.1")
+bazel_dep(name = "boost.asio", version = "1.87.0")
+bazel_dep(name = "boost.thread", version = "1.87.0")
+bazel_dep(name = "platforms", version = "1.0.0")
+bazel_dep(name = "rules_cc", version = "0.1.4")
+
+dependency = use_extension("@srp_platform//download.bzl", "prepare")
+dependency.prepare()
+
+python = use_extension("@rules_python//python/extensions:python.bzl", "python")
+python.defaults(
+    python_version = "3.11",
+    python_version_env = "BAZEL_PYTHON_VERSION",
+)
+python.toolchain(
+    configure_coverage_tool = True,
+    python_version = "3.11",
+)
+
+pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
+pip.parse(
+    hub_name = "pypi",
+    python_version = "3.11",
+    requirements_lock = "//:requirements_lock.txt",
+)
+use_repo(pip, "pypi")

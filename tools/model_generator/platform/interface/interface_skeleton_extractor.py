@@ -18,7 +18,7 @@ class InterfaceSkeletonExtractor:
                 var1= var1.GetTypeOnly()
             else:
                 var1 = item.output_type.replace(".","::")
-                include = f"#include \"{item.output_type.replace(".","/")}.h\""
+                include = f"#include \"{item.output_type.replace('.','/')}.h\""
                 if include not in includes:
                         includes+=include+"\n"
             if var2 is not None:
@@ -28,7 +28,7 @@ class InterfaceSkeletonExtractor:
                 var2= var2.GetTypeOnly()
             else:
                 var2 = item.input_type.replace(".","::")
-                include = f"#include \"{item.input_type.replace(".","/")}.h\""
+                include = f"#include \"{item.input_type.replace('.','/')}.h\""
                 if include not in includes:
                         includes+=include+"\n"
             temp_s+=f"""  using {item.name}T = ::platform::com::skeleton::MethodImpl<{var1}, {var2}>;
@@ -45,7 +45,7 @@ class InterfaceSkeletonExtractor:
                 var1= var1.GetTypeOnly()
             else:
                 var1 = item.output_type.replace(".","::")
-                include = f"#include \"{item.output_type.replace(".","/")}.h\""
+                include = f"#include \"{item.output_type.replace('.','/')}.h\""
                 if include not in includes:
                         includes+=include+"\n"
             temp_s+=f"""  using {item.name}T = ::platform::com::skeleton::Event<{var1}>;

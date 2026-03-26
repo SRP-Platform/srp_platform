@@ -5,7 +5,7 @@ py_binary(
     srcs = ["gen_mavlink_defs.py"],
     imports = ["."],
     deps = [
-        "//third_party/python:pymavlink"
+        "@pypi//pymavlink"
     ],
     visibility = ["//visibility:public"],
 )

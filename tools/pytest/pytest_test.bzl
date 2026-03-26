@@ -7,7 +7,7 @@ def pytest_test(name, srcs, **kwargs):
         srcs = srcs + ["//tools/pytest:src"],
         main = "pytest_main.py",
         deps = [
-            "//third_party/python:pytest",
+            "@pypi//pytest",
             "//tools/pytest:core_lib",
             "@doipclient"
         ] + deps,
