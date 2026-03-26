@@ -20,7 +20,7 @@ namespace platform {
 namespace core {
 class ModelItem {
  private:
-  std::variant<model::ModelCom, model::ModelDtc, model::ModelUds> value_;
+  std::variant<model::ModelCom, model::ModelDtc, model::ModelUds, model::SomeIpBindModel> value_;
 
  public:
   template <typename T>

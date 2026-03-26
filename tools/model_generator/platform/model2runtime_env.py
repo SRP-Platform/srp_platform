@@ -8,7 +8,7 @@ from tools.model_generator.platform.common.common_parser import CommonParser
 from tools.model_generator.platform.interface.interface_db import InterfaceDb, Interface
 from tools.model_generator.platform.deployment.interface import *
 from tools.model_generator.platform.component.component_db import ComponentDb, Component
-from tools.model_generator.platform.component.component import IpcItem, DiagItem
+from tools.model_generator.platform.component.component import IpcItem, DiagItem, SomeIpItem
 from tools.model_generator.platform.common.data_structure import Structure
 from tools.model_generator.platform.common.data_structure_extractor import DataStructureExtractor
 from tools.model_generator.platform.common.data_structure_db import DataStructureDB
@@ -105,12 +105,17 @@ def CreateInterfaceDepl(key, item: InterfaceDepl,sec) -> str:
     typ = "",
     if type(sec) == IpcItem:
          typ = "platform::core::model::ModelCom::ComType::kIPC"
+    elif type(sec) == SomeIpItem:
+         typ = "platform::core::model::ModelCom::ComType::kSomeIp"
     for k,i in item.EndpointList.items():
          res+=f"""          {"{"}\"{k}\",platform::com::model::EndpointModel{"{"}{hex(i.EndpointId).upper().replace("X","x")}{"}},"}\n"""
     if res[-2:] == ',\n':
          res = res[:-2]+"\n"
     res += "      }};\n"
     res += f"""      std::ignore = db_.AddNewItem("{key}",platform::core::model::ModelCom(container,{typ}));\n"""
+    if type(sec) == SomeIpItem:
+         path = "someip."+sec.bind["interface"].lower()+"."+sec.bind["type"].lower()+"."+str(sec.bind["port"])
+         res += f"""      std::ignore = db_.AddNewItem("{key}/bind",platform::core::model::SomeIpBindModel("{path}"));\n"""
     res +="    }\n"
     return res
 def CreatInitCom(model: Component) -> str:
@@ -164,10 +169,10 @@ if __name__ == "__main__":
               model = copy.copy(obj)
     assert model != None
     for key, item in model.required.items():
-         if type(item) == IpcItem:
+         if type(item) in [IpcItem, SomeIpItem]:
             items[key] = [item ,db[item.depl]]
     for key, item in model.provide.items():
-        if type(item) == IpcItem:
+        if type(item) in [IpcItem, SomeIpItem]:
             items[key] = [item ,db[item.depl]]
         elif type(item) == DiagItem:
              items[key] = [item, db[item.model], db[db[item.model].service_type]]

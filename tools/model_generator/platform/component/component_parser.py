@@ -19,19 +19,28 @@ class ComponentParser:
         if "instanceID" in json_obj:
             instance = json_obj["instanceID"]
         return IpcItem(name,"/"+model.replace(".","/"),"/"+json_obj["using"].replace(".","/"), instance)
+    def _ExtractSomeIp(json_obj, name, model):
+        instance = 0
+        if "instanceID" in json_obj:
+            instance = json_obj["instanceID"]
+        return SomeIpItem(name,"/"+model.replace(".","/"),"/"+json_obj["using"].replace(".","/"), instance,json_obj["bind"])
 
     def _ProvideParser(json_obj,pkg:str):
         list = {}
         for key, obj in json_obj.items():
             model_name, item_name = ComponentParser._NameResolver(key)
-            if obj["on"] in ["IPC", "ipc"]:
+            if obj["on"].upper() in ["IPC"]:
                 item = ComponentParser._ExtractIpc(obj, pkg+"/"+item_name, model_name)
                 if item.instance == 0:
                     raise logger.critical("Missing InstanceId in provide")
-                    
-                list[pkg+"/"+item_name] = item
+                list[item.name] = item
             elif obj["on"].upper() in ["DIAG"]:
                 item = ComponentParser._ExtractDiag(obj, pkg+"/"+item_name, model_name)
+                list[item.name] = item
+            elif obj["on"].upper() in ["SOMEIP"]:
+                item = ComponentParser._ExtractSomeIp(obj, pkg+"/"+item_name, model_name)
+                if item.instance == 0:
+                    raise logger.critical("Missing InstanceId in provide")
                 list[item.name] = item
         return list
                 
@@ -46,6 +55,11 @@ class ComponentParser:
                 if item.instance == 0:
                     item.instance == 0xFFFF
                 list[pkg+"/"+item_name] = item
+            elif obj["on"].upper() in ["SOMEIP"]:
+                item = ComponentParser._ExtractSomeIp(obj, pkg+"/"+item_name, model_name)
+                if item.instance == 0:
+                    item.instance == 0xFFFF
+                list[item.name] = item
         return list
                 
     def Parser(json_obj):

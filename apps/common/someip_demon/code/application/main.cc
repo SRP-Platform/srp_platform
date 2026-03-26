@@ -9,7 +9,7 @@
  *
  */
 #include "platform/exec/adaptive_lifecycle.h"
-#include "platform/common/someip_demon/code/application/someip_demon.h"
+#include "apps/common/someip_demon/code/application/someip_demon.h"
 
 int main(int argc, char const *argv[]) {
   /* code */

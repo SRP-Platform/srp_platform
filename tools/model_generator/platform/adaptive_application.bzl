@@ -62,7 +62,8 @@ platform_json2config = rule(
 def json2model_impl(ctx):
     # The list of arguments we pass to the script.
     out = ctx.actions.declare_file("metadata_model.json")
-    args = ["/" + ctx.attr.component_name.replace(".", "/"), out.path, ctx.files.src[0].path]
+    a = [f.path for f in ctx.files.src]
+    args = ["/" + ctx.attr.component_name.replace(".", "/"), out.path] + a
 
     # Action to call the script.
     ctx.actions.run(
