@@ -58,8 +58,12 @@ int ExampleApp::Run(const std::stop_token& token) {
   });
   serv.StartOffer();
 
+
+  // serv.StartOffer();
+  uint32_t i = 0;
   ara::log::LogInfo() << "App started";
   while (!token.stop_requested()) {
+    ara::log::LogInfo() << "Value for I: " << i++;
     core::condition::wait_for(std::chrono::milliseconds(100), token);
     // serv.Status.Update(10);
   }

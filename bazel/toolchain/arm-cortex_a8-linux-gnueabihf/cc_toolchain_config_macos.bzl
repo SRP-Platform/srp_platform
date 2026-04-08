@@ -1,5 +1,6 @@
 load("@bazel_tools//tools/build_defs/cc:action_names.bzl", "ACTION_NAMES")
-load("@bazel_tools//tools/cpp:cc_toolchain_config_lib.bzl",
+load(
+    "@bazel_tools//tools/cpp:cc_toolchain_config_lib.bzl",
     "feature",
     "flag_group",
     "flag_set",
@@ -28,13 +29,13 @@ all_compile_actions = [
 def _impl(ctx):
     # Główny prefiks dla narzędzi w PATH
     prefix = "/opt/homebrew/bin/arm-linux-gnueabihf-"
-    
+
     # Ścieżka do sysroot - kluczowa dla cross-kompilacji
     sysroot_path = "/opt/homebrew/Cellar/arm-unknown-linux-gnueabihf/15.2.0/toolchain/arm-unknown-linux-gnueabihf/sysroot"
-    
+
     base_path = "/opt/homebrew/Cellar/arm-unknown-linux-gnueabihf/15.2.0/toolchain/bin/"
     prefix = base_path + "arm-unknown-linux-gnueabihf-"
-    
+
     # Ścieżka do katalogu libexec (tam gdzie siedzi cc1plus)
     # Musimy ją podać GCC jawnie przez flagę -B
     gcc_libexec_path = "/opt/homebrew/Cellar/arm-unknown-linux-gnueabihf/15.2.0/toolchain/libexec/gcc/arm-unknown-linux-gnueabihf/15.2.0/"
@@ -61,19 +62,9 @@ def _impl(ctx):
                 flag_groups = [
                     flag_group(
                         flags = [
-                                "--sysroot=external/arm-cortex_a8-linux-gnueabihf-sysroot",
-                                "-static",
-                                "-B" + gcc_libexec_path,
-                                "-Wl,--start-group",  # Rozpocznij grupę zależności
-                                "-lstdc++",
-                                "-lpthread",
-                                "-lrt",
-                                "-lm",
-                                "-lc",                # Dodaj jawnie libc dla statycznego builda
-                                "-lgcc",              # Dodaj pomocnicze funkcje GCC
-                                "-lgcc_eh",           # Obsługa wyjątków (Exception Handling)
-                                "-Wl,--end-group",    # Zakończ grupę
-                                "-std=c++20",
+                            "-B" + gcc_libexec_path,
+                            "-std=c++20",
+                            "-pthread",
                         ],
                     ),
                 ],
@@ -90,31 +81,28 @@ def _impl(ctx):
                 flag_groups = [
                     flag_group(
                         flags = [
-                        "--sysroot=external/arm-cortex_a8-linux-gnueabihf-sysroot",
-                        "-static",              # Całkowicie statyczna binarka
-                        "-pthread",             # Wsparcie dla wątków (flaga kompilatora i linkera)
-                        "-B" + gcc_libexec_path,
-                        "-Wl,--gc-sections",    # Usuwanie nieużywanych sekcji kodu (optymalizacja rozmiaru)
-                        
-                        # GRUPA BIBLIOTEK (rozwiązuje zależności cykliczne)
-                        "-Wl,--start-group",
-                        "-lstdc++",             # Biblioteka standardowa C++
-                        "-lstdc++fs",           # Wsparcie dla <filesystem>
-                        
-                        # Wymuszenie pełnego ładowania pthreads dla poprawnej inicjalizacji
-                        "-Wl,--whole-archive",
-                        "-lpthread",
-                        "-Wl,--no-whole-archive",
-                        
-                        "-lrt",                 # Real-time extensions (shm_open, timers)
-                        "-lm",                  # Biblioteka matematyczna
-                        "-ldl",                 # Dynamic Loader API (wymagane przez runtime C++)
-                        "-latomic",             # Operacje atomowe (kluczowe na ARM)
-                        "-lc",                  # Standardowa biblioteka C (glibc)
-                        "-lgcc",                # Biblioteka pomocnicza GCC
-                        "-lgcc_eh",             # Obsługa wyjątków (Exception Handling)
-                        "-Wl,--end-group",
-                    ]
+                            "-B" + gcc_libexec_path,
+                            "-Wl,--gc-sections",
+                            "-pthread",
+
+                            # WYMUSZENIE LINKOWANIA STATYCZNEGO RUNTIME
+                            "-static-libstdc++",
+                            "-static-libgcc",
+
+                            # Dodatkowa flaga dla linkera, by preferował archiwum .a nad .so
+                            "-Wl,-Bstatic",
+                            "-lstdc++",
+                            "-latomic",
+                            "-Wl,-Bdynamic",  # Powrót do dynamicznego dla libc (bezpieczniej)
+                            "-Wl,--start-group",
+                            "-lm",
+                            "-ldl",
+                            "-lrt",
+                            "-lc",
+                            "-lgcc",
+                            "-lgcc_eh",
+                            "-Wl,--end-group",
+                        ],
                     ),
                 ],
             ),
