@@ -1,6 +1,6 @@
 load("@srp_platform//tools/common:cpu_def.bzl", "cpu_def")
-load("@srp_platform//tools/model_generator/ara:adaptive.bzl", "ara_json2sm_config")
 load("@srp_platform//tools/common:flash_ecu.bzl", "flash_ecu")
+load("@srp_platform//tools/model_generator/ara:adaptive.bzl", "ara_json2sm_config")
 
 flash_ecu(
     name = "flash",
@@ -31,7 +31,7 @@ cpu_def(
         "//platform/common/logger/model:logger",
         "//platform/common/someip_demon/model:someip_demon",
         "//platform/common/state_manager/model:state_manager",
-        "//example_app/models/ExampleApp"
+        "//example_app/models/ExampleApp",
         # "//deployment/example_adaptive/ExampleApp2",
     ],
 )
