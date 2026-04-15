@@ -1,5 +1,5 @@
 /**
- * @file ExampleApp.h
+ * @file ExampleApp2.h
  * @author Bartosz Snieg (snieg45@gmail.com)
  * @brief
  * @version 0.1

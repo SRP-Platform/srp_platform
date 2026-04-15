@@ -27,7 +27,7 @@ MulticastController::MulticastController(const std::string& interface_ip,
       multicast_ip_{multicast_ip},
       multicast_port_{multicast_port},
       logger_{ara::log::LoggingMenager::GetInstance()->CreateLogger(
-          "mUDP", "", ara::log::LogLevel::kError)} {}
+          "mUDP", "", ara::log::LogLevel::kDebug)} {}
 
 void MulticastController::RxCallback(const std::string& ip,
                                      const std::uint16_t& port,
@@ -65,8 +65,10 @@ ara::core::Result<void> MulticastController::SendFrame(
     const uint16_t port) noexcept {
   logger_.LogInfo() << "Transmit msg to: " << ip << ":" << port;
   if (sock_ != nullptr && ip.size() == 0) {
+    logger_.LogInfo() << "Multicast msg";
     this->sock_->Transmit(data);
   } else if (sock_ != nullptr && ip.size() > 0) {
+    logger_.LogInfo() << "Unicast msg";
     this->sock_->TransmitToClient(data, ip, port);
   }
   return {};

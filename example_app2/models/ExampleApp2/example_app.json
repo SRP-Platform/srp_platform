@@ -1,0 +1,54 @@
+{
+    "include": [
+        "example_app2/models/ExampleApp2/example_service.json"
+    ],
+    "package": "srp.example",
+    "adaptive_application": {
+        "ExampleApp2": {
+            "app": {
+                "functional_groups": [
+                    "Running",
+                    "SafetyMode"
+                ],
+                "parms": "-t -10- 100",
+                "logger": {
+                    "app_id": "EXA2",
+                    "app_des": "Example Adaptive application",
+                    "log_level": "kInfo",
+                    "log_mode": "kRemote",
+                    "ctx": [
+                        {
+                            "ctx_id": "ara",
+                            "log_level": "kInfo",
+                            "ctx_des": "Default ctx for ara"
+                        },
+                        {
+                            "ctx_id": "acom",
+                            "log_level": "kDebug",
+                            "ctx_des": "Default ctx for ara::com"
+                        },
+                        {
+                            "ctx_id": "adiag",
+                            "log_level": "kInfo",
+                            "ctx_des": "Default ctx for ara::diag"
+                        },
+                        {
+                            "ctx_id": "exec",
+                            "log_level": "kInfo",
+                            "ctx_des": "Default ctx for ara::exec"
+                        }
+                    ]
+                }
+            },
+            "provide": [],
+            "require": [
+                {
+                    "name": "ExampleService as service3",
+                    "on": "udp",
+                    "port": "10001",
+                    "instance": 1
+                }
+            ]
+        }
+    }
+}

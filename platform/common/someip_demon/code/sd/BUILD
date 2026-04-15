@@ -4,11 +4,12 @@ cc_library(
     hdrs = ["sd_controller.h"],
     visibility = ["@srp_platform//platform/common/someip_demon/code:__subpackages__"],
     deps = [
+        "@srp_platform//ara/com/someip:someip_data",
+        "@srp_platform//ara/log",
+        "@srp_platform//core/common:condition_lib",
+        "@srp_platform//platform/common/someip_demon/code/common:common_config",
         "@srp_platform//platform/common/someip_demon/code/common:controller",
         "@srp_platform//platform/common/someip_demon/code/common/com:interface",
         "@srp_platform//platform/common/someip_demon/code/db",
-        "@srp_platform//core/common:condition_lib",
-        "@srp_platform//ara/com/someip:someip_data",
-        "@srp_platform//ara/log",
     ],
 )
