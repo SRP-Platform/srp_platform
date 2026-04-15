@@ -34,3 +34,9 @@ cc_library(
         "@srp_platform//ara/log",
     ],
 )
+
+cc_library(
+    name = "common_config",
+    hdrs = ["common_config.h"],
+    visibility = ["@srp_platform//platform/common/someip_demon/code:__subpackages__"],
+)

@@ -14,16 +14,14 @@
 #include <memory>
 #include <memory_resource>
 #include <string>
+#include <arpa/inet.h>  // NOLINT
 
 #include "ara/log/log.h"
 #include "core/common/condition.h"
 #include "core/json/json_parser.h"
 #include "platform/common/someip_demon/code/common/network_controller.h"
 #include "platform/common/someip_demon/code/sd/sd_controller.h"
-// #include "ara/com/someip/HeaderStructure.h"
-// #include "ara/com/someip/ServiceEntry.h"
-// #include "ara/com/someip/someip_frame.h"
-// #include "ara/com/someip/EndpointOption.h"
+#include "platform/common/someip_demon/code/common/common_config.h"
 
 namespace srp {
 namespace someip_demon {
@@ -76,6 +74,14 @@ int SomeIpApplication::Initialize(
   if (!ip.has_value()) {
     ara::log::LogError() << "IP address not found";
     return EXIT_FAILURE;
+  }
+  {
+    in_addr addr{};
+    if (inet_aton(ip.value().data(), &addr) == 0) {
+      ara::log::LogError() << "Invalid Ip Address";
+      return EXIT_FAILURE;
+    }
+    common::CommonConfig::GetInstance().local_ip_address_ = addr.s_addr;
   }
   const auto& someip_multicast_ip =
       platform_obj.value().GetString("someip_multicast_ip");

@@ -8,8 +8,8 @@
  * @copyright Copyright (c) 2024
  *
  */
-#ifndef EXAMPLE_APP_EXAMPLEAPP_CODE_APPLICATION_EXAMPLEAPP_H_
-#define EXAMPLE_APP_EXAMPLEAPP_CODE_APPLICATION_EXAMPLEAPP_H_
+#ifndef EXAMPLE_APP2_EXAMPLEAPP2_CODE_APPLICATION_EXAMPLEAPP_H_
+#define EXAMPLE_APP2_EXAMPLEAPP2_CODE_APPLICATION_EXAMPLEAPP_H_
 
 #include <map>
 #include <memory>
@@ -44,4 +44,4 @@ class ExampleApp : public ara::exec::AdaptiveApplication {
 };
 }  // namespace example
 }  // namespace srp
-#endif  // EXAMPLE_APP_EXAMPLEAPP_CODE_APPLICATION_EXAMPLEAPP_H_
+#endif  // EXAMPLE_APP2_EXAMPLEAPP2_CODE_APPLICATION_EXAMPLEAPP_H_

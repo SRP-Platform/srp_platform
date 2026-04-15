@@ -16,7 +16,7 @@ filegroup(
     srcs = [
         "logger_app.json",
     ],
-    visibility = ["//example_adaptive/ExampleApp/code:__subpackages__"],
+    visibility = ["//example_adaptive/ExampleApp2/code:__subpackages__"],
 )
 
 adaptive_application(

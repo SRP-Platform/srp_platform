@@ -20,6 +20,7 @@
 #include "ara/log/logging_menager.h"
 #include "core/common/condition.h"
 #include "core/data/type_converter.h"
+#include "platform/common/someip_demon/code/common/common_config.h"
 
 namespace srp {
 namespace someip_demon {
@@ -118,7 +119,8 @@ void SdController::ProcessFrame(
       if (service_sd.subscribed_pid_.size() > 0) {
         ara::com::someip::SomeipSdFrameBuilder builder{};
         builder.AddSubscribeEntry(service_sd.service_id_,
-                                  service_sd.instance_id_, 0x8001, 3232238181,
+                                  service_sd.instance_id_, 0x8001,
+                                  htonl(common::CommonConfig::GetInstance().local_ip_address_),
                                   10003);
         in_addr addr{};
         addr.s_addr = htonl(service_sd.ip_);

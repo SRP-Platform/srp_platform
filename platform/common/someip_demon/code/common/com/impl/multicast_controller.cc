@@ -65,8 +65,10 @@ ara::core::Result<void> MulticastController::SendFrame(
     const uint16_t port) noexcept {
   logger_.LogInfo() << "Transmit msg to: " << ip << ":" << port;
   if (sock_ != nullptr && ip.size() == 0) {
+    logger_.LogInfo() << "Multicast msg";
     this->sock_->Transmit(data);
   } else if (sock_ != nullptr && ip.size() > 0) {
+    logger_.LogInfo() << "Unicast msg";
     this->sock_->TransmitToClient(data, ip, port);
   }
   return {};
