@@ -19,10 +19,11 @@ cc_binary(
         "@srp_platform//ara/exec:adaptive_application_lib",
         "@srp_platform//core/common:condition_lib",
         "@srp_platform//core/json:simba_json",
-        "@srp_platform//platform/common/someip_demon/code/common/com/impl:multicast_controller",
-        "@srp_platform//platform/common/someip_demon/code/sd:sd_controller",
+        "@srp_platform//platform/common/someip_demon/code/common:common_config",
         "@srp_platform//platform/common/someip_demon/code/common:controller",
+        "@srp_platform//platform/common/someip_demon/code/common/com/impl:multicast_controller",
         "@srp_platform//platform/common/someip_demon/code/connector",
         "@srp_platform//platform/common/someip_demon/code/db",
+        "@srp_platform//platform/common/someip_demon/code/sd:sd_controller",
     ],
 )
