@@ -1,7 +1,8 @@
 {
     "package": "srp.platform",
     "include": [
-        "platform_definition/sm_service/example_service_depl.json"
+        "platform_definition/sm_service/example_service_depl.json",
+        "platform_definition/em/application_status_did.json"
     ],
     "component": {
         "em": {
@@ -27,6 +28,10 @@
                     "using": "srp.platform.sm.StateManagerDepl",
                     "on": "IPC",
                     "instanceID": 1
+                },
+                "srp.platform.extra.ApplicationStatusDiD as ApplicationStatusDiD": {
+                        "instanceID": 1,
+                        "on": "diag"
                 }
             },
             "require": {}

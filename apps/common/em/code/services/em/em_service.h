@@ -17,23 +17,30 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
+#include <unordered_set>
 
-#include "app_config.h"
+#include "apps/common/em/code/services/em/app_config.h"
 #include "apps/common/em/code/services/em/i_app_db.h"
 #include "core/json/json_parser.h"
+#include "bindings/common/socket/proccess_socket.h"
 
 namespace srp {
 namespace em {
 namespace service {
 class EmService {
  private:
+  std::unordered_set<uint16_t> current_fg_apps;
+  std::unique_ptr<std::jthread> state_checker_thread;
   uint16_t active_state{0U};
   const std::shared_ptr<data::IAppDb> db_;
   const std::function<void(const uint16_t&)> update_callback_;
+  bindings::com::ProccessSocket proc_sock_;
   bool IsSrpApp(const std::string& path) noexcept;
-
+  void ProcessSockCallback(const uint32_t pid, const std::vector<uint8_t>& buf) noexcept;
   pid_t StartApp(const srp::em::service::data::AppConfig& app);
-
+  bool WaitForAppStatus(const uint16_t& app_id_, const ::platform::exec::ExecutionState state);
+  void KillApp(const pid_t pid, bool force = false);
+  void KillApps(const std::vector<uint16_t>& terminate_list);
  public:
   uint16_t GetActiveState() const { return active_state; }
   void LoadApps() noexcept;

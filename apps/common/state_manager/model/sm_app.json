@@ -2,7 +2,7 @@
     "package": "srp.platform",
     "include": [
         "platform_definition/sm_service/example_service_depl.json",
-        "platform_definition/sm_service/sm_did.json"
+        "@(srp_platform)/platform_definition/sm_service/sm_did.json"
     ],
     "component": {
         "state_manager": {

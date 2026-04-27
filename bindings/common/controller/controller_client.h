@@ -20,7 +20,7 @@ namespace srp {
 namespace bindings {
 class ControllerClient {
  public:
-  enum MsgType : uint8_t { kIPC = 0x01, kDiag = 0x02 };
+  enum MsgType : uint8_t { kIPC = 0x01, kDiag = 0x02, kExec = 0x03 };
   using SendCallback = std::function<bool(
       uint32_t pid, const std::vector<uint8_t>& payload, MsgType type)>;
   using SendCallbackTo =
