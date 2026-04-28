@@ -25,41 +25,15 @@ LogStream &LogStream::operator<<(const LogStream &value) {
 }
 
 LogStream &LogStream::operator<<(bool value) {
-  const std::string cTrueString = "true";
-  const std::string cFalseString = "false";
+  std::string _valueString = value ? "true" : "false";
 
-  std::string _valueString;
-  if (value) {
-    _valueString = cTrueString;
-  } else {
-    _valueString = cFalseString;
-  }
   concat(std::move(_valueString));
 
   return *this;
 }
 
-LogStream &LogStream::operator<<(uint8_t value) {
-  std::string _valueString = std::to_string(value);
-  concat(std::move(_valueString));
-
-  return *this;
-}
-LogStream &LogStream::operator<<(uint16_t value) {
-  std::string _valueString = std::to_string(value);
-  concat(std::move(_valueString));
-
-  return *this;
-}
-LogStream &LogStream::operator<<(uint32_t value) {
-  std::string _valueString = std::to_string(value);
-  concat(std::move(_valueString));
-
-  return *this;
-}
-
-LogStream &LogStream::operator<<(float value) {
-  std::string _valueString = std::to_string(value);
+LogStream &LogStream::operator<<(char value) {
+  std::string _valueString{value};
   concat(std::move(_valueString));
 
   return *this;

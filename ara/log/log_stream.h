@@ -13,6 +13,7 @@
 
 #include <functional>
 #include <string>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -52,6 +53,22 @@ class LogStream final {
       callback_(mLogs, level_);
     }
   }
+
+  template <typename T,
+            std::enable_if_t<std::is_arithmetic_v<T> &&
+                            !std::is_same_v<T, bool> &&
+                            !std::is_same_v<T, char>, int> = 0>
+  LogStream &operator<<(T value) {
+    concat(std::to_string(value));
+    return *this;
+  }
+
+  template <typename T, std::enable_if_t<std::is_enum_v<T>, int> = 0>
+  LogStream &operator<<(T value) {
+    concat(std::to_string(static_cast<std::underlying_type_t<T>>(value)));
+    return *this;
+  }
+
   //   LogStream(const LogStream &) = delete;
   /// @brief LogStream insertion operator
   /// @param value Another logstream
@@ -63,23 +80,10 @@ class LogStream final {
   /// @returns Reference to the current log stream
   LogStream &operator<<(bool value);
 
-  /// @brief Byte insertion operator
-  /// @param value A byte value
+  /// @brief Character insertion operator
+  /// @param value A character value
   /// @returns Reference to the current log stream
-  LogStream &operator<<(uint8_t value);
-
-  /// @brief Unsigned integer insertion operator
-  /// @param value An unsigned integer value
-  /// @returns Reference to the current log stream
-  LogStream &operator<<(uint16_t value);
-  /// @brief Unsigned integer insertion operator
-  /// @param value An unsigned integer value
-  /// @returns Reference to the current log stream
-  LogStream &operator<<(uint32_t value);
-  /// @brief Float insertion operator
-  /// @param value A float value
-  /// @returns Reference to the current log stream
-  LogStream &operator<<(float value);
+  LogStream &operator<<(char value);
 
   /// @brief String insertion operator
   /// @param value A string
