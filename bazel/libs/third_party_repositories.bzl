@@ -25,11 +25,15 @@ def include_lib():
         urls = ["https://github.com/jacobschaer/python-doipclient/archive/refs/tags/v1.1.1.zip"],
         type = "zip",
     )
-
-
+    http_archive(
+        name = "someipy_repo",
+        strip_prefix = "someipy/src",
+        build_file = "@srp_platform//bazel/libs:someip.BUILD",
+        urls = ["https://artifactory.srp-platform.com/artifactory/srp-oss-platform/release-2503/py/someipy.zip"],
+    )
 def include_qemu_image():
         http_archive(
         name = "qemu_image",
         build_file = "@srp_platform//bazel/libs:qemu_image.BUILD",
-        urls = ["https://github.com/SRP-Platform/srp-poky/releases/download/0.1.0/qemu_image.zip"],
+        urls = ["https://artifactory.srp-platform.com/artifactory/srp-oss-images/qemu/qemu_image_old.zip"],
     )

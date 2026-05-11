@@ -4,9 +4,9 @@ import logging
 from typing import Tuple
 
 from someipy import TransportLayerProtocol
-from someipy.service import ServiceBuilder, Method
+from someipy import ServiceBuilder, Method
 from someipy.service_discovery import construct_service_discovery
-from someipy.server_service_instance import construct_server_service_instance
+from someipy import construct_server_service_instance
 from someipy.logging import set_someipy_log_level
 from someipy.serialization import Sint32
 from addition_method_parameters import Addends, Sum
