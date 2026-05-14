@@ -39,7 +39,9 @@ py_library(
 py_library(
     name = "someip_lib",
     visibility = ["//visibility:public"],
-    deps = [requirement("someipy")],
+    deps = [
+        "@someipy_repo//:someipy"
+        ],
 )
 
 py_library(
