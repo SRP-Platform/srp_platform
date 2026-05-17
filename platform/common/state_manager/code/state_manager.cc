@@ -23,7 +23,7 @@ namespace srp {
 namespace sm {
 namespace {
 static constexpr std::string_view kConfigPath{
-    "/srp/opt/cpu_srp/machine_states.json"};
+    "/srp/platform/etc/machine_states.json"};
 static const ara::core::InstanceSpecifier did_instance_{
     "/srp/platform/state_manager/CurrentMachineStatePPort"};
 }  // namespace

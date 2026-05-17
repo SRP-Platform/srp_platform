@@ -45,7 +45,12 @@ void UdpProxyBindings::Start(std::stop_token token) {
 
   ara::com::LogInfo() << "Find new Service: " << service_id_ << ", "
                       << instance_id_ << "on: 0.0.0.0:" << port_;
-  this->controller_->SendByUdp(port_, builder.BuildFrame().GetRaw());
+  auto res = this->controller_->SendByUdp(port_, builder.BuildFrame().GetRaw()).HasValue();
+  while (!res) {
+    ara::com::LogError() << "Failed to send find frame, retrying...";
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    res = this->controller_->SendByUdp(port_, builder.BuildFrame().GetRaw()).HasValue();
+  }
   std::unique_lock lk(find_mutex_);
   this->find_cv_.wait(lk, [this] { return this->find_status_flag_; });
 }
