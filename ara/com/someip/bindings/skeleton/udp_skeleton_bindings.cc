@@ -41,7 +41,12 @@ void UdpSkeletonBindings::Start(std::stop_token token) {
                           minor_version_, 0U, port_);
     ara::com::LogInfo() << "Offer new Service: " << service_id_ << ", "
                         << instance_id_ << "on: 0.0.0.0:" << port_;
-    this->controller_->SendByUdp(port_, builder.BuildFrame().GetRaw());
+    bool res = this->controller_->SendByUdp(port_, builder.BuildFrame().GetRaw()).HasValue();
+    while (!res) {
+      ara::com::LogError() << "Failed to send offer frame, retrying...";
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      res = this->controller_->SendByUdp(port_, builder.BuildFrame().GetRaw()).HasValue();
+    }
   }
 }
 ara::core::Result<void> UdpSkeletonBindings::RxCallback(
