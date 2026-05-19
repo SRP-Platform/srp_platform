@@ -35,5 +35,5 @@ def include_qemu_image():
         http_archive(
         name = "qemu_image",
         build_file = "@srp_platform//bazel/libs:qemu_image.BUILD",
-        urls = ["https://artifactory.srp-platform.com/artifactory/srp-oss-images/qemu/qemu_image_old.zip"],
+        urls = ["https://github.com/SRP-Platform/srp-poky/releases/download/0.2.0/qemu_image_old.zip"],
     )
