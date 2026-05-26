@@ -1,6 +1,9 @@
+---
 - hosts: all
   tasks:
     - name: Run CppLint
-      shell:
+      ansible.builtin.shell: |
+        ./tools/cpplint/user_cpplint.sh
+      args:
+        chdir: "{{ zuul.project.src_dir }}"
         executable: /bin/bash
-        cmd: cd {{ zuul.project.src_dir }} && ./tools/cpplint/user_cpplint.sh

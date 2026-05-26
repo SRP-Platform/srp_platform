@@ -1,6 +1,10 @@
+---
 - hosts: all
   tasks:
-    - name: Run CppLint
-      shell:
+    - name: Run unit tests
+      ansible.builtin.shell: |
+        bazel test --nocache_test_results \
+          "$(bazel query 'kind(cc_test, //platform/...)')"
+      args:
+        chdir: "{{ zuul.project.src_dir }}"
         executable: /bin/bash
-        cmd: cd {{ zuul.project.src_dir }} && bazel test --nocache_test_results `bazel query 'kind(cc_test, //platform/...)'`

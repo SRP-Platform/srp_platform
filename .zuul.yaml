@@ -1,3 +1,4 @@
+---
 - job:
     name: cpplint
     run: .jobs/cpplint.yaml
