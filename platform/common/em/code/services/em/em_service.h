@@ -40,6 +40,7 @@ class EmService {
   bool ipc_offered_{false};
   std::atomic<bool> running_{true};
   std::mutex service_mtx_;
+  std::unique_ptr<std::jthread> watchdog_;
   bool IsSrpApp(const std::string& path) noexcept;
   void ProcessSockCallback(const uint32_t pid,
                            const std::vector<uint8_t>& buf) noexcept;
@@ -47,11 +48,13 @@ class EmService {
   void KillApp(const pid_t pid, bool force = false);
   void KillApps(const std::vector<uint16_t>& terminate_list);
   void ReapPid(const pid_t pid);
+  void WatchdogLoop(std::stop_token token);
 
  public:
   uint16_t GetActiveState() const { return active_state; }
   bool IsIpcOffered() const { return ipc_offered_; }
   void HandleExecFrame(const std::vector<uint8_t>& buf) noexcept;
+  void CheckAliveApps();
   bool WaitForAppStatus(const uint16_t& app_id_,
                         const ara::exec::ExecutionState state, int timeout_ms);
   void LoadApps() noexcept;

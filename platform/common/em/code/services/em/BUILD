@@ -16,6 +16,7 @@ cc_library(
         "@srp_platform//ara/exec/em:execution_client_lib",
         "@srp_platform//ara/log",
         "@srp_platform//bindings/common/socket:ipc_socket",
+        "@srp_platform//core/common:condition_lib",
         "@srp_platform//core/json:simba_json",
     ],
 )

@@ -36,12 +36,14 @@
 #include "ara/log/log.h"
 #include "platform/common/em/code/services/em/json_parser.h"
 #include "srp/platform/em/ExecutionHeader.h"
+#include "core/common/condition.h"
 
 namespace srp {
 namespace em {
 namespace service {
 namespace {
 constexpr auto kSignal_check_interval = 100;
+constexpr auto kWatchdog_interval_ms = 500;
 constexpr const char* kExec_path = "ARA.EXEC";
 }  // namespace
 
@@ -94,12 +96,69 @@ EmService::EmService(
   } else {
     ipc_offered_ = true;
   }
+  watchdog_ = std::make_unique<std::jthread>(
+      [this](std::stop_token token) { this->WatchdogLoop(token); });
 }
 
 EmService::~EmService() {
   running_ = false;
+  if (watchdog_ != nullptr) {
+    watchdog_->request_stop();
+    watchdog_.reset();
+  }
   if (ipc_offered_) {
     proc_sock_.StopOffer();
+  }
+}
+
+void EmService::WatchdogLoop(std::stop_token token) {
+  while (!token.stop_requested()) {
+    CheckAliveApps();
+    core::condition::wait_for(std::chrono::milliseconds(kWatchdog_interval_ms),
+                              token);
+  }
+}
+
+void EmService::CheckAliveApps() {
+  std::lock_guard<std::mutex> lock(service_mtx_);
+  const auto fg_id = db_->GetActualFunctionGroupID();
+  const auto list_opt = db_->GetFgAppList(fg_id);
+  if (!list_opt.has_value()) {
+    return;
+  }
+  for (const auto app_id : list_opt.value()) {
+    const pid_t pid = db_->GetPidForApp(app_id);
+    if (pid <= 0) {
+      continue;
+    }
+    if (kill(pid, 0) == 0) {
+      continue;
+    }
+    if (errno != ESRCH) {
+      continue;
+    }
+    ara::log::LogError() << "App " << app_id << " died (pid "
+                         << std::to_string(static_cast<int>(pid)) << ")";
+    db_->SetPidForApp(app_id, 0);
+    db_->SetExecutionStateForApp(app_id,
+                                 ara::exec::ExecutionState::kErrorShutdown);
+    const auto cfg = db_->GetAppConfig(app_id);
+    if (!cfg.has_value()) {
+      continue;
+    }
+    const pid_t new_pid = StartApp(cfg.value());
+    if (new_pid <= 0) {
+      continue;
+    }
+    db_->SetPidForApp(app_id, static_cast<uint32_t>(new_pid));
+    if (!WaitForAppStatus(app_id, ara::exec::ExecutionState::kRunning,
+                          start_timeout_ms_)) {
+      KillApp(new_pid, true);
+      ReapPid(new_pid);
+      db_->SetPidForApp(app_id, 0);
+      db_->SetExecutionStateForApp(app_id,
+                                   ara::exec::ExecutionState::kErrorShutdown);
+    }
   }
 }
 
