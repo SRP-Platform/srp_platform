@@ -36,7 +36,7 @@ class AdaptiveLifecycleMenager final {
 
  public:
   void Run(const std::stop_token &token);
-  void InitApp();
+  int InitApp();
   AdaptiveLifecycleMenager(int argc, char const *argv[],
                            std::unique_ptr<AdaptiveApplication> app,
                            bool controll);

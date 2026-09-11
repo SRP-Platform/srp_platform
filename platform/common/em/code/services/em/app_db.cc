@@ -48,12 +48,31 @@ bool AppDb::SetExecutionStateForApp(
   return false;
 }
 
+std::optional<ara::exec::ExecutionState> AppDb::GetExecutionStateForApp(
+    const uint16_t app_id) noexcept {
+  std::shared_lock lock(this->mtx_);
+  const auto& iter = this->app_list_.find(app_id);
+  if (iter == this->app_list_.end()) {
+    return std::nullopt;
+  }
+  return iter->second.GetExecutionState();
+}
+
 void AppDb::SetPidForApp(const uint16_t app_id, const uint32_t pid) noexcept {
   std::unique_lock lock(this->mtx_);
   const auto& iter = this->app_list_.find(app_id);
   if (iter != this->app_list_.end()) {
-    iter->second.SetPid(pid);
+    iter->second.SetPid(static_cast<pid_t>(pid));
   }
+}
+
+pid_t AppDb::GetPidForApp(const uint16_t app_id) noexcept {
+  std::shared_lock lock(this->mtx_);
+  const auto& iter = this->app_list_.find(app_id);
+  if (iter == this->app_list_.end()) {
+    return 0;
+  }
+  return iter->second.GetPid();
 }
 
 int8_t AppDb::InsertNewFG(uint16_t fg_id, const std::string& name) noexcept {
@@ -63,34 +82,33 @@ int8_t AppDb::InsertNewFG(uint16_t fg_id, const std::string& name) noexcept {
   return res ? 0 : -1;
 }
 
-std::optional<std::reference_wrapper<const AppConfig>> AppDb::GetAppConfig(
+std::optional<AppConfig> AppDb::GetAppConfig(
     const uint16_t& app_id_) noexcept {
   std::shared_lock lock(this->mtx_);
   const auto& iter = app_list_.find(app_id_);
   if (iter == app_list_.end()) {
     return std::nullopt;
   }
-
-  return std::reference_wrapper<const AppConfig>{iter->second};
+  return iter->second;
 }
 
-std::optional<std::reference_wrapper<const std::unordered_set<uint16_t>>>
-AppDb::GetFgAppList(const uint16_t& fg_id) noexcept {
+std::optional<std::unordered_set<uint16_t>> AppDb::GetFgAppList(
+    const uint16_t& fg_id) noexcept {
   std::shared_lock lock(this->mtx_);
   const auto& iter = fg_list_.find(fg_id);
   if (iter == fg_list_.end()) {
     return std::nullopt;
   }
-
-  return std::reference_wrapper<const std::unordered_set<uint16_t>>{
-      iter->second};
+  return iter->second;
 }
 
 uint16_t AppDb::GetActualFunctionGroupID() noexcept {
+  std::shared_lock lock(this->mtx_);
   return this->actual_state_id_;
 }
 
 void AppDb::SetActualFunctionGroupID(const uint16_t& state_id) noexcept {
+  std::unique_lock lock(this->mtx_);
   this->actual_state_id_ = state_id;
 }
 }  // namespace data
