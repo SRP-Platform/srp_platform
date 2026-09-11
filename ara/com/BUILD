@@ -46,6 +46,7 @@ cc_library(
     visibility = [
         "@srp_platform//ara:__subpackages__",
         "@srp_platform//platform/common/em:__subpackages__",
+        "@srp_platform//tests:__subpackages__",
     ],
     deps = [
         "@srp_platform//ara/com:com_error_domain",
