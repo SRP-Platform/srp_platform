@@ -12,6 +12,7 @@
 
 #include <bits/stdc++.h>
 #include <dirent.h>
+#include <signal.h>
 #include <spawn.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,21 +27,62 @@
 #include <memory>
 #include <string>
 #include <utility>
+#include <thread>  // NOLINT
 #include <vector>
 
+#include "ara/com/i_com_client.h"
+#include "ara/exec/em/i_execution_client.h"
 #include "ara/log/log.h"
 #include "platform/common/em/code/services/em/json_parser.h"
+#include "srp/platform/em/ExecutionHeader.h"
 
 namespace srp {
 namespace em {
 namespace service {
+namespace {
+constexpr auto kMax_wait_time = 3000;
+constexpr auto kSignal_check_interval = 100;
+constexpr const char* kExec_path = "ARA.EXEC";
+}  // namespace
+
+void EmService::ProcessSockCallback(const uint32_t pid,
+                                    const std::vector<uint8_t>& buf) noexcept {
+  if (buf.empty() || buf[0] != ara::com::IComClient::MsgType::kExec) {
+    return;
+  }
+  const std::vector<uint8_t> payload(buf.begin() + 1, buf.end());
+  auto hdr_ = srp::data::Convert<srp::platform::em::ExecutionHeader>::Conv(
+      payload);
+  if (!hdr_.has_value()) {
+    // TODO(matik) add dtc error
+    return;
+  }
+  ara::exec::ExecutionState state =
+      static_cast<ara::exec::ExecutionState>(hdr_.value().execution_state);
+  ara::log::LogDebug() << std::to_string(hdr_.value().app_id)
+                       << ", reported state: " << ara::exec::get_string(state);
+  if (!this->db_->SetExecutionStateForApp(hdr_.value().app_id, state)) {
+    // TODO(matik) add dtc error
+    return;
+  }
+}
 
 EmService::EmService(
     std::shared_ptr<data::IAppDb> db,
     const std::function<void(const uint16_t&)>&& update_callback)
-: db_{db}, update_callback_(std::move(update_callback)) {}
+    : db_{db},
+      update_callback_(std::move(update_callback)),
+      proc_sock_(kExec_path) {
+  proc_sock_.SetCallback(std::bind(&EmService::ProcessSockCallback, this,
+                                   std::placeholders::_1,
+                                   std::placeholders::_2));
+  const auto err = proc_sock_.Offer();
+  if (!err.HasValue()) {
+    ara::log::LogError() << "Failed to offer ARA.EXEC socket";
+  }
+}
 
-EmService::~EmService() {}
+EmService::~EmService() { proc_sock_.StopOffer(); }
 
 bool EmService::IsSrpApp(const std::string& path) noexcept {
   std::ifstream file{path + "/etc/srp_app.json"};
@@ -91,7 +133,8 @@ void EmService::SetActiveState(const uint16_t& state_id_) noexcept {
       }
     }
   }
-  // TODO(bartek): kill app
+  KillApps(terminate_list);
+  this->db_->SetActualFunctionGroupID(state_id_);
   for (const auto& app_id_ : next_list) {
     auto app_config_opt = db_->GetAppConfig(app_id_);
     if (app_config_opt.has_value()) {
@@ -99,13 +142,84 @@ void EmService::SetActiveState(const uint16_t& state_id_) noexcept {
       if (app_config.GetPid() == 0) {
         const auto new_pid = this->StartApp(app_config);
         db_->SetPidForApp(app_id_, new_pid);
+        if (!WaitForAppStatus(app_id_, ara::exec::ExecutionState::kRunning)) {
+          KillApp(new_pid, true);
+          db_->SetPidForApp(app_id_, 0);
+        }
       }
     }
   }
+  this->current_fg_apps = next_list;
   if (update_callback_) {
     update_callback_(state_id_);
   }
   this->active_state = state_id_;
+}
+
+bool EmService::WaitForAppStatus(const uint16_t& app_id_,
+                                 const ara::exec::ExecutionState state) {
+  auto app_config = db_->GetAppConfig(app_id_);
+  if (!app_config.has_value()) {
+    // TODO(matik) CALL DTC ERROR
+    return false;
+  }
+  ara::exec::ExecutionState state_{ara::exec::ExecutionState::kIdle};
+  const auto start_time = std::chrono::steady_clock::now();
+  int64_t duration{0};
+  do {
+    app_config = db_->GetAppConfig(app_id_);
+    if (!app_config.has_value()) {
+      return false;
+    }
+    state_ = app_config.value().get().GetExecutionState();
+    const auto now = std::chrono::steady_clock::now();
+    duration =
+        std::chrono::duration_cast<std::chrono::milliseconds>(now - start_time)
+            .count();
+    if (state != state_) {
+      std::this_thread::sleep_for(
+          std::chrono::milliseconds(kSignal_check_interval));
+    }
+  } while ((state != state_) && (duration <= kMax_wait_time));
+  if (state == state_) {
+    return true;
+  }
+  // TODO(matik) report DTC error
+  ara::log::LogError() << "Timeout waiting for app " << app_id_
+                       << " to reach " << ara::exec::get_string(state);
+  return false;
+}
+
+void EmService::KillApps(const std::vector<uint16_t>& terminate_list) {
+  for (const auto& app_id_ : terminate_list) {
+    auto app_config = db_->GetAppConfig(app_id_);
+    if (!app_config.has_value()) {
+      // TODO(matik) Report DTC error
+      continue;
+    }
+    KillApp(app_config.value().get().GetPid());
+    if (!this->WaitForAppStatus(app_id_,
+                                ara::exec::ExecutionState::kTerminated)) {
+      // TODO(matik) report DTC (cant stop app, need to be killed)
+      KillApp(app_config.value().get().GetPid(), true);
+      db_->SetExecutionStateForApp(app_config.value().get().GetAppId(),
+                                   ara::exec::ExecutionState::kTerminated);
+    }
+    db_->SetPidForApp(app_id_, 0);
+  }
+}
+
+void EmService::KillApp(const pid_t pid, bool force) {
+  if (pid <= 0) {
+    ara::log::LogWarn() << "Invalid pid value: "
+                        << std::to_string(static_cast<int>(pid));
+    return;
+  }
+  if (force) {
+    kill(pid, SIGKILL);
+  } else {
+    kill(pid, SIGTERM);
+  }
 }
 
 std::optional<pid_t> EmService::RestartApp(const uint16_t appID) {
@@ -142,7 +256,7 @@ pid_t EmService::StartApp(const srp::em::service::data::AppConfig& app) {
 
   ara::log::LogInfo() << "Spawning app: " << app.GetAppName()
                       << " pid: " << std::to_string(pid);
-    return pid;
+  return pid;
 }
 
 }  // namespace service

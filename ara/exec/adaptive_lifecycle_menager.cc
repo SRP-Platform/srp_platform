@@ -16,6 +16,8 @@
 #include <string>
 #include <utility>
 
+#include "ara/exec/em/execution_client.h"
+
 namespace ara {
 namespace exec {
 
@@ -26,9 +28,12 @@ int AdaptiveLifecycleMenager::StartAdaptiveLifecycleMenager() {
   if (instance_ == nullptr) {
     return -1;
   }
-
+  auto exec_client = ExecutionClient::GetInstance();
+  exec_client->ReportExecutionState(ExecutionState::kIdle);
   if (instance_->app_thread_ == nullptr) {
+    exec_client->ReportExecutionState(ExecutionState::kStarting);
     instance_->InitApp();
+    exec_client->ReportExecutionState(ExecutionState::kRunning);
 
     instance_->app_thread_ = std::make_unique<std::jthread>(
         [&](std::stop_token token) { instance_->Run(token); });
@@ -36,8 +41,9 @@ int AdaptiveLifecycleMenager::StartAdaptiveLifecycleMenager() {
   }
 
   instance_->app_thread_->join();
+  exec_client->ReportExecutionState(ExecutionState::kTerminating);
   instance_->exec_logger.LogInfo() << "Application Stoped";
-  // todo start app and wait
+  exec_client->ReportExecutionState(ExecutionState::kTerminated);
   return 0;
 }
 void AdaptiveLifecycleMenager::StopAdaptiveLifecycleMenager(int status_) {

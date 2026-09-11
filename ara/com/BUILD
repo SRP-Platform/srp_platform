@@ -32,6 +32,7 @@ cc_library(
         "@srp_platform//ara/com/someip/controller",
         "@srp_platform//ara/core:Result",
         "@srp_platform//ara/diag:diagnostic_menager",
+        "@srp_platform//ara/exec/em:execution_client_lib",
     ],
 )
 
@@ -42,7 +43,10 @@ cc_library(
         "com_controller.h",
         "i_com_client.h",
     ],
-    visibility = ["@srp_platform//ara:__subpackages__"],
+    visibility = [
+        "@srp_platform//ara:__subpackages__",
+        "@srp_platform//platform/common/em:__subpackages__",
+    ],
     deps = [
         "@srp_platform//ara/com:com_error_domain",
         "@srp_platform//ara/com:com_log",
