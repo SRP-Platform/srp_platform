@@ -31,7 +31,7 @@ RoutableUdsService::RoutableUdsService(
       mOffered{false},
       mSpecifier{specifier},
       diag_logger_{ara::log::LoggingMenager::GetInstance()->CreateLogger(
-          "diag", "", ara::log::LogLevel::kWarn)},
+"diag", "", ara::log::LogLevel::kWarn)},
 sock_{std::move(sock)} {}
 
 void RoutableUdsService::GenerateNegativeResponse(OperationOutput &response,

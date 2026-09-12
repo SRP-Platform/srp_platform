@@ -9,8 +9,9 @@
  * 
  */
 
-#include <cstring>
 #include <gtest/gtest.h>
+
+#include <cstring>
 #include <string>
 #include <thread>  // NOLINT
 #include "bindings/common/shm/shm_buffor_proxy.h"

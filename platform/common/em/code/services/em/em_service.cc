@@ -11,20 +11,20 @@
 #include "platform/common/em/code/services/em/em_service.h"
 
 #include <bits/stdc++.h>
+#include <dirent.h>
 #include <spawn.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
 #include <algorithm>
-#include <dirent.h>
 #include <fstream>
 #include <functional>
 #include <memory>
 #include <string>
-#include <sys/stat.h>
 #include <utility>
 #include <vector>
 
