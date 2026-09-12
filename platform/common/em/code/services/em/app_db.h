@@ -13,6 +13,7 @@
 
 #include <cstdint>
 #include <optional>
+#include <shared_mutex>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -25,6 +26,8 @@ namespace service {
 namespace data {
 class AppDb : public IAppDb {
  private:
+  mutable std::shared_mutex mtx_;
+  uint16_t actual_state_id_{0};
   /**
    * @brief Map with app config
    *
@@ -45,12 +48,20 @@ class AppDb : public IAppDb {
   AppDb(/* args */);
   int8_t InsertNewApp(AppConfig app) noexcept override;
   int8_t InsertNewFG(uint16_t fg_id, const std::string& name) noexcept override;
-  std::optional<std::reference_wrapper<const AppConfig>> GetAppConfig(
+  std::optional<AppConfig> GetAppConfig(
       const uint16_t& app_id_) noexcept override;
   void SetPidForApp(const uint16_t app_id,
                     const uint32_t pid) noexcept override;
-  std::optional<std::reference_wrapper<const std::unordered_set<uint16_t>>>
-  GetFgAppList(const uint16_t& fg_id) noexcept override;
+  pid_t GetPidForApp(const uint16_t app_id) noexcept override;
+  std::optional<std::unordered_set<uint16_t>> GetFgAppList(
+      const uint16_t& fg_id) noexcept override;
+  bool SetExecutionStateForApp(
+      const uint16_t app_id,
+      const ara::exec::ExecutionState state) noexcept override;
+  std::optional<ara::exec::ExecutionState> GetExecutionStateForApp(
+      const uint16_t app_id) noexcept override;
+  uint16_t GetActualFunctionGroupID() noexcept override;
+  void SetActualFunctionGroupID(const uint16_t& state_id) noexcept override;
   ~AppDb() = default;
 };
 

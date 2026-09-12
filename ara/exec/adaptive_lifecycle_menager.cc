@@ -16,6 +16,8 @@
 #include <string>
 #include <utility>
 
+#include "ara/exec/em/execution_client.h"
+
 namespace ara {
 namespace exec {
 
@@ -26,31 +28,45 @@ int AdaptiveLifecycleMenager::StartAdaptiveLifecycleMenager() {
   if (instance_ == nullptr) {
     return -1;
   }
-
+  auto exec_client = ExecutionClient::GetInstance();
+  exec_client->ReportExecutionState(ExecutionState::kIdle);
   if (instance_->app_thread_ == nullptr) {
-    instance_->InitApp();
+    exec_client->ReportExecutionState(ExecutionState::kStarting);
+    const int init_res = instance_->InitApp();
+    if (init_res != 0) {
+      exec_client->ReportExecutionState(ExecutionState::kErrorShutdown);
+      instance_->exec_logger.LogError()
+          << "Application Initialize failed: " << std::to_string(init_res);
+      return init_res;
+    }
 
     instance_->app_thread_ = std::make_unique<std::jthread>(
         [&](std::stop_token token) { instance_->Run(token); });
     pthread_setname_np(instance_->app_thread_->native_handle(), "APP_THREAD");
+    exec_client->ReportExecutionState(ExecutionState::kRunning);
   }
 
   instance_->app_thread_->join();
+  exec_client->ReportExecutionState(ExecutionState::kTerminating);
   instance_->exec_logger.LogInfo() << "Application Stoped";
-  // todo start app and wait
   return 0;
 }
 void AdaptiveLifecycleMenager::StopAdaptiveLifecycleMenager(int status_) {
+  if (instance_ == nullptr) {
+    return;
+  }
   instance_->exec_logger.LogInfo() << "Application Stoped requested";
-  instance_->app_thread_->request_stop();
+  if (instance_->app_thread_ != nullptr) {
+    instance_->app_thread_->request_stop();
+  }
 }
 
 void AdaptiveLifecycleMenager::Run(const std::stop_token &token) {
   exec_logger.LogInfo() << "Starting application ";
   this->app_->Run(token);
 }
-void AdaptiveLifecycleMenager::InitApp() {
-  this->app_->Initialize(this->parms_);
+int AdaptiveLifecycleMenager::InitApp() {
+  return this->app_->Initialize(this->parms_);
 }
 std::pair<ara::core::StringView, ara::core::StringView>
 AdaptiveLifecycleMenager::ParseParm(const ara::core::StringView &raw) {

@@ -11,9 +11,13 @@
 #ifndef PLATFORM_COMMON_EM_CODE_SERVICES_EM_APP_CONFIG_H_
 #define PLATFORM_COMMON_EM_CODE_SERVICES_EM_APP_CONFIG_H_
 
+#include <sys/types.h>
+
 #include <cstdint>
 #include <string>
 #include <vector>
+
+#include "ara/exec/em/i_execution_client.h"
 namespace srp {
 namespace em {
 namespace service {
@@ -26,6 +30,7 @@ class AppConfig {
   const std::string app_name_;
   const std::vector<std::string> fg_list_;
   pid_t pid{0};
+  ara::exec::ExecutionState state_{ara::exec::ExecutionState::kIdle};
 
  public:
   AppConfig(const std::string& bin_path, const std::string& parms,
@@ -44,6 +49,8 @@ class AppConfig {
   const std::vector<std::string>& GetFg() const { return fg_list_; }
   pid_t GetPid() const { return pid; }
   void SetPid(pid_t pid) { this->pid = pid; }
+  ara::exec::ExecutionState GetExecutionState() const { return state_; }
+  void SetExecutionState(ara::exec::ExecutionState state) { this->state_ = state; }
 };
 }  // namespace data
 }  // namespace service

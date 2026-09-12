@@ -35,7 +35,7 @@ class ProccessSocket {
  private:
   const uint32_t local_pid_;
   const std::string local_soc_;
-  int sfd_;
+  int sfd_{-1};
   sockaddr_un addr_;
   RxCallback callback_;
   std::unique_ptr<std::jthread> rx_thread_;
