@@ -10,6 +10,8 @@
  */
 #include "ara/com/someip/service_skeleton.h"
 
+#include <vector>
+
 #include "ara/com/com_error_domain.h"
 #include "ara/com/log.h"
 #include "ara/com/someip/bindings/binding_factory.h"
@@ -24,7 +26,7 @@ namespace someip {
 
 ServiceSkeleton::ServiceSkeleton(const ::ara::core::InstanceSpecifier& instance,
                                  uint16_t service_id)
-    : instance_{instance}, service_id_{service_id} {}
+: instance_{instance}, service_id_{service_id} {}
 
 void ServiceSkeleton::Handler(const uint16_t& method_id,
                               const std::vector<uint8_t>& payload) {

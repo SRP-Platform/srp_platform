@@ -27,7 +27,7 @@ namespace someip {
 namespace bindings {
 
 UdpSkeletonBindings::UdpSkeletonBindings(std::uint32_t port)
-    : port_{port}, controller_{SomeipController::GetInstance()} {}
+: port_{port}, controller_{SomeipController::GetInstance()} {}
 
 void UdpSkeletonBindings::Start(std::stop_token token) {
   controller_->RegisterService(

@@ -10,6 +10,8 @@
  */
 #include <gtest/gtest.h>
 
+#include <string>
+
 #include "ara/core/core_error_domain.h"  // Zawiera deklaracje klasy CoreErrorDomain i funkcji MakeErrorCode
 
 class CoreErrorDomainTest : public ::testing::Test {

@@ -8,10 +8,13 @@
  * @copyright Copyright (c) 2024
  * 
  */
-#include <gtest/gtest.h>
+#include <algorithm>
 #include <gmock/gmock.h>
-#include "ara/core/instance_specifier.h"
+#include <gtest/gtest.h>
+#include <utility>
+
 #include "ara/core/core_error_domain.h"
+#include "ara/core/instance_specifier.h"
 
 using namespace ara::core;  // NOLINT
 

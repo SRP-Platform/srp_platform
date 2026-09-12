@@ -8,9 +8,10 @@
  * @copyright Copyright (c) 2024
  * 
  */
-#include <gtest/gtest.h>
-#include <thread>  // NOLINT
 #include <cstring>
+#include <gtest/gtest.h>
+#include <string>
+#include <thread>  // NOLINT
 #include "bindings/common/shm/shm_buffor_skeleton.h"
 
 class ShmBufforSkeletonTest : public ::testing::Test {

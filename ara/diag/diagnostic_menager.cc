@@ -10,6 +10,7 @@
  */
 #include "ara/diag/diagnostic_menager.h"
 
+#include <memory>
 #include <utility>
 #include <vector>
 

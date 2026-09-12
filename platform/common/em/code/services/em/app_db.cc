@@ -10,6 +10,9 @@
  */
 #include "platform/common/em/code/services/em/app_db.h"
 
+#include <string>
+#include <unordered_set>
+
 namespace srp {
 namespace em {
 namespace service {

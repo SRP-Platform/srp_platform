@@ -23,7 +23,7 @@ std::unordered_map<ErrorDomain::CodeType, StringView> kKeyList{
     {static_cast<ErrorDomain::CodeType>(CoreErrc::kInvalidMetaModelShortname),
      "Invalid Meta Model Shortname"},
     {static_cast<ErrorDomain::CodeType>(CoreErrc::kInvalidMetaModelPath),
-     "Invalid Meta Model Path"}};
+"Invalid Meta Model Path"}};
 const CoreErrorDomain domain_;
 }  // namespace
 

@@ -19,7 +19,7 @@ namespace ara {
 namespace diag {
 namespace {
 std::unordered_map<ara::core::ErrorDomain::CodeType, ara::core::StringView>
-    kKeyList{
+kKeyList{
         {static_cast<ara::core::ErrorDomain::CodeType>(
              DiagErrc::kAlreadyOffered),
          "Already Offered"},
@@ -60,12 +60,12 @@ std::unordered_map<ara::core::ErrorDomain::CodeType, ara::core::StringView>
              DiagErrc::kSuppressionIgnored),
          "Suppression Ignored"},
         {static_cast<ara::core::ErrorDomain::CodeType>(DiagErrc::kWrongDtc),
-         "Wrong Dtc"}};
+"Wrong Dtc"}};
 const DiagErrorDomain domain_;
 }  // namespace
 
 DiagErrorDomain::DiagErrorDomain() noexcept
-    : ara::core::ErrorDomain{0x8000000000000403} {}
+: ara::core::ErrorDomain{0x8000000000000403} {}
 const std::string DiagErrorDomain::Name() const noexcept {
   return std::string{"CoreErrorDomain"};
 }

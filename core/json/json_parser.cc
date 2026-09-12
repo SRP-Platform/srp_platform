@@ -11,6 +11,7 @@
 #include "core/json/json_parser.h"
 
 #include <fstream>
+#include <string>
 namespace srp {
 namespace core {
 namespace json {

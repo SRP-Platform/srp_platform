@@ -11,6 +11,7 @@
 #include <gtest/gtest.h>
 
 #include <memory>
+#include <utility>
 
 #include "ara/exec/sm/state_controller.h"
 #include "ara/exec/sm/tests/com_wrapper_mock.h"

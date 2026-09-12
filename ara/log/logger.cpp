@@ -11,6 +11,7 @@
 #include "ara/log/logger.h"
 
 #include <memory>
+#include <string>
 namespace ara {
 namespace log {
 

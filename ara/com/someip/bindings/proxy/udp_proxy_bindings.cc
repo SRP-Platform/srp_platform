@@ -12,6 +12,7 @@
 
 #include <unistd.h>
 
+#include <memory>
 #include <utility>
 #include <vector>
 
@@ -30,8 +31,8 @@ namespace bindings {
 
 UdpProxyBindings::UdpProxyBindings(std::uint32_t port)
     : port_{port},
-      controller_{SomeipController::GetInstance()},
-      pid_{static_cast<uint16_t>(getpid())} {}
+controller_{SomeipController::GetInstance()},
+pid_{static_cast<uint16_t>(getpid())} {}
 
 void UdpProxyBindings::Start(std::stop_token token) {
   controller_->RegisterProxy(

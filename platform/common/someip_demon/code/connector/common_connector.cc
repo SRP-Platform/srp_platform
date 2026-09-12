@@ -10,6 +10,8 @@
  */
 #include "platform/common/someip_demon/code/connector/common_connector.h"
 
+#include <memory>
+
 namespace srp {
 namespace someip_demon {
 namespace connectors {

@@ -10,6 +10,7 @@
  */
 #include "ara/com/someip/controller/someip_controller.h"
 
+#include <memory>
 #include <utility>
 #include <vector>
 
@@ -26,20 +27,20 @@ namespace someip {
 namespace {
 constexpr std::array<ara::com::someip::MessageType, 2> kSkeletonUdpType{
     ara::com::someip::MessageType::kRequest,
-    ara::com::someip::MessageType::kRequestNoReturn};
+ara::com::someip::MessageType::kRequestNoReturn};
 constexpr std::array<ara::com::someip::MessageType, 3> kSkeletonIpcType{
     ara::com::someip::MessageType::kResponse,
     ara::com::someip::MessageType::kRequestAck,
-    ara::com::someip::MessageType::kRequestNoReturnAck};
+ara::com::someip::MessageType::kRequestNoReturnAck};
 //  ---------------------------- PROXY --------------------------------------
 constexpr std::array<ara::com::someip::MessageType, 2> kProxyIpcType{
     ara::com::someip::MessageType::kRequest,
-    ara::com::someip::MessageType::kRequestNoReturn};
+ara::com::someip::MessageType::kRequestNoReturn};
 constexpr std::array<ara::com::someip::MessageType, 4> kProxyUdpType{
     ara::com::someip::MessageType::kResponse,
     ara::com::someip::MessageType::kRequestAck,
     ara::com::someip::MessageType::kRequestNoReturnAck,
-    ara::com::someip::MessageType::kNotification};
+ara::com::someip::MessageType::kNotification};
 
 template <typename T>
 constexpr inline bool CheckMessageType(const T& container, uint8_t type) {

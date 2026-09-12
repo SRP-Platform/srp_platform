@@ -18,7 +18,7 @@ namespace core {
 
 ConditionVariableProxy::ConditionVariableProxy(
     const InstanceSpecifier& instance)
-    : instance_{instance}, shm_object_{nullptr}, shm_{instance} {}
+: instance_{instance}, shm_object_{nullptr}, shm_{instance} {}
 
 ara::core::Result<void> ConditionVariableProxy::Find() {
   {
@@ -84,7 +84,7 @@ bool ConditionVariableProxy::Wait(CheckCallback callback) {
 
 ConditionVariableSkeleton::ConditionVariableSkeleton(
     const InstanceSpecifier& instance)
-    : instance_{instance}, shm_object_{nullptr}, shm_{instance} {}
+: instance_{instance}, shm_object_{nullptr}, shm_{instance} {}
 
 ara::core::Result<void> ConditionVariableSkeleton::Offer() {
   {

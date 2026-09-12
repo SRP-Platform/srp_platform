@@ -12,6 +12,7 @@
 
 #include <future>  // NOLINT
 #include <memory>
+#include <string>
 #include <vector>
 
 #include "ara/log/logging_menager.h"
@@ -27,7 +28,7 @@ MulticastController::MulticastController(const std::string& interface_ip,
       multicast_ip_{multicast_ip},
       multicast_port_{multicast_port},
       logger_{ara::log::LoggingMenager::GetInstance()->CreateLogger(
-          "mUDP", "", ara::log::LogLevel::kError)} {}
+"mUDP", "", ara::log::LogLevel::kError)} {}
 
 void MulticastController::RxCallback(const std::string& ip,
                                      const std::uint16_t& port,

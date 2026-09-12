@@ -10,6 +10,7 @@
  */
 #include "ara/com/someip_error.h"
 
+#include <string>
 #include <unordered_map>
 
 #include "ara/core/string_view.h"
@@ -45,12 +46,12 @@ std::unordered_map<ara::core::ErrorDomain::CodeType, ara::core::StringView>
               "kEWrongInterfaceVersion"},
              {static_cast<ara::core::ErrorDomain::CodeType>(
                   someip::MessageCode::kEMalformedMessage),
-              "kEMalformedMessage"}};
+"kEMalformedMessage"}};
 const SomeIpErrorDomain domain_;
 }  // namespace
 
 SomeIpErrorDomain::SomeIpErrorDomain() noexcept
-    : ara::core::ErrorDomain{0x8900000000001267} {}
+: ara::core::ErrorDomain{0x8900000000001267} {}
 const std::string SomeIpErrorDomain::Name() const noexcept {
   return ara::core::StringView{"SomeIpErrorDomain"};
 }

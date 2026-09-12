@@ -11,7 +11,9 @@
 #include "ara/com/com_controller.h"
 
 #include <memory>
+#include <string>
 #include <utility>
+#include <vector>
 
 #include "ara/com/com_error_domain.h"
 #include "ara/com/log.h"

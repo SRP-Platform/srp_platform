@@ -23,7 +23,7 @@ namespace bindings {
 namespace com {
 namespace soc {
 using RXCallbackStream =
-    std::function<std::vector<uint8_t>(const std::vector<uint8_t>&)>;
+std::function<std::vector<uint8_t>(const std::vector<uint8_t>&)>;
 class ISocketStream {
  public:
   virtual ara::core::Result<void> Init(const std::string& socket_path) = 0;

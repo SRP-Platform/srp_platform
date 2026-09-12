@@ -10,7 +10,9 @@
  */
 #include "ara/diag/routing/routable_uds_service.h"
 
+#include <memory>
 #include <utility>
+#include <vector>
 
 #include "ara/core/model_db.h"
 #include "ara/diag/diag_error_domain.h"
@@ -30,7 +32,7 @@ RoutableUdsService::RoutableUdsService(
       mSpecifier{specifier},
       diag_logger_{ara::log::LoggingMenager::GetInstance()->CreateLogger(
           "diag", "", ara::log::LogLevel::kWarn)},
-      sock_{std::move(sock)} {}
+sock_{std::move(sock)} {}
 
 void RoutableUdsService::GenerateNegativeResponse(OperationOutput &response,
                                                   uint8_t nrc) const {

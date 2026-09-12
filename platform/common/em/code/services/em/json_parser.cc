@@ -10,6 +10,9 @@
  */
 #include "platform/common/em/code/services/em/json_parser.h"
 
+#include <string>
+#include <vector>
+
 #include "ara/log/log.h"
 
 namespace srp {

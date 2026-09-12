@@ -10,6 +10,9 @@
  */
 #include "platform/common/state_manager/code/state_manager.h"
 
+#include <map>
+#include <memory>
+#include <string>
 #include <string_view>
 
 #include "ara/exec/sm/initialization.h"
@@ -23,9 +26,9 @@ namespace srp {
 namespace sm {
 namespace {
 static constexpr std::string_view kConfigPath{
-    "/srp/opt/cpu_srp/machine_states.json"};
+"/srp/opt/cpu_srp/machine_states.json"};
 static const ara::core::InstanceSpecifier did_instance_{
-    "/srp/platform/state_manager/CurrentMachineStatePPort"};
+"/srp/platform/state_manager/CurrentMachineStatePPort"};
 }  // namespace
 
 StateManager::StateManager(/* args */) {}

@@ -16,6 +16,7 @@
 #include <algorithm>
 #include <future>  // NOLINT
 #include <iostream>
+#include <memory>
 #include <string>
 #include <vector>
 

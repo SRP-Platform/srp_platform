@@ -11,6 +11,7 @@
 #include "example_app/ExampleApp/code/application/ExampleApp.h"
 
 #include <iostream>
+#include <map>
 #include <utility>
 
 #include "ara/log/log.h"

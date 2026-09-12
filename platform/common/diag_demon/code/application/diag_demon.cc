@@ -15,6 +15,8 @@
 #include <iomanip>
 #include <iostream>
 #include <map>
+#include <memory>
+#include <string>
 #include <thread>  // NOLINT
 #include <utility>
 #include <vector>

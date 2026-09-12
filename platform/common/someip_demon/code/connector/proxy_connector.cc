@@ -10,6 +10,7 @@
  */
 #include "platform/common/someip_demon/code/connector/proxy_connector.h"
 
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>

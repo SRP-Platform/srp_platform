@@ -10,6 +10,11 @@
  */
 #include "platform/common/someip_demon/code/connector/sd_connector.h"
 
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
+
 #include "ara/com/someip/EndpointOption.h"
 #include "ara/com/someip/EventEntry.h"
 #include "ara/com/someip/HeaderStructure.h"
@@ -22,7 +27,7 @@ namespace connectors {
 
 SDConnector::SDConnector(db::Database& sd_db, std::uint32_t local_ip,
                          std::uint16_t port)
-    : local_ip_{local_ip}, port_{port}, sd_db_{sd_db} {}
+: local_ip_{local_ip}, port_{port}, sd_db_{sd_db} {}
 
 void SDConnector::ProcessFrame(uint32_t pid,
                                ara::com::someip::SomeipFrame&& frame) noexcept {

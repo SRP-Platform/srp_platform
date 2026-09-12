@@ -10,6 +10,8 @@
  */
 #include "ara/com/someip/someip_frame.h"
 
+#include <vector>
+
 #include "ara/com/someip/message_type.h"
 
 namespace ara {
@@ -55,10 +57,10 @@ SomeipFrame SomeipFrame::MakeResponseFrameWithError(
 }
 SomeipFrame::SomeipFrame(const HeaderStructure& header,
                          const std::vector<uint8_t>& payload)
-    : header_{header}, payload_{payload} {}
+: header_{header}, payload_{payload} {}
 
 SomeipFrame::SomeipFrame(const HeaderStructure& header)
-    : header_{header}, payload_{} {}
+: header_{header}, payload_{} {}
 
 std::vector<uint8_t> SomeipFrame::GetRaw() const {
   auto res_vec =

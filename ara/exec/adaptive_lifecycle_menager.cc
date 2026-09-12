@@ -12,6 +12,7 @@
 
 #include <pthread.h>
 
+#include <memory>
 #include <string>
 #include <utility>
 
@@ -19,7 +20,7 @@ namespace ara {
 namespace exec {
 
 std::shared_ptr<AdaptiveLifecycleMenager> AdaptiveLifecycleMenager::instance_{
-    nullptr};
+nullptr};
 
 int AdaptiveLifecycleMenager::StartAdaptiveLifecycleMenager() {
   if (instance_ == nullptr) {

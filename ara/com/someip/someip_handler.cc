@@ -58,7 +58,7 @@ void ServiceHandler::SubscribeEvent(const uint16_t& event_id_) {
 ara::core::Result<void> ServiceHandler::StopFind() {}
 ServiceHandler::ServiceHandler(const ara::core::InstanceSpecifier& instance,
                                uint16_t service_id)
-    : instance_{instance}, service_id_{service_id} {}
+: instance_{instance}, service_id_{service_id} {}
 }  // namespace someip
 }  // namespace com
 }  // namespace ara
