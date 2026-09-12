@@ -196,9 +196,9 @@ class SomeipExtractor:
             file+="class "+event.name+"EventProxy final: public ara::com::someip::EventProxy {\n"
             file+=" private:\n"
             if event.out_parm.typ_str == "struct":
-                file+="  "+event.out_parm.name.replace(".","::")+" value_;\n"
+                file+="  std::optional<"+event.out_parm.name.replace(".","::")+"> value_;\n"
             else:
-                file+="  "+event.out_parm.typ_str.replace(".","::")+" value_;\n"
+                file+="  std::optional<"+event.out_parm.typ_str.replace(".","::")+"> value_;\n"
             file+=" public:\n"
             file+="  "+event.name+"EventProxy(): ara::com::someip::EventProxy{"+hex(event.id)+"} {}\n"
             file+="  void HandleEvent(const std::vector<uint8_t>& payload) override {\n"
@@ -210,7 +210,7 @@ class SomeipExtractor:
             file+="      msg_recived = false;\n"
             file+="      return;\n"
             file+="    }\n"
-            file+="    value_ = val.value();\n"
+            file+="    value_ = val;\n"
             file+="    msg_recived = true;\n"
             file+="    if(event_receive_handler_) {\n"
             file+="      event_receive_handler_();\n"
@@ -229,7 +229,17 @@ class SomeipExtractor:
             file+="      return ara::com::MakeErrorCode(ara::com::ComErrc::kFieldValueIsNotValid, \"Value not set\");\n"
             file+="    }\n"
             file+="    msg_recived = false;\n"
-            file+="    return value_;\n"
+            file+="    return value_.value();\n"
+            file+="  }\n"
+            file+="\n"
+            if event.out_parm.typ_str == "struct":
+                file+="  ara::core::Result<"+event.out_parm.name.replace(".","::")+"> Get() {\n"
+            else:
+                file+="  ara::core::Result<"+event.out_parm.typ_str.replace(".","::")+"> Get() {\n"
+            file+="    if(!value_.has_value()) {\n"
+            file+="      return ara::com::MakeErrorCode(ara::com::ComErrc::kFieldValueIsNotValid, \"Value not set\");\n"
+            file+="    }\n"
+            file+="    return value_.value();\n"
             file+="  }\n"
             file+="};\n"
             for i in range(len(namespace_list)):
