@@ -10,6 +10,7 @@
  */
 #include "platform/common/someip_demon/code/connector/skeleton_connector.h"
 
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
@@ -26,8 +27,8 @@ constexpr uint64_t kTimeOut{3000000000ul};
 
 SkeletonConnector::SkeletonConnector(const std::shared_ptr<IDb> db)
     : db_{db},
-      logger_{ara::log::LoggingMenager::GetInstance()->CreateLogger(
-          "skco", "", ara::log::LogLevel::kInfo)} {}
+logger_{ara::log::LoggingMenager::GetInstance()->CreateLogger(
+"skco", "", ara::log::LogLevel::kInfo)} {}
 
 void SkeletonConnector::Start() noexcept {
   time_out_thread_ = std::make_unique<std::jthread>(

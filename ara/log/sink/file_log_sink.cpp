@@ -10,6 +10,8 @@
  */
 #include "ara/log/sink/file_log_sink.h"
 
+#include <string>
+
 namespace ara {
 namespace log {
 namespace sink {

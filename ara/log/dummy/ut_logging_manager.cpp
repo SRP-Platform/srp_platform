@@ -8,6 +8,8 @@
  * @copyright Copyright (c) 2024
  *
  */
+#include <memory>
+#include <string>
 #include <utility>
 
 #include "ara/log/logging_menager.h"
@@ -18,7 +20,7 @@ namespace log {
 namespace {}  // namespace
 std::unique_ptr<LoggingMenager> LoggingMenager::loger_f_{nullptr};
 LoggingMenager::LoggingMenager(const std::string &appId, LogLevel logLevel)
-    : appId_{appId}, mDefaultLogLevel{logLevel} {}
+: appId_{appId}, mDefaultLogLevel{logLevel} {}
 
 const Logger &LoggingMenager::CreateLogger(std::string ctxId) {
   return CreateLogger(ctxId, "", mDefaultLogLevel);

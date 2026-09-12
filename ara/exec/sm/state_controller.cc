@@ -22,9 +22,9 @@ constexpr uint16_t kInitState{0x0U};
 
 StateController::StateController(std::unique_ptr<ISmComWrapper> com_wrapper)
     : current_state_{kInitState},
-      init_state_{kInitState},
-      state_container_{},
-      com_wrapper_{std::move(com_wrapper)} {}
+init_state_{kInitState},
+state_container_{},
+com_wrapper_{std::move(com_wrapper)} {}
 
 StateController::StateController(std::unique_ptr<ISmComWrapper> com_wrapper,
                                  const uint16_t& init_val)

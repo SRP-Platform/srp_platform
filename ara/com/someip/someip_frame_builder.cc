@@ -12,6 +12,7 @@
 
 #include <algorithm>
 #include <utility>
+#include <vector>
 
 namespace ara {
 namespace com {

@@ -14,7 +14,9 @@
 #include <iomanip>
 #include <map>
 #include <memory>
+#include <string>
 #include <strstream>
+#include <vector>
 
 #include "ara/log/log.h"
 #include "bindings/common/socket/stream_ipc_socket.h"
@@ -38,7 +40,7 @@ std::string ParseToServiceAdress(const uint8_t service_id,
 }
 
 const std::map<std::uint8_t, std::function<std::string(const UdsRequest&)>>
-    service_adress_generator{
+service_adress_generator{
         {0x22,
          [](const UdsRequest& req) {
            return ParseToServiceAdress(0x22, req.GetPayload()[0],
@@ -51,16 +53,16 @@ const std::map<std::uint8_t, std::function<std::string(const UdsRequest&)>>
          {0x31, [](const UdsRequest& req) {
            return ParseToServiceAdress(0x31, req.GetPayload()[1],
                                        req.GetPayload()[2]);
-         }}};
+}}};
 }  // namespace
 
 UdsServer::UdsServer(const uint16_t& logical_address, const std::string& vin)
     : logical_address_{logical_address},
-      vin_{vin},
-      validator{std::make_unique<ValidatorController>()},
-      soc_{std::make_unique<srp::bindings::com::soc::StreamIpcSocket>()},
-      doip_logger{
-          ara::log::LoggingMenager::GetInstance()->CreateLogger("doip")} {}
+vin_{vin},
+validator{std::make_unique<ValidatorController>()},
+soc_{std::make_unique<srp::bindings::com::soc::StreamIpcSocket>()},
+doip_logger{
+ara::log::LoggingMenager::GetInstance()->CreateLogger("doip")} {}
 
 UdsServer::~UdsServer() {}
 

@@ -10,6 +10,8 @@
  */
 #include "platform/common/diag_demon/code/services/dtc/dtc_service.h"
 
+#include <vector>
+
 #include "ara/log/logging_menager.h"
 #include "srp/platform/diag/DtcComDataStructure.h"
 
@@ -19,8 +21,8 @@ namespace diag_demon {
 namespace dtc {
 DtcService::DtcService(/* args */)
     : sock_{std::make_unique<srp::bindings::com::ProccessSocket>("SRP.ARA.DTC")},
-      logger_{ara::log::LoggingMenager::GetInstance()->CreateLogger(
-          "dtcs", "", ara::log::LogLevel::kDebug)} {}
+logger_{ara::log::LoggingMenager::GetInstance()->CreateLogger(
+"dtcs", "", ara::log::LogLevel::kDebug)} {}
 
 void DtcService::Start() noexcept {
   logger_.LogInfo() << "DtcService started";

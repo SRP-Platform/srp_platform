@@ -19,6 +19,8 @@
 #include <cstdio>
 #include <fstream>
 #include <iostream>
+#include <memory>
+#include <string>
 #include <vector>
 
 #include "ara/com/com_error_domain.h"

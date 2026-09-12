@@ -19,7 +19,7 @@ namespace ara {
 namespace diag {
 namespace {
 std::unordered_map<ara::core::ErrorDomain::CodeType, ara::core::StringView>
-    kKeyList{
+kKeyList{
         {UdsDiagErrc::kGeneralReject, "kGeneralReject"},
         {UdsDiagErrc::kSubFunctionNotSupported, "kSubFunctionNotSupported"},
         {UdsDiagErrc::kInvalidMessageLengthFormat,
@@ -38,12 +38,12 @@ std::unordered_map<ara::core::ErrorDomain::CodeType, ara::core::StringView>
         {UdsDiagErrc::kTransferDataSuspended, "kTransferDataSuspended"},
         {UdsDiagErrc::kProgrammingFailure, "kProgrammingFailure"},
         {UdsDiagErrc::kWrongBlockSequenceCounter, "kWrongBlockSequenceCounter"},
-    };
+};
 const UdsErrorDomain domain_;
 }  // namespace
 
 UdsErrorDomain::UdsErrorDomain() noexcept
-    : ara::core::ErrorDomain{0x8000000000000404} {}
+: ara::core::ErrorDomain{0x8000000000000404} {}
 const std::string UdsErrorDomain::Name() const noexcept {
   return std::string{"CoreErrorDomain"};
 }

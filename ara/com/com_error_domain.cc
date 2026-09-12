@@ -66,12 +66,12 @@ std::unordered_map<ara::core::ErrorDomain::CodeType, std::string> kKeyList{
      "Wrong Method Call Processing Mode"},
     {static_cast<ara::core::ErrorDomain::CodeType>(
          ComErrc::kErroneousFileHandle),
-     "Erroneous File Handle"}};
+"Erroneous File Handle"}};
 const ComErrorDomain domain_;
 }  // namespace
 
 ComErrorDomain::ComErrorDomain() noexcept
-    : ara::core::ErrorDomain{0x8000000000001267} {}
+: ara::core::ErrorDomain{0x8000000000001267} {}
 const std::string ComErrorDomain::Name() const noexcept {
   return std::string{"ComErrorDomain"};
 }

@@ -11,19 +11,22 @@
 #include "platform/common/em/code/services/em/em_service.h"
 
 #include <bits/stdc++.h>
+#include <dirent.h>
 #include <spawn.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
 #include <algorithm>
-#include <filesystem>
 #include <fstream>
 #include <functional>
 #include <memory>
 #include <string>
+#include <utility>
+#include <vector>
 
 #include "ara/log/log.h"
 #include "platform/common/em/code/services/em/json_parser.h"
@@ -35,7 +38,7 @@ namespace service {
 EmService::EmService(
     std::shared_ptr<data::IAppDb> db,
     const std::function<void(const uint16_t&)>&& update_callback)
-    : db_{db}, update_callback_(std::move(update_callback)) {}
+: db_{db}, update_callback_(std::move(update_callback)) {}
 
 EmService::~EmService() {}
 
@@ -45,24 +48,30 @@ bool EmService::IsSrpApp(const std::string& path) noexcept {
 }
 
 void EmService::LoadApps() noexcept {
-  try {
-    for (auto& p : std::filesystem::directory_iterator("/srp/opt")) {
-      if (p.is_directory()) {
-        if (this->IsSrpApp(p.path().c_str())) {
-          std::string pp{p.path().string() + "/etc/srp_app.json"};
-          auto res = json::JsonParser::GetAppConfig(pp);
-          if (res.has_value()) {
-            if (db_->InsertNewApp(res.value()) == 0) {
-              ara::log::LogInfo()
-                  << "App: " << res.value().GetAppName() << " added to db";
-            }
+  DIR* dir = opendir("/srp/opt");
+  if (dir == nullptr) {
+    return;
+  }
+  while (dirent* entry = readdir(dir)) {
+    if (entry->d_name[0] == '.') {
+      continue;
+    }
+    std::string path = std::string("/srp/opt/") + entry->d_name;
+    struct stat st;
+    if (stat(path.c_str(), &st) == 0 && S_ISDIR(st.st_mode)) {
+      if (this->IsSrpApp(path.c_str())) {
+        std::string pp{path + "/etc/srp_app.json"};
+        auto res = json::JsonParser::GetAppConfig(pp);
+        if (res.has_value()) {
+          if (db_->InsertNewApp(res.value()) == 0) {
+            ara::log::LogInfo()
+                << "App: " << res.value().GetAppName() << " added to db";
           }
         }
       }
     }
-  } catch (std::exception& e) {
-    ara::log::LogError() << e.what();
   }
+  closedir(dir);
 }
 
 void EmService::SetActiveState(const uint16_t& state_id_) noexcept {

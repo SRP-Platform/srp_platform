@@ -26,11 +26,11 @@ bool is_number(const std::string &s) {
 }  // namespace
 
 InstanceSpecifier::InstanceSpecifier(StringView metaModelIdentifier)
-    : metaModelIdentifier_{metaModelIdentifier} {}
+: metaModelIdentifier_{metaModelIdentifier} {}
 InstanceSpecifier::InstanceSpecifier(const InstanceSpecifier &other)
-    : metaModelIdentifier_{other.metaModelIdentifier_} {}
+: metaModelIdentifier_{other.metaModelIdentifier_} {}
 InstanceSpecifier::InstanceSpecifier(InstanceSpecifier &&other) noexcept
-    : metaModelIdentifier_{other.metaModelIdentifier_} {}
+: metaModelIdentifier_{other.metaModelIdentifier_} {}
 InstanceSpecifier &InstanceSpecifier::operator=(
     const InstanceSpecifier &other) {
   this->metaModelIdentifier_ = other.metaModelIdentifier_;

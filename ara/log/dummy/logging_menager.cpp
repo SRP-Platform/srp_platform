@@ -10,15 +10,17 @@
  */
 #include "ara/log/logging_menager.h"
 
-#include <utility>
 #include <iostream>
+#include <memory>
+#include <string>
+#include <utility>
 #include "ara/log/sink/console_log_sink.h"
 #include "ara/log/sink/remote_log_sink.h"
 namespace ara {
 namespace log {
 namespace {}  // namespace
 std::unique_ptr<LoggingMenager> LoggingMenager::loger_f_{
-    std::make_unique<LoggingMenager>("UT  ", LogLevel::kDebug)};
+std::make_unique<LoggingMenager>("UT  ", LogLevel::kDebug)};
 
 LoggingMenager::LoggingMenager(const std::string &appId, LogLevel logLevel)
     : appId_{appId}, mDefaultLogLevel{logLevel} {

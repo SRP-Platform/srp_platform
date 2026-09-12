@@ -11,6 +11,7 @@
 #include "platform/common/em/code/em_application.h"
 
 #include <map>
+#include <memory>
 #include <string>
 
 #include "ara/core/instance_specifier.h"
@@ -23,14 +24,14 @@ namespace srp {
 namespace em {
 namespace {
 static const ara::core::InstanceSpecifier kSmServiceInstance{
-    "srp/platform/em/SmServicePPort"};
+"srp/platform/em/SmServicePPort"};
 }  // namespace
 
 EmApplication::EmApplication(/* args */)
     : sm_service_{kSmServiceInstance, [this](uint16_t new_state) {
                     this->cmd_list_.push(new_state);
                     return 0;
-                  }} {}
+}} {}
 
 EmApplication::~EmApplication() {}
 

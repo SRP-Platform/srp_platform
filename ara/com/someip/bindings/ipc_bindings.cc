@@ -13,7 +13,9 @@
 #include <algorithm>
 #include <array>
 #include <future>  // NOLINT
+#include <memory>
 #include <string>
+#include <vector>
 
 #include "ara/com/log.h"
 #include "ara/com/someip/message_code.h"
@@ -25,8 +27,8 @@ namespace someip {
 namespace bindings {
 IPCSkeletonBindings::IPCSkeletonBindings(const ara::core::StringView path)
     : main_path_{path},
-      buffor_{ara::core::InstanceSpecifier{"/" + path + "-buffor"}},
-      cv_{ara::core::InstanceSpecifier{"/" + path + "-cv"}} {}
+buffor_{ara::core::InstanceSpecifier{"/" + path + "-buffor"}},
+cv_{ara::core::InstanceSpecifier{"/" + path + "-cv"}} {}
 void IPCSkeletonBindings::Start(std::stop_token token) {
   ara::com::LogInfo() << "IPCSkeletonBindings: " << "Started";
   buffor_.OfferService();
@@ -176,8 +178,8 @@ void IPCProxyBindings::ShmLoop(std::stop_token token) {
 
 IPCProxyBindings::IPCProxyBindings(const ara::core::StringView path)
     : main_path_{path},
-      buffor_{ara::core::InstanceSpecifier{"/" + path + "-buffor"}},
-      cv_{ara::core::InstanceSpecifier{"/" + path + "-cv"}} {}
+buffor_{ara::core::InstanceSpecifier{"/" + path + "-buffor"}},
+cv_{ara::core::InstanceSpecifier{"/" + path + "-cv"}} {}
 
 void IPCProxyBindings::Start(std::stop_token token) {
   ara::com::LogInfo() << "IPCProxyBindings: " << "Started";

@@ -12,7 +12,10 @@
 
 #include <arpa/inet.h>
 
+#include <memory>
+#include <string>
 #include <utility>
+#include <vector>
 
 #include "ara/com/someip/EndpointOption.h"
 #include "ara/com/someip/HeaderStructure.h"
@@ -157,7 +160,7 @@ SdController::SdController(
     db::Database& sd_db)
     : multicast_controller_{multicast_controller},
       logger_{ara::log::LoggingMenager::GetInstance()->CreateLogger(
-          "sd  ", "", ara::log::LogLevel::kInfo)},
+"sd  ", "", ara::log::LogLevel::kInfo)},
       sd_db_{sd_db} {}
 
 SdController::~SdController() {}

@@ -10,8 +10,10 @@
  */
 
 #include <gtest/gtest.h>
-#include <thread>  // NOLINT
+
 #include <cstring>
+#include <string>
+#include <thread>  // NOLINT
 #include "bindings/common/shm/shm_buffor_proxy.h"
 #include "bindings/common/shm/shm_buffor_skeleton.h"
 class ShmBufforProxyTest : public ::testing::Test {

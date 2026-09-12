@@ -23,7 +23,10 @@
 #include <array>
 #include <cstring>
 #include <future>  // NOLINT
+#include <memory>
+#include <string>
 #include <utility>
+#include <vector>
 
 #include "ara/com/com_error_domain.h"
 
@@ -32,12 +35,12 @@ namespace bindings {
 namespace com {
 ProccessSocket::ProccessSocket(/* args */)
     : local_pid_{static_cast<uint32_t>(getpid())},
-      local_soc_{"/run/p-" + std::to_string(local_pid_)} {}
+local_soc_{"/run/p-" + std::to_string(local_pid_)} {}
 ProccessSocket::ProccessSocket(const uint32_t app_id)
-    : local_pid_{app_id}, local_soc_{"/run/p-" + std::to_string(local_pid_)} {}
+: local_pid_{app_id}, local_soc_{"/run/p-" + std::to_string(local_pid_)} {}
 ProccessSocket::ProccessSocket(const std::string& sock_path_)
     : local_pid_{static_cast<uint32_t>(getpid())},
-      local_soc_{"/run/" + sock_path_} {}
+local_soc_{"/run/" + sock_path_} {}
 
 ProccessSocket::~ProccessSocket() {}
 

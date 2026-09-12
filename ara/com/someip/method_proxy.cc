@@ -10,6 +10,8 @@
  */
 #include "ara/com/someip/method_proxy.h"
 
+#include <vector>
+
 namespace ara {
 namespace com {
 namespace someip {

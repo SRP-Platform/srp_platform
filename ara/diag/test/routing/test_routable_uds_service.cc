@@ -12,6 +12,8 @@
 #include <gtest/gtest.h>
 
 #include <memory>
+#include <utility>
+#include <vector>
 
 #include "bindings/common/socket/mock/socket_stream_mock.h"
 #include "ara/core/model_db.h"

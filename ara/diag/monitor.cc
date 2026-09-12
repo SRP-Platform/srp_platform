@@ -10,6 +10,7 @@
  */
 #include "ara/diag/monitor.h"
 
+#include <memory>
 #include <utility>
 
 #include "ara/core/model/diag_model_item.h"
@@ -24,7 +25,7 @@ Monitor::Monitor(const ara::core::InstanceSpecifier& instance,
     : instance_{instance},
       init_monitor_callback_{std::move(init_monitor)},
       get_fault_detection_counter_callback_{
-          std::move(get_fault_detection_counter)},
+std::move(get_fault_detection_counter)},
       menager_{DiagnosticMenager::GetInstance()} {}
 
 Monitor::Monitor(const ara::core::InstanceSpecifier& instance,

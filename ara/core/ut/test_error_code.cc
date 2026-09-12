@@ -8,8 +8,11 @@
  * @copyright Copyright (c) 2024
  * 
  */
-#include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include <gtest/gtest.h>
+
+#include <string>
+
 #include "ara/core/error_code.h"
 #include "ara/core/error_domain.h"
 
