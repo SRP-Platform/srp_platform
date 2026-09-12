@@ -28,8 +28,8 @@
 #include <string>
 #include <utility>
 #include <thread>  // NOLINT
-#include <utility>
 #include <vector>
+#include <memory>
 
 #include "ara/com/i_com_client.h"
 #include "ara/exec/em/i_execution_client.h"
