@@ -58,6 +58,9 @@
       jobs:
         - noop
         - unit_tests_platform
+        - build_example_ecu_arm
+        - build_example_ecu_x86
+        - build_example_ecu_rpi
     gate-bot:
       jobs:
         - noop
