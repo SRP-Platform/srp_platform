@@ -49,6 +49,10 @@ ara::core::Result<void> ComController::Init() noexcept {
 void ComController::IpcRxCallback(const uint32_t pid,
                                   const std::vector<uint8_t>& payload) {
   LogDebug() << "New msg from: " << pid << " with payload: " << payload;
+  if (payload.empty()) {
+    LogError() << "Empty IPC payload";
+    return;
+  }
   const auto& item =
       handlers_.find(static_cast<IComClient::MsgType>(payload[0]));
   if (item != handlers_.end()) {

@@ -81,6 +81,10 @@ int EmApplication::Initialize(
     db->InsertNewFG(id, name);
   }
   this->em_service->LoadApps();
+  if (!this->em_service->IsIpcOffered()) {
+    ara::log::LogError() << "EM IPC socket ARA.EXEC is not offered";
+    return -1;
+  }
   return 0;
 }
 

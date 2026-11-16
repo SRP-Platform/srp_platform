@@ -14,5 +14,6 @@ cc_library(
         "@srp_platform//ara/core:instance_specifier",
         "@srp_platform//ara/log",
         "@srp_platform//ara/com",
+        "@srp_platform//ara/exec/em:execution_client_lib",
     ],
 )

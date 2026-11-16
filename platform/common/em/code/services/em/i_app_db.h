@@ -11,12 +11,14 @@
 #ifndef PLATFORM_COMMON_EM_CODE_SERVICES_EM_I_APP_DB_H_
 #define PLATFORM_COMMON_EM_CODE_SERVICES_EM_I_APP_DB_H_
 
+#include <sys/types.h>
+
 #include <cstdint>
-#include <functional>
 #include <optional>
 #include <string>
 #include <unordered_set>
 
+#include "ara/exec/em/i_execution_client.h"
 #include "platform/common/em/code/services/em/app_config.h"
 namespace srp {
 namespace em {
@@ -49,24 +51,57 @@ class IAppDb {
   virtual void SetPidForApp(const uint16_t app_id,
                             const uint32_t pid) noexcept = 0;
   /**
+   * @brief Get the Pid For App object
+   *
+   * @param app_id App ID from config file
+   * @return pid_t stored PID, 0 if app is unknown or not started
+   */
+  virtual pid_t GetPidForApp(const uint16_t app_id) noexcept = 0;
+  /**
    * @brief Get the App Config object
    *
    * @param app_id_ App ID for which we want config
-   * @return std::optional<std::reference_wrapper<const AppConfig>> const
-   * reference to AppConfig
+   * @return std::optional<AppConfig> snapshot of AppConfig
    */
-  virtual std::optional<std::reference_wrapper<const AppConfig>> GetAppConfig(
+  virtual std::optional<AppConfig> GetAppConfig(
       const uint16_t& app_id_) noexcept = 0;
   /**
    * @brief Get the Fg App List object
    *
    * @param fg_id functional group id
-   * @return std::optional<
-   * std::reference_wrapper<const std::unordered_set<uint16_t>>>
+   * @return std::optional<std::unordered_set<uint16_t>> copy of app ids in FG
    */
-  virtual std::optional<
-      std::reference_wrapper<const std::unordered_set<uint16_t>>>
-  GetFgAppList(const uint16_t& fg_id) noexcept = 0;
+  virtual std::optional<std::unordered_set<uint16_t>> GetFgAppList(
+      const uint16_t& fg_id) noexcept = 0;
+  /**
+   * @brief Set the Execution State For App object
+   *
+   * @param app_id
+   * @param state
+   */
+  virtual bool SetExecutionStateForApp(
+      const uint16_t app_id,
+      const ara::exec::ExecutionState state) noexcept = 0;
+  /**
+   * @brief Get the Execution State For App object
+   *
+   * @param app_id
+   * @return std::optional<ara::exec::ExecutionState> last reported state
+   */
+  virtual std::optional<ara::exec::ExecutionState> GetExecutionStateForApp(
+      const uint16_t app_id) noexcept = 0;
+  /**
+   * @brief Get the Actual Function Group ID object
+   *
+   * @return uint16_t currently active FG id
+   */
+  virtual uint16_t GetActualFunctionGroupID() noexcept = 0;
+  /**
+   * @brief Set the Actual Function Group ID object
+   *
+   * @param state_id new active FG id
+   */
+  virtual void SetActualFunctionGroupID(const uint16_t& state_id) noexcept = 0;
   virtual ~IAppDb() = default;
 };
 

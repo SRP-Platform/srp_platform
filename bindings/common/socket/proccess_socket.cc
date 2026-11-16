@@ -42,7 +42,7 @@ ProccessSocket::ProccessSocket(const std::string& sock_path_)
     : local_pid_{static_cast<uint32_t>(getpid())},
 local_soc_{"/run/" + sock_path_} {}
 
-ProccessSocket::~ProccessSocket() {}
+ProccessSocket::~ProccessSocket() { std::ignore = StopOffer(); }
 
 void ProccessSocket::SetCallback(RxCallback&& callback) {
   callback_ = std::move(callback);
@@ -73,6 +73,7 @@ ara::core::Result<void> ProccessSocket::Offer() noexcept {
   }
   if (bind(sfd_, (struct sockaddr*)&addr_, sizeof(struct sockaddr_un)) == -1) {
     close(sfd_);
+    sfd_ = -1;
     return ara::com::MakeErrorCode(ara::com::ComErrc::kUnsetFailure, "Error: bind failed");
   }
   rx_thread_ = std::make_unique<std::jthread>(
@@ -83,8 +84,11 @@ ara::core::Result<void> ProccessSocket::StopOffer() noexcept {
   if (rx_thread_ == nullptr) {
     return ara::com::MakeErrorCode(ara::com::ComErrc::kServiceNotOffered, "");
   }
-  rx_thread_.release();
-  close(sfd_);
+  rx_thread_.reset();
+  if (sfd_ >= 0) {
+    close(sfd_);
+    sfd_ = -1;
+  }
   return {};
 }
 ara::core::Result<void> ProccessSocket::TransmitToPid(
@@ -118,28 +122,21 @@ ara::core::Result<void> ProccessSocket::Transmit(
 void ProccessSocket::RxLoop(std::stop_token token) noexcept {
   const std::stop_callback stop_wait{
       token, [this]() { shutdown(this->sfd_, SHUT_RD); }};
-  while (true) {
-    std::array<char, 256 * 2> buffor;
+  while (!token.stop_requested()) {
+    std::array<char, 256 * 2> buffor{};
     int bytes_rec =
         read(sfd_, reinterpret_cast<char*>(&buffor), 256 * 2);  // NOLINT
-    if (bytes_rec > 0) {
-      if (bytes_rec >= static_cast<int>(sizeof(int))) {
-        int pid{0};
-        std::memcpy(&pid, buffor.data(), sizeof(int));
-        if (this->callback_) {
-          if (buffor.size() > 0) {
-            std::ignore = std::async(
-                std::launch::async, [this, &pid, &buffor, &bytes_rec]() {
-                  this->callback_(
-                      pid, std::vector<uint8_t>{buffor.begin() + sizeof(int),
-                                                buffor.begin() + (bytes_rec)});
-                });
-          }
-        }
+    if (bytes_rec > 0 && bytes_rec >= static_cast<int>(sizeof(int))) {
+      uint32_t pid{0};
+      std::memcpy(&pid, buffor.data(), sizeof(pid));
+      if (this->callback_) {
+        std::vector<uint8_t> payload(buffor.begin() + sizeof(int),
+                                     buffor.begin() + bytes_rec);
+        std::ignore = std::async(std::launch::async,
+                                 [this, pid, payload = std::move(payload)]() {
+                                   this->callback_(pid, payload);
+                                 });
       }
-    }
-    if (token.stop_requested()) {
-      break;
     }
   }
 }

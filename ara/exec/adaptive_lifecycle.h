@@ -23,6 +23,7 @@
 
 #include "ara/core/initialization.h"
 #include "ara/exec/adaptive_lifecycle_menager.h"
+#include "ara/exec/em/execution_client.h"
 #include "ara/log/logging_menager.h"
 
 namespace ara {
@@ -50,8 +51,8 @@ static int RunAdaptiveLifecycle(int argc, char const *argv[],
   const auto res = AdaptiveLifecycleMenager::StartAdaptiveLifecycleMenager();
 
   ara::core::Deinitialize();
-  // log::LoggingMenager::Clear();
-  // std::terminate();
+  ExecutionClient::GetInstance()->ReportExecutionState(
+      ExecutionState::kTerminated);
   return res;
 }
 template <typename APPTYPE, typename... Params>
@@ -70,8 +71,8 @@ static int RunAdaptiveLifecycleWithoutControl(int argc, char const *argv[],
   const auto res = AdaptiveLifecycleMenager::StartAdaptiveLifecycleMenager();
 
   ara::core::Deinitialize();
-  // log::LoggingMenager::Clear();
-  // std::terminate();
+  ExecutionClient::GetInstance()->ReportExecutionState(
+      ExecutionState::kTerminated);
   return res;
 }
 }  // namespace exec
