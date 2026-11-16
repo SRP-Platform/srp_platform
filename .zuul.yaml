@@ -25,6 +25,10 @@
 - job:
     name: build_example_ecu_arm_fast
     run: .jobs/build_example_ecu_arm_fast.yaml
+
+- job:
+    name: build_example_ecu_rpi
+    run: .jobs/build_example_ecu_rpi.yaml
 - job:
     name: build_full_platform_apps
     run: .jobs/build_full_platform_apps.yaml
@@ -48,6 +52,7 @@
         - build_full_platform_apps_fast
         - build_example_ecu_x86_fast
         - build_example_ecu_arm_fast
+        - build_example_ecu_rpi
 
     gate:
       jobs:
@@ -61,6 +66,7 @@
         - build_full_platform_apps
         - build_example_ecu_arm
         - build_example_ecu_x86
+        - build_example_ecu_rpi
 
     integrity-tests:
       jobs:
