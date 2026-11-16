@@ -22,11 +22,20 @@ echo "Flash tool: Unpacking a new software version"
 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null """+user+""" "tar -xf /srp/update/new/"""+ctx.files.file[0].basename.replace(".tar","")+"""-$now.tar -C /srp"
 echo "Flash tool: Cleaning"
 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null """+user+""" " sleep 2 & rm -rf /srp/update/new/"""+ctx.files.file[0].basename.replace(".tar","")+"""-$now.tar"
-echo "Flash tool: ECU reboot"
+""" + _post_install(ctx, user) + """echo "Flash tool: ECU reboot"
 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=2  """+user+""" " sleep 2 & reboot"
 echo "SRP 2.0 Flash tool [Stop]"
 """
     return content
+
+def _post_install(ctx, user):
+    # Opcjonalna komenda wykonywana na ECU po rozpakowaniu, przed restartem
+    # (np. `lbu commit -d` na systemie dzialajacym z RAM).
+    if ctx.attr.post_install_cmd == "":
+        return ""
+    return """echo "Flash tool: Post install"
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null """ + user + """ \"""" + ctx.attr.post_install_cmd + """\"
+"""
 
 def _impl(ctx):
     out = ctx.actions.declare_file("flash_script.sh")
@@ -39,6 +48,7 @@ _flash_ecu = rule(
         "file": attr.label_list(mandatory = False, allow_files = True),
         "ip": attr.string(),
         "user_name": attr.string(),
+        "post_install_cmd": attr.string(default = ""),
         "tool": attr.label(
             executable = True,
             cfg = "exec",
@@ -48,13 +58,24 @@ _flash_ecu = rule(
     },
 )
 
-def flash_ecu(name, file = [], ip = "", user_name = "",tool=""):
+def _default_post_install_cmd():
+    # RPi Zero 2 W dziala na Alpine w trybie diskless (system w RAM): wgrane
+    # oprogramowanie trzeba utrwalic na karcie przed restartem (lbu commit).
+    return select({
+        "@srp_platform//bazel/platforms:is_rpi_zero2w": "lbu commit -d",
+        "//conditions:default": "",
+    })
+
+def flash_ecu(name, file = [], ip = "", user_name = "", tool = "", post_install_cmd = None):
+    if post_install_cmd == None:
+        post_install_cmd = _default_post_install_cmd()
     native.filegroup(name = name+".data",srcs=file);
     _flash_ecu(
         name = name + ".script",
         file = file,
         ip = ip,
         user_name = user_name,
+        post_install_cmd = post_install_cmd,
     )
     native.sh_binary(
         name = name,
