@@ -1,12 +1,12 @@
 /**
  * @file condition.cc
  * @author Bartosz Snieg (snieg45@gmail.com)
- * @brief 
+ * @brief
  * @version 0.1
  * @date 2024-09-15
- * 
+ *
  * @copyright Copyright (c) 2024
- * 
+ *
  */
 #include "core/common/condition.h"
 
@@ -15,11 +15,10 @@ namespace core {
 namespace condition {
 
 void wait(const std::stop_token& stoken) {
-  std::condition_variable_any cv;
-  std::mutex mutex_;
-  std::unique_lock<std::mutex> ul_{mutex_};
-  const std::stop_callback stop_wait{stoken, [&cv]() { cv.notify_one(); }};
-  cv.wait(ul_, [&stoken]() { return stoken.stop_requested(); });
+  std::binary_semaphore stop_signal{0};
+  const std::stop_callback stop_wait{stoken,
+                                     [&stop_signal]() { stop_signal.release(); }};
+  stop_signal.acquire();
 }
 
 }  // namespace condition
