@@ -1,0 +1,10 @@
+- hosts: all
+  tasks:
+    - name: Build Example ECU 1 (Raspberry Pi Zero 2 W)
+      shell:
+        executable: /bin/bash
+        cmd: cd {{ zuul.project.src_dir }} && bazel build --config=rpi-platform  //test_cpu/cpu/ec:pkg
+    - name: Build Example ECU 2 (Raspberry Pi Zero 2 W)
+      shell:
+        executable: /bin/bash
+        cmd: cd {{ zuul.project.src_dir }} && bazel build --config=rpi-platform  //test_cpu/cpu/fc:pkg

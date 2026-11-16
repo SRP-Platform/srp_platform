@@ -1,0 +1,28 @@
+#!/bin/bash
+# Wrapper narzedzi toolchainu aarch64-linux-musl (Bootlin) dla bazela.
+NAME=$(basename "$0")
+TOOLCHAIN_ROOT=external/aarch64-linux-musl
+TOOLCHAIN_BINDIR=${TOOLCHAIN_ROOT}/bin
+SYSROOT=${TOOLCHAIN_ROOT}/aarch64-buildroot-linux-musl/sysroot
+
+case "${NAME}" in
+  aarch64-linux-gcc)
+    # Linkowanie przez sterownik g++: sam dokleja libstdc++ i libm we
+    # wlasciwej kolejnosci.
+    for arg in "$@"; do
+      case "${arg}" in
+        -c|-E|-S) LINK=0; break ;;
+      esac
+    done
+    if [ "${LINK:-1}" = "1" ]; then
+      NAME=aarch64-linux-g++
+    fi
+    ;;&
+  aarch64-linux-gcc|aarch64-linux-g++|aarch64-linux-cpp)
+    # Pomijamy wrapper buildroota (*.br_real to wlasciwy kompilator): wylicza on
+    # sysroot jako sciezke bezwzgledna, czego bazel nie akceptuje.
+    exec "${TOOLCHAIN_BINDIR}"/"${NAME}".br_real --sysroot="${SYSROOT}" "$@"
+    ;;
+esac
+
+exec "${TOOLCHAIN_BINDIR}"/"${NAME}" "$@"
