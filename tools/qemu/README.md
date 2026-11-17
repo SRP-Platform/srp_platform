@@ -38,6 +38,9 @@ there is no GPIO, I2C, 1-Wire, WiFi or SD card - only the system, the SRP servic
 | Disk | `snapshot=on` (changes are lost on exit) | the same |
 | Login | console and ssh `root` without password | console `root` without password, ssh `root` **with a key only** |
 
+The empty root password of the RPi image is meant only for the serial console of this local guest; sshd still
+accepts root with a key only (`PermitRootLogin prohibit-password`).
+
 Extra host tools: `qemu-system-aarch64` (part of `qemu-system-arm` on Ubuntu), `curl`, `python3`, `debugfs`
 (`e2fsprogs`), and an ssh key in `~/.ssh/id_ed25519.pub`. No `sudo` is needed (except for `network_configure`).
 

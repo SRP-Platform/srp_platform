@@ -563,6 +563,7 @@ EOF
   # QEMU: bez srp-net - eth0 (virtio) podnosi usluga networking ("net").
   if [ "$QEMU" -eq 1 ]; then
     sed -i 's/^  need localmount srp-net$/  need localmount net/' /etc/init.d/srp
+    grep -q '^  need localmount net$' /etc/init.d/srp || bad "usluga srp: nie zmieniono zaleznosci srp-net -> net"
   fi
   rc-update add srp default
   rc-update add modules boot 2>/dev/null
