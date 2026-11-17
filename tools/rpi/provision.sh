@@ -23,6 +23,13 @@
 #    --no-commit        nie wykonuj `lbu commit`
 #    --hostname <nazwa> nazwa hosta (domyslnie srp-rpi)
 #    --no-usb-console   bez konsoli serwisowej na porcie USB (ttyGS0)
+#    --qemu             gosc QEMU (machine virt, Alpine w trybie sys na dysku
+#                       virtio) zamiast plytki: tylko czesc programowa (pakiety,
+#                       /srp, /home/root, uslugi srp i srp-clock, ssh kluczem),
+#                       eth0 = virtio ze stalym adresem $QEMU_IP; bez
+#                       usercfg.txt, WiFi/srp-net, partycji, ttyGS0, 1-Wire/I2C.
+#                       `lbu commit` zapisuje kopie stanu do $QEMU_LBU_DIR.
+#                       Obraz buduje @srp_platform//tools/qemu:build_rpi_image.
 #
 #  Uklad karty:
 #    p1  system (FAT, tylko odczyt): Alpine + apkovl; wczytywany do RAM przy starcie.
@@ -60,6 +67,9 @@ DATA_SIZE="16G"
 LOGS_SIZE="8G"
 DISK=/dev/mmcblk0
 SIZES=""
+QEMU=0
+QEMU_IP="192.168.10.101/24"
+QEMU_LBU_DIR="/var/lib/srp-lbu"
 
 [ $# -gt 0 ] && { MODE="$1"; shift; }
 while [ $# -gt 0 ]; do
@@ -69,6 +79,7 @@ while [ $# -gt 0 ]; do
     --no-commit) COMMIT=0 ;;
     --hostname) HOSTNAME_NEW="$2"; shift ;;
     --no-usb-console) USB_CONSOLE=0 ;;
+    --qemu) QEMU=1 ;;
     [0-9]*) SIZES="$SIZES $1" ;;
     *) echo "Nieznana opcja: $1"; exit 2 ;;
   esac
@@ -93,6 +104,15 @@ BOOT="$(awk '$2 ~ "^/media/mmcblk0p1$" {print $2}' /proc/mounts | head -1)"
 USERCFG="$BOOT/usercfg.txt"
 
 ################################################################################
+libstdcxx_ok() {  # libstdc++ co najmniej z gcc 14 (GLIBCXX_3.4.33)?
+  grep -aq "GLIBCXX_3.4.33" /usr/lib/libstdc++.so.6 2>/dev/null && return 0
+  # libstdc++ z Alpine 3.22 (musl) nie ma wersji symboli - wtedy wersja z nazwy
+  # pliku: libstdc++.so.6.0.33 = gcc 14 (musl ld.so nie sprawdza wersji symboli).
+  v="$(readlink /usr/lib/libstdc++.so.6 2>/dev/null)"
+  v="${v##*.}"
+  [ -n "$v" ] && [ "$v" -ge 33 ] 2>/dev/null
+}
+
 check_system() {
   echo "=== Kontrola systemu ==="
   info "Model: $(tr -d '\0' < /proc/device-tree/model 2>/dev/null); kernel $(uname -r) $(uname -m)"
@@ -124,7 +144,7 @@ check_system() {
   info "UART: $(ls /dev/ttyAMA* /dev/ttyS* 2>/dev/null | tr '\n' ' ')"
   [ -d /sys/bus/w1/devices ] && ok "1-Wire aktywne: $(ls /sys/bus/w1/devices | tr '\n' ' ')" || warn "1-Wire nieaktywne (apply + reboot)"
 
-  if grep -aq "GLIBCXX_3.4.33" /usr/lib/libstdc++.so.6 2>/dev/null && [ -e /usr/lib/libgcc_s.so.1 ]; then
+  if libstdcxx_ok && [ -e /usr/lib/libgcc_s.so.1 ]; then
     ok "libstdc++ i libgcc sa (wymagane przez binarki SRP)"
   else
     bad "brak libstdc++ (>= GLIBCXX_3.4.33) lub libgcc - binarki SRP nie uruchomia sie"
@@ -201,10 +221,18 @@ apply_alpine() {
   hostname -F /etc/hostname
   grep -q "$HOSTNAME_NEW" /etc/hosts 2>/dev/null || echo "127.0.0.1 $HOSTNAME_NEW localhost" > /etc/hosts
 
-  # Stan systemu (/etc, /srp) i cache pakietow - na partycji systemowej karty.
-  setup-lbu mmcblk0p1 || warn "setup-lbu nie powiodl sie"
-  mount -o remount,rw "$BOOT" && mkdir -p "$BOOT/cache"
-  setup-apkcache "$BOOT/cache" >/dev/null 2>&1 || warn "setup-apkcache nie powiodl sie"
+  if [ "$QEMU" -eq 1 ]; then
+    # QEMU: system na dysku (tryb sys), zmiany sa trwale bez lbu. Kopia stanu
+    # trafia do katalogu, wiec `lbu commit -d` (flash_ecu) konczy sie sukcesem.
+    mkdir -p "$QEMU_LBU_DIR"
+    grep -qx "LBU_BACKUPDIR=$QEMU_LBU_DIR" /etc/lbu/lbu.conf 2>/dev/null || \
+      echo "LBU_BACKUPDIR=$QEMU_LBU_DIR" >> /etc/lbu/lbu.conf
+  else
+    # Stan systemu (/etc, /srp) i cache pakietow - na partycji systemowej karty.
+    setup-lbu mmcblk0p1 || warn "setup-lbu nie powiodl sie"
+    mount -o remount,rw "$BOOT" && mkdir -p "$BOOT/cache"
+    setup-apkcache "$BOOT/cache" >/dev/null 2>&1 || warn "setup-apkcache nie powiodl sie"
+  fi
 
   # Repozytoria sieciowe (obok lokalnego na karcie) - do doinstalowania narzedzi.
   ver="$(cut -d. -f1,2 /etc/alpine-release)"
@@ -212,16 +240,30 @@ apply_alpine() {
     grep -q "v$ver/$r" /etc/apk/repositories ||       echo "https://dl-cdn.alpinelinux.org/alpine/v$ver/$r" >> /etc/apk/repositories
   done
   # Bez RTC zegar startuje od zera (TLS do repozytoriow wymaga poprawnego czasu).
-  rc-update add ntpd default 2>/dev/null
+  # QEMU ma RTC (pl031), a siec tap0 nie ma internetu - bez ntpd.
+  [ "$QEMU" -eq 1 ] || rc-update add ntpd default 2>/dev/null
 
   mkdir -p /etc/network
-  cat > /etc/network/interfaces <<'EOF'
+  if [ "$QEMU" -eq 1 ]; then
+    cat > /etc/network/interfaces <<EOF
+auto lo
+iface lo inet loopback
+
+# Interfejs SRP: virtio-net QEMU, staly adres jak gosc BBB (tap0 hosta
+# 192.168.10.4). start_up.sh moze nadac adres z platform_config.json.
+auto eth0
+iface eth0 inet static
+	address $QEMU_IP
+EOF
+  else
+    cat > /etc/network/interfaces <<'EOF'
 auto lo
 iface lo inet loopback
 
 # Interfejs SRP (eth0) przygotowuje usluga srp-net, adres nadaje
 # /srp/opt/cpu_srp/network_interface.sh.
 EOF
+  fi
   if [ ! -f /etc/wpa_supplicant/wpa_supplicant.conf ] && [ -f "$BOOT/wpa_supplicant.conf" ]; then
     mkdir -p /etc/wpa_supplicant
     cp "$BOOT/wpa_supplicant.conf" /etc/wpa_supplicant/wpa_supplicant.conf
@@ -236,16 +278,23 @@ EOF
 
 apply_packages() {
   echo "=== Pakiety ==="
-  # Te sa w repozytorium na karcie - instaluja sie bez sieci.
-  apk add -q openssh wpa_supplicant e2fsprogs || warn "apk add (pakiety z karty) nie powiodlo sie"
+  if [ "$QEMU" -eq 1 ]; then
+    # QEMU: bez WiFi i partycji - tylko ssh (flash_ecu).
+    apk add -q openssh || bad "apk add openssh nie powiodlo sie"
+  else
+    # Te sa w repozytorium na karcie - instaluja sie bez sieci.
+    apk add -q openssh wpa_supplicant e2fsprogs || warn "apk add (pakiety z karty) nie powiodlo sie"
+  fi
   # Te wymagaja internetu - opcjonalne narzedzia diagnostyczne.
   # Biblioteki C++ dla binarek SRP (linkowanie dynamiczne) - bez nich nic nie wstanie.
   apk add -q libstdc++ libgcc 2>/dev/null || bad "brak libstdc++/libgcc (wymaga sieci) - binarki SRP nie uruchomia sie"
-  apk add -q i2c-tools iproute2 2>/dev/null || warn "i2c-tools/iproute2 niedostepne (brak sieci lub zly zegar)"
-  apk cache download >/dev/null 2>&1
+  if [ "$QEMU" -eq 0 ]; then
+    apk add -q i2c-tools iproute2 2>/dev/null || warn "i2c-tools/iproute2 niedostepne (brak sieci lub zly zegar)"
+    apk cache download >/dev/null 2>&1
+  fi
   rc-update add networking boot 2>/dev/null
   # wpa_supplicant uruchamia srp-net (na interfejsie eth0), nie usluga systemowa.
-  rc-update del wpa_supplicant boot 2>/dev/null
+  [ "$QEMU" -eq 1 ] || rc-update del wpa_supplicant boot 2>/dev/null
 }
 
 apply_usb_console() {
@@ -266,6 +315,8 @@ apply_tree() {
   # FileLoggerApp pisze do "/home/root/" (sciezka z BBB) - kierujemy na karte,
   # dopoki sciezki nie przejmie platforma w kodzie.
   if mountpoint -q /data && [ ! -e /home/root ]; then ln -s /data /home/root; fi
+  # QEMU: /data to zwykly katalog na dysku goscia - ten sam uklad co na plytce.
+  if [ "$QEMU" -eq 1 ] && [ ! -e /home/root ]; then ln -s /data /home/root; fi
 }
 
 apply_ssh() {
@@ -340,6 +391,12 @@ fi
 EOF
   chmod 755 /usr/local/sbin/srp_start.sh
 
+  # WiFi/atrapa eth0 tylko na plytce - w QEMU eth0 to virtio (usluga networking).
+  [ "$QEMU" -eq 1 ] || apply_srp_net
+  apply_srp_units
+}
+
+apply_srp_net() {
   cat > /usr/local/sbin/srp_net.sh <<'EOF'
 #!/bin/sh
 # Przygotowuje interfejs SRP "eth0" (patrz opis w provision.sh).
@@ -431,7 +488,9 @@ stop() {
 EOF
   chmod 755 /etc/init.d/srp-net
   rc-update add srp-net default
+}
 
+apply_srp_units() {
   cat > /usr/local/sbin/srp_clock.sh <<'EOF'
 #!/bin/sh
 # Programowy zegar: plytka nie ma RTC, wiec czas jest okresowo zapisywany na karte.
@@ -501,6 +560,10 @@ stop() {
 }
 EOF
   chmod 755 /etc/init.d/srp
+  # QEMU: bez srp-net - eth0 (virtio) podnosi usluga networking ("net").
+  if [ "$QEMU" -eq 1 ]; then
+    sed -i 's/^  need localmount srp-net$/  need localmount net/' /etc/init.d/srp
+  fi
   rc-update add srp default
   rc-update add modules boot 2>/dev/null
 }
@@ -532,6 +595,7 @@ case "$MODE" in
   check) ;;
   partitions)
     [ "$(id -u)" -eq 0 ] || die "wymaga roota"
+    [ "$QEMU" -eq 0 ] || die "partitions nie dotyczy QEMU (dysk virtio, /data i /logs to katalogi)"
     do_partitions
     ;;
   apply)
@@ -539,14 +603,18 @@ case "$MODE" in
     [ -f /etc/alpine-release ] || die "to nie Alpine Linux"
     apply_alpine
     apply_packages
-    apply_usb_console
+    [ "$QEMU" -eq 1 ] || apply_usb_console
     apply_tree
     apply_ssh
-    apply_hw
+    [ "$QEMU" -eq 1 ] || apply_hw
     apply_service
     apply_commit
     echo
-    echo "Zmiany wprowadzone. Wymagany reboot (usercfg.txt, moduly)."
+    if [ "$QEMU" -eq 1 ]; then
+      echo "Zmiany wprowadzone (QEMU)."
+    else
+      echo "Zmiany wprowadzone. Wymagany reboot (usercfg.txt, moduly)."
+    fi
     echo
     ;;
   *) echo "Tryby: check | partitions [data] [logs] | apply"; exit 2 ;;
