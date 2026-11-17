@@ -39,6 +39,7 @@ Alpine używa musl. Binarki z toolchainu BBB (glibc, armv7) się tu nie uruchomi
 - **Bootlin `aarch64--musl--stable-2025.08-1`** (gcc 14.3), pobierany przez bazel (`third_party/toolchains/toolchains.bzl`).
 - Binarki linkowane **dynamicznie** z bibliotekami systemu: musl, `libstdc++`, `libgcc` (pakiety Alpine). Pakiet EC ma ok. 10 MB; przy linkowaniu statycznym miał 37 MB, a każdy proces trzymał w RAM własną kopię bibliotek.
 - Warunek zgodności: `libstdc++` w systemie co najmniej tak nowe jak w kompilatorze (gcc 14.3, `GLIBCXX_3.4.33`). Alpine 3.24 ma 15.2 — OK. Ponieważ obraz nie będzie aktualizowany, ten warunek jest stały.
+- `libstdc++` z Alpine 3.22 (gcc 14.2, `libstdc++.so.6.0.33`, obraz QEMU) jest zbudowana bez wersji symboli — `check` uznaje wtedy wersję z nazwy pliku (`6.0.33` = gcc 14). Loader musl wersji symboli nie sprawdza.
 
 Różnice musl, które wyszły w kodzie: brak makr glibc (`__attribute_noinline__`, `u_int32_t`), brak niejawnych include'ów (`pid_t` wymaga `<sys/types.h>`) i — najważniejsze — inne zachowanie zegarów (rozdział 8).
 
@@ -272,7 +273,19 @@ bazel run --config=rpi-platform //deployment/tools/ecu:flash_ec
 | `partitions [data] [logs]` | Dopisuje p2 i p3 w wolnym miejscu karty (istniejących partycji nie rusza; partycji z innym systemem plików nie nadpisze), formatuje ext4 z etykietami, wpisuje do `fstab`, montuje. Kopia tablicy partycji: `/root/partition-table.before.txt` |
 | `apply` | Hostname `srp-rpi`; `setup-lbu` i cache pakietów na p1; repozytoria sieciowe; pakiety (`openssh`, `wpa_supplicant`, `e2fsprogs`, `libstdc++`, `libgcc`, `i2c-tools`, `iproute2`); konsola USB; katalogi `/srp`, `/data`, `/logs`, `/home/root`; ssh root tylko kluczem; `usercfg.txt`; usługi `srp-net`, `srp-clock`, `srp`; `lbu commit` |
 
-Opcje `apply`: `--w1-pin <bcm>`, `--keep-bt`, `--hostname <nazwa>`, `--no-usb-console`, `--no-commit`. Skrypt jest idempotentny — można go uruchamiać wielokrotnie.
+Opcje `apply`: `--w1-pin <bcm>`, `--keep-bt`, `--hostname <nazwa>`, `--no-usb-console`, `--no-commit`, `--qemu`. Skrypt jest idempotentny — można go uruchamiać wielokrotnie.
+
+### Tryb `--qemu` (emulator, bez płytki)
+
+`apply --qemu` przygotowuje tę samą część programową dla gościa QEMU (maszyna `virt`, Alpine w trybie `sys` na dysku virtio) — używa go builder obrazu `@srp_platform//tools/qemu:build_rpi_image` (opis: `tools/qemu/README.md`, cel `:qemu_rpi`).
+
+| Robi | Pomija |
+|------|--------|
+| hostname, repozytoria sieciowe, pakiety `openssh libstdc++ libgcc`, `/srp`, `/data`, `/logs`, `/home/root → /data`, ssh root tylko kluczem, usługi `srp` i `srp-clock`, `lbu commit` | `setup-lbu`/cache na karcie, `ntpd`, WiFi i `srp-net`, `partitions`, konsola USB `ttyGS0`, `usercfg.txt`, 1-Wire/I2C/UART |
+
+Różnice: `eth0` to karta virtio ze stałym adresem `192.168.10.101/24` (jak gość BBB; usługa `networking`, `srp` zależy od `net` zamiast `srp-net`); `lbu` zapisuje kopię stanu do katalogu `/var/lib/srp-lbu` (`LBU_BACKUPDIR` w `/etc/lbu/lbu.conf`), więc `lbu commit -d` z `flash_ecu` kończy się sukcesem, choć w trybie `sys` pliki i tak są trwałe.
+
+`check` w gościu QEMU: jedyny dozwolony `[FAIL]` to `brak /sys/class/gpio` (jądro `virt` bez `CONFIG_GPIO_SYSFS`, maszyna bez GPIO płytki). `[WARN]` o trybie diskless, cache apk, partycjach `/data` i `/logs`, 1-Wire i zegarze programowym są oczekiwane.
 
 ---
 
