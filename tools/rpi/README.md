@@ -39,7 +39,7 @@ Alpine używa musl. Binarki z toolchainu BBB (glibc, armv7) się tu nie uruchomi
 - **Bootlin `aarch64--musl--stable-2025.08-1`** (gcc 14.3), pobierany przez bazel (`third_party/toolchains/toolchains.bzl`).
 - Binarki linkowane **dynamicznie** z bibliotekami systemu: musl, `libstdc++`, `libgcc` (pakiety Alpine). Pakiet EC ma ok. 10 MB; przy linkowaniu statycznym miał 37 MB, a każdy proces trzymał w RAM własną kopię bibliotek.
 - Warunek zgodności: `libstdc++` w systemie co najmniej tak nowe jak w kompilatorze (gcc 14.3, `GLIBCXX_3.4.33`). Alpine 3.24 ma 15.2 — OK. Ponieważ obraz nie będzie aktualizowany, ten warunek jest stały.
-- `libstdc++` z Alpine 3.22 (gcc 14.2, `libstdc++.so.6.0.33`, obraz QEMU) jest zbudowana bez wersji symboli — `check` uznaje wtedy wersję z nazwy pliku (`6.0.33` = gcc 14). Loader musl wersji symboli nie sprawdza.
+- `libstdc++` z Alpine jest zbudowana bez wersji symboli (sprawdzone: 3.22 — gcc 14.2, `libstdc++.so.6.0.33`; 3.24 — gcc 15.2, `libstdc++.so.6.0.34`), więc ciągu `GLIBCXX_3.4.33` w pliku nie ma — `check` uznaje wtedy wersję z nazwy pliku (≥ `6.0.33` = gcc 14). Loader musl wersji symboli nie sprawdza.
 
 Różnice musl, które wyszły w kodzie: brak makr glibc (`__attribute_noinline__`, `u_int32_t`), brak niejawnych include'ów (`pid_t` wymaga `<sys/types.h>`) i — najważniejsze — inne zachowanie zegarów (rozdział 8).
 

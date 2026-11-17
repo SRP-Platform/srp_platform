@@ -27,16 +27,16 @@
 ################################################################################
 set -euo pipefail
 
-ALPINE_VERSION="3.22.8"
-ALPINE_BRANCH="v3.22"
+ALPINE_VERSION="3.24.4"
+ALPINE_BRANCH="v3.24"
 MIRROR="https://dl-cdn.alpinelinux.org/alpine"
 NETBOOT_URL="$MIRROR/$ALPINE_BRANCH/releases/aarch64/netboot-$ALPINE_VERSION"
-# sha256 of the netboot files (same as in alpine-netboot-3.22.8-aarch64.tar.gz,
-# sha256 619d568696faf045b63b459259ebe4c347553320a0217a1658e5d277c3d3e1d1).
+# sha256 of the netboot files (same as in alpine-netboot-3.24.4-aarch64.tar.gz,
+# sha256 9d10f909d41b8393a80a645e9e2af761fcb1f29b986799edeedfa269c359745e).
 NETBOOT_FILES="
-vmlinuz-virt ebf299aa6829b15166008db24b076ac0a8b3e778c72ed66be488742aaf05d741
-initramfs-virt 0f7da92ca19e6b87b8f0a250e3ce84cc8335c16b2369b18d96f68cc486d638b8
-modloop-virt fb554a7704d5abbb7a8f2dcd8d6b09f67ceaef86a1ffa5576a9dc6a1a65ec320
+vmlinuz-virt cd05fed9e617b5df93dc62ece9b78c422fd94e9b432a2f7c092714b139d5eef4
+initramfs-virt 189402937646965374ef2df5d37f76467135179ae168c88175df2fe3e264a0b0
+modloop-virt a726889467d1d4fefa4ba1ed710f28b9db1fbd019ca3eba2d4c6c65b33536343
 "
 DISK_SIZE="2G"
 BUILD_TIMEOUT=1800

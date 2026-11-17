@@ -30,7 +30,7 @@ bazel run @srp_platform//tools/qemu -- --console
 
 ## Raspberry Pi Zero 2 W (Alpine aarch64)
 
-`:qemu_rpi` runs the software stack of the Raspberry Pi Zero 2 W board (Alpine Linux 3.22, aarch64, musl,
+`:qemu_rpi` runs the software stack of the Raspberry Pi Zero 2 W board (Alpine Linux 3.24, aarch64, musl,
 binaries built with `--config=rpi-platform`) on the generic QEMU `virt` machine. It is not a board emulation:
 there is no GPIO, I2C, 1-Wire, WiFi or SD card - only the system, the SRP services and the network.
 
@@ -48,7 +48,7 @@ accepts root with a key only (`PermitRootLogin prohibit-password`).
 Extra host tools: `qemu-system-aarch64` (part of `qemu-system-arm` on Ubuntu), `curl`, `python3`, `debugfs`
 (`e2fsprogs`), and an ssh key in `~/.ssh/id_ed25519.pub`. No `sudo` is needed (except for `network_configure`).
 
-Build the image once (about 3 minutes; network access only to `dl-cdn.alpinelinux.org`):
+Build the image once (about 3-5 minutes; network access only to `dl-cdn.alpinelinux.org`):
 
 ```
 bazel run @srp_platform//tools/qemu:build_rpi_image
@@ -78,7 +78,7 @@ Installing inside the guest was chosen over `fakeroot` + `mke2fs -d`: package sc
 links, `mkinitfs`, OpenRC) run natively on aarch64, so no binfmt/qemu-user or root is needed on the host, and
 the result is a regular Alpine installation.
 
-Result, reused by `:qemu_rpi` (about 190 MB on disk):
+Result, reused by `:qemu_rpi` (about 200 MB on disk):
 
 ```
 ~/.cache/srp_platform/qemu_rpi/<alpine version>/{disk.img,vmlinuz-virt,initramfs-virt}

@@ -106,7 +106,7 @@ USERCFG="$BOOT/usercfg.txt"
 ################################################################################
 libstdcxx_ok() {  # libstdc++ co najmniej z gcc 14 (GLIBCXX_3.4.33)?
   grep -aq "GLIBCXX_3.4.33" /usr/lib/libstdc++.so.6 2>/dev/null && return 0
-  # libstdc++ z Alpine 3.22 (musl) nie ma wersji symboli - wtedy wersja z nazwy
+  # libstdc++ z Alpine (musl; 3.22 i 3.24) nie ma wersji symboli - wersja z nazwy
   # pliku: libstdc++.so.6.0.33 = gcc 14 (musl ld.so nie sprawdza wersji symboli).
   v="$(readlink /usr/lib/libstdc++.so.6 2>/dev/null)"
   v="${v##*.}"
