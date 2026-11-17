@@ -11,6 +11,10 @@ Before starting work, the network environment must be set up by running the foll
 $ bazel run @srp_platform//tools/qemu:network_configure 
 ```
 
+`tap0` is created with the user who runs the script as its owner (`user ${SUDO_USER:-$(id -un)}`), so QEMU can
+use it without root. A `tap0` without an owner makes QEMU fail with
+`could not configure /dev/net/tun (tap0): Operation not permitted`.
+
 We can then run qemu simulations via the following command:
 
 ```
