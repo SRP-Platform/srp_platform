@@ -12,9 +12,12 @@ Outputs: <dialect>.xml, <dialect>_links.md, <dialect>.lua (Wireshark), <dialect>
 `ara_mavlink_system` merges the dialects of several CPUs (one radio daemon each) into one dialect
 for the ground station; see the rule below.
 
-Both are macros: next to the rule they expose the generated files as the filegroups
-`<dialect>_monitor.py`, `<name>_dialect_py` and `<name>_monitor_json`.
+Both are macros: next to the rule they create `<name>_monitor`, a `py_binary` of the generated
+monitor (`bazel run //pkg:<name>_monitor -- --udp 14550`), whose files are also exposed as the
+filegroups `<dialect>_monitor.py`, `<name>_dialect_py` and `<name>_monitor_json`.
 """
+
+load("@rules_python//python:defs.bzl", "py_binary")
 
 MavlinkCpuInfo = provider(
     doc = "The generated dialect of one CPU, input of ara_mavlink_system.",
@@ -118,7 +121,9 @@ system_id:component_id).""",
 )
 
 def _monitor(name, dialect, visibility, tags, testonly):
-    """The filegroups of the generated monitor script and its files."""
+    """`<name>_monitor`: the generated monitor script as a runnable target (runtime: monitor_lib)."""
+    # py_binary's `main` must end in .py and name the file of `srcs`: the script's filegroup is
+    # named like the generated file
     script = dialect + "_monitor.py"
     for group, fname in (("monitor_py", script), ("dialect_py", name + "_dialect_py"),
                          ("monitor_json", name + "_monitor_json")):
@@ -130,13 +135,26 @@ def _monitor(name, dialect, visibility, tags, testonly):
             tags = tags,
             testonly = testonly,
         )
+    py_binary(
+        name = name + "_monitor",
+        srcs = [":" + script],
+        main = ":" + script,
+        data = [":%s_dialect_py" % name, ":%s_monitor_json" % name],
+        deps = [
+            "@srp_platform//tools/mavlink:monitor_lib",
+            "@srp_platform//third_party/python:pymavlink",
+        ],
+        visibility = visibility,
+        tags = tags,
+        testonly = testonly,
+    )
 
 def ara_mavlink_dialect(name, visibility = None, tags = None, testonly = False, **kwargs):
-    """The rule `_ara_mavlink_dialect` and the filegroups of the monitor (see the file header)."""
+    """The rule `_ara_mavlink_dialect` and the target `<name>_monitor` (see the file header)."""
     _ara_mavlink_dialect(name = name, visibility = visibility, tags = tags, testonly = testonly, **kwargs)
     _monitor(name, kwargs["dialect"], visibility, tags, testonly)
 
 def ara_mavlink_system(name, visibility = None, tags = None, testonly = False, **kwargs):
-    """The rule `_ara_mavlink_system` and the filegroups of the monitor (see the file header)."""
+    """The rule `_ara_mavlink_system` and the target `<name>_monitor` (see the file header)."""
     _ara_mavlink_system(name = name, visibility = visibility, tags = tags, testonly = testonly, **kwargs)
     _monitor(name, kwargs.get("dialect") or name, visibility, tags, testonly)
