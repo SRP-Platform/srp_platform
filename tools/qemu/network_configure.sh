@@ -4,7 +4,8 @@ INTERFACE="tap0"
 IP_ADDRESS="192.168.10.4"
 NETMASK="255.255.255.0"
 
-sudo ip tuntap add dev $INTERFACE mode tap
+# Wlasciciel tap0 = uzytkownik uruchamiajacy QEMU (bez tego: Operation not permitted).
+sudo ip tuntap add dev $INTERFACE mode tap user "${SUDO_USER:-$(id -un)}"
 
 sudo ip addr add $IP_ADDRESS/$NETMASK dev $INTERFACE
 

@@ -12,6 +12,20 @@
     run: .jobs/itf.yaml
 
 - job:
+    parent: base
+    name: itf-core-rpi
+    description: |
+      ITF platform tests (//tests:core_all) on QEMU RPi (:qemu_rpi, Alpine aarch64).
+    pre-run: .jobs/qemu_rpi_start.yaml
+    run: .jobs/itf.yaml
+    post-run: .jobs/qemu_rpi_stop.yaml
+    timeout: 3600
+    nodeset:
+      nodes:
+        - name: ubuntu-qemu
+          label: ubuntu-qemu
+
+- job:
     name: build_example_ecu_x86
     run: .jobs/build_example_ecu_x86.yaml
 - job:

@@ -23,6 +23,7 @@ cpu_def(
     ],
     platform_etcs = [
         "//test_cpu/cpu/ec:sm_config",
+        "machine_states.json",
         "platform_config.json",
     ],
     srp_components = [
