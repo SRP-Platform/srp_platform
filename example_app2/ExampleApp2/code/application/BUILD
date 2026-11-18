@@ -5,7 +5,7 @@ cc_binary(
         "ExampleApp.h",
         "main.cc",
     ],
-    visibility = ["//example_app2/models/ExampleApp2:__pkg__"],
+    visibility = ["//example_app2/models/ExampleApp2:__pkg__", "//tests/mavlink:__pkg__"],
     deps = [
         "//core/common:condition_lib",
         "//example_app2/ExampleApp2/code:ara",

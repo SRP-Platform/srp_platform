@@ -3,11 +3,12 @@ cc_binary(
     srcs = [
         "ExampleApp.cc",
         "ExampleApp.h",
+        "engine_service.h",
         "example_did.h",
         "example_service.h",
         "main.cc",
     ],
-    visibility = ["//example_app/models/ExampleApp:__pkg__"],
+    visibility = ["//example_app/models/ExampleApp:__pkg__", "//tests/mavlink:__pkg__"],
     deps = [
         "@srp_platform//ara/exec:adaptive_application_lib",
         "@srp_platform//ara/log",

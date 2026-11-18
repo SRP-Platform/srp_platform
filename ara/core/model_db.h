@@ -11,6 +11,7 @@
 #ifndef ARA_CORE_MODEL_DB_H_
 #define ARA_CORE_MODEL_DB_H_
 
+#include <functional>
 #include <unordered_map>
 #include <utility>
 
@@ -48,6 +49,13 @@ class ModelDataBase {
     }
     db_.insert(std::make_pair(instance, item));
     return {};
+  }
+  /// Przegląda wszystkie wpisy (np. rejestr transportów szuka łączy mavlink).
+  template <typename F>
+  void ForEach(F&& visitor) const {
+    for (const auto& kv : db_) {
+      visitor(kv.first, kv.second);
+    }
   }
   static ModelDataBase& GetInstance() {
     static ModelDataBase db_{};

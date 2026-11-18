@@ -11,6 +11,7 @@ py_library(
     ],
     visibility = ["@srp_platform//tools/model_generator/ara:__subpackages__"],
     deps = [
+        "@srp_platform//tools/model_generator/ara/mavlink:mavlink_core_lib",
         "@srp_platform//tools/model_generator/ara/common:common_lib",
         "@srp_platform//tools/model_generator/ara/common:data_structure_lib",
     ],

@@ -1,0 +1,10 @@
+{
+    "include": [],
+    "package": "srp.test",
+    "data_structure": {
+        "NameData": {
+            "label": "string",
+            "value": "float64"
+        }
+    }
+}

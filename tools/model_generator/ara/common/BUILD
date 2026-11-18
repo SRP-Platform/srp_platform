@@ -9,7 +9,10 @@ py_library(
         "data_structure_parser.py",
     ],
     visibility = ["@srp_platform//tools/model_generator/ara:__subpackages__"],
-    deps = [":common_lib"],
+    deps = [
+        ":common_lib",
+        "@srp_platform//tools/model_generator/ara/mavlink:mavlink_core_lib",
+    ],
 )
 
 py_library(

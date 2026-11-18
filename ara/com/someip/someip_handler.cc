@@ -15,6 +15,7 @@
 #include "ara/com/com_error_domain.h"
 #include "ara/com/log.h"
 #include "ara/com/someip/bindings/binding_factory.h"
+#include "ara/com/someip/bindings/mavlink/mavlink_bindings.h"
 #include "ara/com/someip/message_code.h"
 #include "ara/com/someip/message_type.h"
 #include "ara/core/model/com_model_item.h"
@@ -29,6 +30,29 @@ ara::core::Result<void> ServiceHandler::StartFind(std::stop_token token) {
           .ResolveInstanceSpecifier<ara::core::model::ModelSomeIp>(
               this->instance_);
   if (!conf_model.HasValue()) {
+    // Instancja na MAVLinku (on: mavlink): model ModelMavlink zamiast ModelSomeIp.
+    const auto mav_model =
+        ara::core::ModelDataBase::GetInstance()
+            .ResolveInstanceSpecifier<ara::core::model::ModelMavlink>(
+                this->instance_);
+    if (mav_model.HasValue()) {
+      const auto& mav = mav_model.Value();
+      this->bindings_ =
+          ara::com::someip::bindings::BindingsFactory::GetBindings(mav);
+      this->bindings_->SetServiceData(
+          this->service_id_, ara::com::someip::bindings::MavlinkModelView(mav));
+      ara::com::LogInfo() << "Mapping: [" << instance_
+                          << "] map as service_id: " << service_id_
+                          << " instance: " << mav.instance_ << " (mavlink)";
+      this->bindings_->SetProxyCallback(
+          std::bind(&ServiceHandler::HandleEvent, this, std::placeholders::_1,
+                    std::placeholders::_2),
+          std::bind(&ServiceHandler::SubscribeNewStatus, this,
+                    std::placeholders::_1, std::placeholders::_2));
+      this->bindings_->Start(token);
+      this->founded_ = !token.stop_requested();
+      return {};
+    }
     ara::com::LogError() << "Model Error";
     return conf_model.Error();
   }

@@ -1,5 +1,6 @@
 from __future__ import annotations
 import sys
+from tools.model_generator.ara.mavlink.mavlink_errors import MavlinkModelError
 import os
 import copy
 import json
@@ -38,7 +39,11 @@ if __name__ == "__main__":
                         else:
                             raise Exception("Multiple Adaptive App model found!")
     if len(src_path) != 0:                
-        LoadJson(src_path)
+        try:
+            LoadJson(src_path)
+        except MavlinkModelError as e:
+            print(f"BŁĄD mavlink: {e}", file=sys.stderr)
+            sys.exit(1)
         app_name = list(AdaptiveApplicationDb().app_list.keys())[0]
         app = AdaptiveApplicationDb().app_list[list(AdaptiveApplicationDb().app_list.keys())[0]]
         # for p in app_name.split("."):

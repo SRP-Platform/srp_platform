@@ -1,0 +1,40 @@
+{
+    "package": "srp.test",
+    "someip": {
+        "Clash": {
+            "service_id": 77,
+            "major_version": 1,
+            "minor_version": 0,
+            "events": {
+                "Boom": {
+                    "id": 32769,
+                    "data_structure": {
+                        "out": {
+                            "type": "uint32"
+                        }
+                    },
+                    "mavlink": {
+                        "msg_id": 42000
+                    }
+                }
+            },
+            "methods": {
+                "Ping": {
+                    "id": 1,
+                    "data_structure": {
+                        "in": {
+                            "type": "uint8"
+                        },
+                        "out": {
+                            "type": "uint8"
+                        }
+                    },
+                    "mavlink": {
+                        "req_id": 42200,
+                        "resp_id": 42201
+                    }
+                }
+            }
+        }
+    }
+}

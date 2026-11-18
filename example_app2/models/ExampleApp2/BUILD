@@ -1,5 +1,9 @@
 load("@srp_platform//tools/model_generator/ara:adaptive_application.bzl", "adaptive_application")
 
+exports_files(["example_app.json"])
+
+# Definicje usług (EngineService, ExampleService) są wspólne z example_app: obie aplikacje działają na jednym
+# CPU (test_cpu/cpu/ec) i jednym MavlinkDaemonie, więc generator widzi jeden dialekt i jedną definicję usługi.
 filegroup(
     name = "instance",
     srcs = [
@@ -11,11 +15,7 @@ filegroup(
 
 filegroup(
     name = "service_instance",
-    srcs = [
-        "example_data_type.json",
-        "example_data_type2.json",
-        "example_service.json",
-    ],
+    srcs = ["//example_app/models/ExampleApp:service_instance"],
     visibility = ["//visibility:public"],
 )
 

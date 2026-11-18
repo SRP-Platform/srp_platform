@@ -1,12 +1,16 @@
 from __future__ import annotations
 from tools.model_generator.ara.someip.lib.someip_db import *
 from tools.model_generator.ara.app.adaptive_application import *
+from tools.model_generator.ara.mavlink.mavlink_app import CreateItemCpp
 class SomeipRuntimeEnv:
-    def CreateInitDB(app_name:str,service_list:dict[str,SomeipItem]) -> str:
+    def CreateInitDB(app_name:str,service_list:dict[str,SomeipItem], app:AdaptiveApplication = None) -> str:
         res:str = """
 Result<void> InitializeComDb(ModelDataBase& db_) noexcept {
 """
         for key,item in service_list.items():
+            if item.on.lower() == "mavlink":
+                res+="\n"+CreateItemCpp(app_name,key,item.dir,item.item,item.instance,item.mavlink)
+                continue
             res+="""
     {"""
             if item.dir == "kOut":

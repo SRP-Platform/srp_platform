@@ -10,13 +10,19 @@
  */
 #include "example_app2/ExampleApp2/code/application/ExampleApp.h"
 
+#include <atomic>
+#include <cstdlib>
 #include <iostream>
 #include <map>
+#include <memory>
+#include <mutex>  // NOLINT
 #include <utility>
+#include <vector>
 
 #include "ara/log/log.h"
 #include "core/common/condition.h"
 #include "srp/example/ExampleDataStructure.h"
+#include "srp/example/EngineService/EngineServiceHandler.h"
 #include "srp/example/ExampleService/ExampleServiceHandler.h"
 
 namespace srp {
@@ -49,13 +55,70 @@ int ExampleApp::Run(const std::stop_token& token) {
       });
     });
   });
-  // serv.StartOffer();
-  uint32_t i = 0;
+  // Trzy proxy EngineService (patrz example_app.json): redundancja (2: radio_a + radio_b),
+  // tylko radio_a (3), tylko radio_b (4). Lacza i drivery sa w configu MavlinkDaemona.
+  struct Client {
+    int id;
+    std::unique_ptr<srp::example::EngineServiceProxy> proxy;
+    std::shared_ptr<srp::example::EngineServiceHandler> handler;
+  };
+  std::mutex mutex;
+  std::vector<std::unique_ptr<Client>> clients;
+  const std::vector<std::pair<int, const char*>> specs{
+      {2, "srp/example/ExampleApp2/Engine_red_in"},
+      {3, "srp/example/ExampleApp2/Engine_a_in"},
+      {4, "srp/example/ExampleApp2/Engine_b_in"}};
+  for (const auto& spec : specs) {
+    auto c = std::make_unique<Client>();
+    c->id = spec.first;
+    c->proxy = std::make_unique<srp::example::EngineServiceProxy>(
+        ara::core::InstanceSpecifier{spec.second});
+    Client* cp = c.get();
+    c->proxy->StartFindService([cp, &mutex](auto handler) {
+      std::lock_guard<std::mutex> lock{mutex};
+      cp->handler = std::move(handler);
+      auto h = cp->handler;
+      const int id = cp->id;
+      h->CurrentMode.Subscribe(1, [h, id](auto) {
+        h->CurrentMode.SetReceiveHandler([h, id]() {
+          const auto v = h->CurrentMode.GetNewSamples();
+          if (v.HasValue()) {
+            std::cout << "EVT CurrentMode instance=" << id << " mode=" << static_cast<int>(v.Value().mode) << std::endl;
+          }
+        });
+      });
+      h->Telemetry.Subscribe(1, [h, id](auto) {
+        h->Telemetry.SetReceiveHandler([h, id]() {
+          const auto v = h->Telemetry.GetNewSamples();
+          if (v.HasValue()) {
+            std::cout << "EVT Telemetry instance=" << id << " rpm=" << v.Value().rpm << std::endl;
+          }
+        });
+      });
+    });
+    clients.push_back(std::move(c));
+  }
+
+  uint32_t tick = 0;
   ara::log::LogInfo() << "App started";
   while (!token.stop_requested()) {
-    // ara::log::LogInfo() << "Value for I: " << i++;
-    core::condition::wait_for(std::chrono::milliseconds(100), token);
-    // serv.Status.Update(10);
+    core::condition::wait_for(std::chrono::milliseconds(500), token);
+    ++tick;
+    std::lock_guard<std::mutex> lock{mutex};
+    for (const auto& c : clients) {
+      if (!c->handler) {
+        continue;
+      }
+      const auto r = c->handler->SetMode(srp::example::EngineMode{static_cast<uint8_t>(tick)});
+      if (r.HasValue()) {
+        std::cout << "CALL SetMode instance=" << c->id << " ok mode=" << static_cast<int>(r.Value().mode) << std::endl;
+      } else {
+        std::cout << "CALL SetMode instance=" << c->id << " err=" << r.Error().Value() << std::endl;
+      }
+      const auto d = c->handler->DebugDump();
+      std::cout << "CALL DebugDump instance=" << c->id << (d.HasValue() ? " ok" : " err=")
+                << (d.HasValue() ? 0 : d.Error().Value()) << std::endl;
+    }
   }
   ara::log::LogInfo() << "App Stop";
   return 0;

@@ -1,0 +1,9 @@
+{
+    "include": [],
+    "package": "srp.test",
+    "data_structure": {
+        "ModeOut": {
+            "mode": "uint8"
+        }
+    }
+}

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from tools.model_generator.ara.common.data_structure import *
 from tools.model_generator.ara.common.data_structure_db import DataStructureDB
+from tools.model_generator.ara.mavlink.mavlink_errors import MavlinkModelError
 class DataStructureParser:
     
     def LoadDataStructure(json_obj,db_ = DataStructureDB()):
@@ -20,7 +21,10 @@ class DataStructureParser:
         temp_struct: Structure = Structure(name)
         temp_struct.endian = endian
         for v_name,type in json_obj["data_structure"][temp_list[0]].items():
-            temp_struct.AddVariable(v_name,db_.CreateVariable(v_name,json_obj["package"],type))
+            try:
+                temp_struct.AddVariable(v_name,db_.CreateVariable(v_name,json_obj["package"],type))
+            except AssertionError as e:
+                raise MavlinkModelError(f"{name}.{v_name}: nieznany typ '{type}' ({e})")
         if name not in db_.data_structure:
             db_.data_structure[name] = temp_struct
         else:

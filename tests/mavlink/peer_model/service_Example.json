@@ -1,0 +1,59 @@
+{
+    "include": [
+        "tests/mavlink/peer_model/type_StatusData.json",
+        "tests/mavlink/peer_model/type_NameData.json",
+        "tests/mavlink/peer_model/type_ModeIn.json",
+        "tests/mavlink/peer_model/type_ModeOut.json"
+    ],
+    "package": "srp.test",
+    "someip": {
+        "Example": {
+            "service_id": 100,
+            "major_version": 1,
+            "minor_version": 0,
+            "methods": {
+                "SetMode": {
+                    "id": 1,
+                    "data_structure": {
+                        "in": {
+                            "type": "ModeIn"
+                        },
+                        "out": {
+                            "type": "ModeOut"
+                        }
+                    },
+                    "mavlink": {
+                        "req_id": 42010,
+                        "resp_id": 42011,
+                        "timeout_ms": 1000
+                    }
+                }
+            },
+            "events": {
+                "Status": {
+                    "id": 32769,
+                    "data_structure": {
+                        "out": {
+                            "type": "StatusData"
+                        }
+                    },
+                    "mavlink": {
+                        "msg_id": 42000
+                    }
+                },
+                "Name": {
+                    "id": 32770,
+                    "data_structure": {
+                        "out": {
+                            "type": "NameData"
+                        }
+                    },
+                    "mavlink": {
+                        "msg_id": 42002,
+                        "max_len": 16
+                    }
+                }
+            }
+        }
+    }
+}

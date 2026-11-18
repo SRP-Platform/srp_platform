@@ -1,0 +1,18 @@
+{
+    "system_id": 1,
+    "component_id": 1,
+    "links": {
+        "radio_a": {
+            "driver": "serial_radio",
+            "driver_config": "/etc/srp/mavlink/radio_a.json",
+            "version": 2,
+            "heartbeat_hz": 1
+        },
+        "radio_b": {
+            "driver": "serial_radio",
+            "driver_config": "/etc/srp/mavlink/radio_b.json",
+            "version": 2,
+            "heartbeat_hz": 1
+        }
+    }
+}

@@ -1,0 +1,45 @@
+{
+    "include": ["tools/model_generator/ara/mavlink/testdata/app/types.json"],
+    "package": "srp.mav",
+    "someip": {
+        "Radio": {
+            "service_id": 20,
+            "major_version": 1,
+            "minor_version": 0,
+            "events": {
+                "DebugCounter": {
+                    "id": 32770,
+                    "data_structure": {"out": {"type": "uint32"}},
+                    "mavlink": false
+                },
+                "Position": {
+                    "id": 32769,
+                    "data_structure": {"out": {"type": "Pos"}},
+                    "mavlink": {"msg_id": 200, "max_rate_hz": 2}
+                }
+            },
+            "methods": {
+                "SetMode": {
+                    "id": 1,
+                    "data_structure": {"in": {"type": "uint8"}, "out": {"type": "bool"}},
+                    "mavlink": {"req_id": 210, "resp_id": 211, "timeout_ms": 500}
+                },
+                "LocalOnly": {
+                    "id": 4,
+                    "data_structure": {"in": {"type": "void"}, "out": {"type": "bool"}},
+                    "mavlink": false
+                },
+                "Reboot": {
+                    "id": 2,
+                    "data_structure": {"in": {"type": "void"}, "out": {"type": "void"}},
+                    "mavlink": {"req_id": 212}
+                },
+                "SetName": {
+                    "id": 3,
+                    "data_structure": {"in": {"type": "string"}, "out": {"type": "uint32"}},
+                    "mavlink": {"req_id": 213, "resp_id": 214, "max_len": 32}
+                }
+            }
+        }
+    }
+}

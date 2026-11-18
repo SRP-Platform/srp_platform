@@ -1,0 +1,33 @@
+{
+    "include": [
+        "tests/mavlink/collide_model/service_Clash.json"
+    ],
+    "package": "srp.test",
+    "adaptive_application": {
+        "ClashApp": {
+            "app": {
+                "functional_groups": [
+                    "Running"
+                ],
+                "parms": "-t -10- 100",
+                "logger": {
+                    "app_id": "CLS-",
+                    "app_des": "Collision fixture",
+                    "log_level": "kInfo",
+                    "log_mode": "kRemote"
+                }
+            },
+            "provide": [
+                {
+                    "name": "Clash as Clash_i9",
+                    "on": "mavlink",
+                    "instance": 9,
+                    "links": [
+                        "r1"
+                    ]
+                }
+            ],
+            "require": []
+        }
+    }
+}

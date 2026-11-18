@@ -1,0 +1,31 @@
+{
+    "include": ["tools/model_generator/ara/mavlink/testdata/app/service.json"],
+    "package": "srp.mav",
+    "adaptive_application": {
+        "MavApp": {
+            "app": {
+                "functional_groups": ["Running"],
+                "logger": {
+                    "app_id": "MAV-",
+                    "app_des": "MAVLink example",
+                    "log_level": "kInfo",
+                    "log_mode": "kRemote"
+                }
+            },
+            "provide": [
+                {"name": "Radio as radio_out", "on": "mavlink", "instance": 3,
+                 "links": ["radio1", "lora"]},
+                {"name": "Radio as radio_lora", "on": "mavlink", "instance": 5,
+                 "links": ["lora"], "exclude": ["Reboot"], "max_rate_hz": {"Position": 0}},
+                {"name": "Radio as radio_mix", "on": "mavlink", "instance": 6,
+                 "links": ["radio2", "radio3"]}
+            ],
+            "require": [
+                {"name": "Radio as radio_in", "on": "mavlink", "instance": 4,
+                 "links": ["radio3"], "target_system_id": 2, "target_component_id": 1,
+                 "source_system_id": 2, "source_component_id": 1,
+                 "exclude": ["SetName"], "max_rate_hz": {"Position": 5}}
+            ]
+        }
+    }
+}
