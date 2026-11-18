@@ -1,0 +1,8 @@
+{
+    "package": "srp.plain",
+    "data_structure": {
+        "Value": {
+            "x": "uint8"
+        }
+    }
+}

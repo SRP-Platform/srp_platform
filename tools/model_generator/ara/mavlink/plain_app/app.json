@@ -1,0 +1,20 @@
+{
+    "include": ["tools/model_generator/ara/mavlink/plain_app/service.json"],
+    "package": "srp.plain",
+    "adaptive_application": {
+        "PlainApp": {
+            "app": {
+                "functional_groups": ["Running"],
+                "logger": {
+                    "app_id": "PLN-",
+                    "app_des": "Application without MAVLink",
+                    "log_level": "kInfo",
+                    "log_mode": "kRemote"
+                }
+            },
+            "provide": [
+                {"name": "Sensor", "on": "ipc", "instance": 1}
+            ]
+        }
+    }
+}

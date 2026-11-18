@@ -1,6 +1,7 @@
 from __future__ import annotations
 from tools.model_generator.ara.app.adaptive_application import *
 from tools.model_generator.ara.app.adaptive_application_db import AdaptiveApplicationDb
+from tools.model_generator.ara.mavlink import mavlink_model
 class AdaptiveApplicationParser:
     def ParseJson(json_object):
         s_name = list(json_object["adaptive_application"].keys())[0]
@@ -14,12 +15,14 @@ class AdaptiveApplicationParser:
             return
         
         json_object = json_object["adaptive_application"]
+        mavlink_model.RejectAppMavlinkBlocks(json_object[s_name], name)
         temp_app = AdaptiveApplication(name,AdaptiveApplicationParser.ParseLogger(json_object[s_name]["app"]["logger"]),json_object[s_name]["app"]["functional_groups"])
         if "parms" in json_object[s_name]["app"]:
             temp_app.parms = json_object[s_name]["app"]["parms"]
         if "provide" in json_object[s_name]:
             for item in json_object[s_name]["provide"]:
                if item["on"] == "ipc" or  item["on"] == "udp":
+                    mavlink_model.RejectMavlinkKeys(item, name)
                     t_name:str = item["name"]
                     orginal_name = t_name
                     if "as" in t_name:
@@ -33,6 +36,9 @@ class AdaptiveApplicationParser:
                         port = item["port"]
                     temp_app.provide_someip[t_name] = SomeipItem(item["on"],port,item["instance"],SomeIpDb().FindService(orginal_name,package),"kOut")
                
+               elif item["on"] == "mavlink":
+                    AdaptiveApplicationParser.ParseMavlinkItem(temp_app, temp_app.provide_someip, item, package, name, "kOut")
+
                elif item["on"] == "diag":
                     t_name:str = item["name"]
                     orginal_name = t_name
@@ -59,6 +65,7 @@ class AdaptiveApplicationParser:
         if "require" in json_object[s_name]:
             for item in json_object[s_name]["require"]:
                if item["on"] == "ipc" or  item["on"] == "udp":
+                    mavlink_model.RejectMavlinkKeys(item, name)
                     t_name:str = item["name"]
                     orginal_name = t_name
                     if "as" in t_name:
@@ -72,6 +79,9 @@ class AdaptiveApplicationParser:
                         port = item["port"]
                     temp_app.require_someip[t_name] = SomeipItem(item["on"],port,item["instance"],SomeIpDb().FindService(orginal_name,package),"kIn")
                
+               elif item["on"] == "mavlink":
+                    AdaptiveApplicationParser.ParseMavlinkItem(temp_app, temp_app.require_someip, item, package, name, "kIn")
+
             #    elif item["on"] == "diag":
             #         t_name:str = item["name"]
             #         orginal_name = t_name
@@ -95,7 +105,26 @@ class AdaptiveApplicationParser:
             #         temp_app.provide_dtc[t_name] = DtcItem(DiagDb().FindDtc(orginal_name,package))   
    
         AdaptiveApplicationDb().app_list[name] = temp_app
-        
+
+    def ParseMavlinkItem(temp_app, target, item, package, app_name, direction):
+        t_name:str = item["name"]
+        orginal_name = t_name
+        if " as " in t_name:
+            temp = t_name.split(" as ")
+            orginal_name = temp[0]
+            t_name = temp[1]
+        print (orginal_name+" -> "+t_name)
+        if t_name in temp_app.provide_someip or t_name in temp_app.require_someip:
+            raise mavlink_model.MavlinkModelError(
+                f"{app_name}.{t_name}: duplicate entry name (the name after 'as' must be unique "
+                "across provide and require)")
+        service = SomeIpDb().FindService(orginal_name,package)
+        mav = mavlink_model.ParseServiceItem(item, t_name, app_name, service, direction)
+        # A SomeipItem with on="mavlink" lets proxy/skeleton classes be generated as for ipc/udp.
+        someip_item = SomeipItem("mavlink","",item["instance"],service,direction)
+        someip_item.mavlink = mav
+        target[t_name] = someip_item
+
     def ParseLogger(json_object) -> LogerConfig:
         logger = LogerConfig(json_object["app_id"],json_object["app_des"],json_object["log_level"],json_object["log_mode"])
         if "ctx" in json_object:

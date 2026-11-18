@@ -1,5 +1,6 @@
 from __future__ import annotations
 import sys
+from tools.model_generator.ara.mavlink.mavlink_model import MavlinkModelError
 import os
 import json
 from tools.model_generator.ara.common.common_parser import CommonParser
@@ -24,7 +25,11 @@ if __name__ == "__main__":
                             raise Exception("Multiple Adaptive App model found!")
     
     if len(src_path) != 0:                
-        LoadJson(src_path)
+        try:
+            LoadJson(src_path)
+        except MavlinkModelError as e:
+            print(f"ERROR mavlink: {e}", file=sys.stderr)
+            sys.exit(1)
         with open(out_path+"/logger.json","w") as out_file:
             json.dump(AdaptiveApplicationExtractor.CreateLoggerJson(AdaptiveApplicationDb().app_list[list(AdaptiveApplicationDb().app_list.keys())[0]]),out_file,indent=2)
         with open(out_path+"/srp_app.json","w") as out_file:
