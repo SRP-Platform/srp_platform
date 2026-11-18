@@ -67,6 +67,7 @@
         - build_example_ecu_x86_fast
         - build_example_ecu_arm_fast
         - build_example_ecu_rpi
+        - itf-core-rpi
 
     gate:
       jobs:
