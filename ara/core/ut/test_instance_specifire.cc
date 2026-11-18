@@ -19,7 +19,7 @@
 
 using namespace ara::core;  // NOLINT
 
-// Parametryzowane testy dla operatorów porównania i metod
+// Parameterized tests for the comparison operators and methods
 class InstanceSpecifierTest : public ::testing::TestWithParam<std::tuple<StringView, StringView, bool>> {};
 
 TEST_P(InstanceSpecifierTest, EqualityOperator) {
@@ -71,7 +71,7 @@ TEST_P(InstanceSpecifierTest, ToStringMethod) {
     EXPECT_EQ(instance.ToString(), identifier);
 }
 
-// Definicja zestawu danych dla parametrów
+// Definition of the parameter data set
 INSTANTIATE_TEST_SUITE_P(
     EqualityTests,
     InstanceSpecifierTest,
