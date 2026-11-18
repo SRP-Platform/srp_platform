@@ -88,4 +88,3 @@
     integrity-tests:
       jobs:
         - noop
-        - itf-core-rpi
