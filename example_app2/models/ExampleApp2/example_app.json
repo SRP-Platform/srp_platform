@@ -1,5 +1,6 @@
 {
     "include": [
+        "example_app2/models/ExampleApp2/engine_service.json",
         "example_app2/models/ExampleApp2/example_service.json"
     ],
     "package": "srp.example",
@@ -47,8 +48,69 @@
                     "on": "udp",
                     "port": "10001",
                     "instance": 1
+                },
+                {
+                    "name": "EngineService as Engine_red_in",
+                    "on": "mavlink",
+                    "instance": 2,
+                    "links": [
+                        "lora",
+                        "wifi"
+                    ],
+                    "target_system_id": 1,
+                    "target_component_id": 1,
+                    "source_system_id": 1,
+                    "source_component_id": 1
+                },
+                {
+                    "name": "EngineService as Engine_lora_in",
+                    "on": "mavlink",
+                    "instance": 3,
+                    "links": [
+                        "lora"
+                    ],
+                    "target_system_id": 1,
+                    "target_component_id": 1,
+                    "source_system_id": 1,
+                    "source_component_id": 1,
+                    "exclude": [
+                        "DebugDump"
+                    ],
+                    "max_rate_hz": {
+                        "Telemetry": 1
+                    }
+                },
+                {
+                    "name": "EngineService as Engine_wifi_in",
+                    "on": "mavlink",
+                    "instance": 4,
+                    "links": [
+                        "wifi"
+                    ],
+                    "target_system_id": 1,
+                    "target_component_id": 1,
+                    "source_system_id": 1,
+                    "source_component_id": 1,
+                    "max_rate_hz": {
+                        "Telemetry": 20
+                    }
                 }
-            ]
+            ],
+            "mavlink": {
+                "system_id": 2,
+                "component_id": 1,
+                "dialect": "srp_example"
+            },
+            "mavlink_links": {
+                "lora": {
+                    "version": 2,
+                    "heartbeat_hz": 1
+                },
+                "wifi": {
+                    "version": 2,
+                    "heartbeat_hz": 1
+                }
+            }
         }
     }
 }

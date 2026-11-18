@@ -13,6 +13,9 @@ filegroup(
     name = "service_instance",
     srcs = [
         "example_data_type.json",
+        "engine_mode.json",
+        "engine_service.json",
+        "engine_telemetry.json",
         "example_data_type2.json",
         "example_service.json",
     ],

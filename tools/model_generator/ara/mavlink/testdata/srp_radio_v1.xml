@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<!-- Wygenerowane automatycznie przez model_generator (mavlink). Nie edytować. -->
+<mavlink>
+  <include>minimal.xml</include>
+  <dialect>286</dialect>
+  <messages>
+    <message id="200" name="SRP_RADIO_POSITION">
+      <description>Event srp.t.Radio.Position</description>
+      <field type="uint16_t" name="seq">seq</field>
+      <field type="uint16_t" name="instance">instance</field>
+      <field type="float" name="lat">lat</field>
+      <field type="float" name="lon">lon</field>
+      <field type="uint8_t" name="fix_type">fix_type</field>
+    </message>
+    <message id="201" name="SRP_RADIO_TEMP">
+      <description>Event srp.t.Radio.Temp</description>
+      <field type="uint16_t" name="seq">seq</field>
+      <field type="uint16_t" name="instance">instance</field>
+      <field type="double" name="value">value</field>
+    </message>
+    <message id="210" name="SRP_RADIO_SET_MODE_REQ">
+      <description>Request metody srp.t.Radio.SetMode</description>
+      <field type="uint16_t" name="seq">seq</field>
+      <field type="uint16_t" name="instance">instance</field>
+      <field type="uint8_t" name="target_system">target_system</field>
+      <field type="uint8_t" name="target_component">target_component</field>
+      <field type="int16_t" name="value">value</field>
+    </message>
+    <message id="211" name="SRP_RADIO_SET_MODE_RESP">
+      <description>Odpowiedź metody srp.t.Radio.SetMode</description>
+      <field type="uint16_t" name="seq">seq</field>
+      <field type="uint16_t" name="instance">instance</field>
+      <field type="uint8_t" name="target_system">target_system</field>
+      <field type="uint8_t" name="target_component">target_component</field>
+      <field type="uint8_t" name="status">status</field>
+      <field type="uint8_t" name="value">value</field>
+    </message>
+  </messages>
+</mavlink>

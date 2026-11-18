@@ -1,0 +1,61 @@
+{
+    "include": [
+        "tests/mavlink/peer_model_v1/service_Example.json"
+    ],
+    "package": "srp.test",
+    "adaptive_application": {
+        "MavApp": {
+            "app": {
+                "functional_groups": [
+                    "Running"
+                ],
+                "parms": "-t -10- 100",
+                "logger": {
+                    "app_id": "MAV-",
+                    "app_des": "Fixture",
+                    "log_level": "kInfo",
+                    "log_mode": "kRemote"
+                }
+            },
+            "mavlink": {
+                "system_id": 1,
+                "component_id": 1,
+                "dialect": "srp_radio"
+            },
+            "mavlink_links": {
+                "r1": {
+                    "version": 1,
+                    "heartbeat_hz": 1
+                },
+                "r2": {
+                    "version": 1,
+                    "heartbeat_hz": 1
+                }
+            },
+            "provide": [
+                {
+                    "name": "Example as Example_i3",
+                    "on": "mavlink",
+                    "instance": 3,
+                    "links": [
+                        "r1",
+                        "r2"
+                    ],
+                    "target_system_id": 0,
+                    "target_component_id": 0
+                },
+                {
+                    "name": "Example as Example_i4",
+                    "on": "mavlink",
+                    "instance": 4,
+                    "links": [
+                        "r1"
+                    ],
+                    "target_system_id": 0,
+                    "target_component_id": 0
+                }
+            ],
+            "require": []
+        }
+    }
+}

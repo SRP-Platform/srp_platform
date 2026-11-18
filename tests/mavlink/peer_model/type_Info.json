@@ -1,0 +1,9 @@
+{
+    "include": [],
+    "package": "srp.test",
+    "data_structure": {
+        "Info": {
+            "offset": "int16"
+        }
+    }
+}

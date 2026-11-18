@@ -141,7 +141,13 @@ def ara_runtime_lib(name, model_src, visibility = []):
 
     native.cc_library(
         name = name,
-        deps = ["@srp_platform//ara/core:ara_initialization_lib", "@srp_platform//ara/log", "@srp_platform//ara/com"],
+        deps = [
+            "@srp_platform//ara/core:ara_initialization_lib",
+            "@srp_platform//ara/log",
+            "@srp_platform//ara/com",
+            "@srp_platform//ara/com/mavlink:link_manager_global",
+            "@srp_platform//ara/com/mavlink:link_transport_registry",
+        ],
         srcs = [":runtime_src"],
         includes = ["."],
         visibility = visibility,

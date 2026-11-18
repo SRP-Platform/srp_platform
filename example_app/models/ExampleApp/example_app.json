@@ -1,5 +1,6 @@
 {
     "include": [
+        "example_app/models/ExampleApp/engine_service.json",
         "example_app/models/ExampleApp/example_service.json"
     ],
     "package": "srp.example",
@@ -46,6 +47,43 @@
                     "on": "udp",
                     "port": "10001",
                     "instance": 1
+                },
+                {
+                    "name": "EngineService as Engine_red",
+                    "on": "mavlink",
+                    "instance": 2,
+                    "links": [
+                        "lora",
+                        "wifi"
+                    ]
+                },
+                {
+                    "name": "EngineService as Engine_lora",
+                    "on": "mavlink",
+                    "instance": 3,
+                    "links": [
+                        "lora"
+                    ],
+                    "exclude": [
+                        "DebugDump"
+                    ],
+                    "max_rate_hz": {
+                        "Telemetry": 1
+                    }
+                },
+                {
+                    "name": "EngineService as Engine_wifi",
+                    "on": "mavlink",
+                    "instance": 4,
+                    "links": [
+                        "wifi"
+                    ],
+                    "exclude": [
+                        "SetMode"
+                    ],
+                    "max_rate_hz": {
+                        "Telemetry": 20
+                    }
                 }
             ],
             "require": [
@@ -55,7 +93,22 @@
                     "port": "10001",
                     "instance": 4
                 }
-            ]
+            ],
+            "mavlink": {
+                "system_id": 1,
+                "component_id": 1,
+                "dialect": "srp_example"
+            },
+            "mavlink_links": {
+                "lora": {
+                    "version": 2,
+                    "heartbeat_hz": 1
+                },
+                "wifi": {
+                    "version": 2,
+                    "heartbeat_hz": 1
+                }
+            }
         }
     }
 }

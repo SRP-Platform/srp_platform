@@ -3,6 +3,7 @@ cc_library(
     srcs = [
         "binding_factory.cc",
         "ipc_bindings.cc",
+        "mavlink/mavlink_bindings.cc",
         "proxy/udp_proxy_bindings.cc",
         "skeleton/udp_skeleton_bindings.cc",
     ],
@@ -10,6 +11,7 @@ cc_library(
         "binding_factory.h",
         "common_bindings.h",
         "ipc_bindings.h",
+        "mavlink/mavlink_bindings.h",
         "proxy/udp_proxy_bindings.h",
         "skeleton/udp_skeleton_bindings.h",
     ],
@@ -17,6 +19,8 @@ cc_library(
     deps = [
         "@srp_platform//ara/com:com_error_domain",
         "@srp_platform//ara/com:com_log",
+        "@srp_platform//ara/com/mavlink:link_manager",
+        "@srp_platform//ara/com/mavlink:link_manager_global",
         "@srp_platform//bindings/common/shm:shm_buffor_lib",
         "@srp_platform//ara/com/someip:someip_data",
         "@srp_platform//ara/com/someip/bindings:binding_interface",
@@ -37,5 +41,21 @@ cc_library(
         "@srp_platform//ara/com/someip:someip_data",
         "@srp_platform//ara/core:Result",
         "@srp_platform//ara/core/model:Model_lib",
+    ],
+)
+
+cc_test(
+    name = "test_mavlink_bindings",
+    srcs = ["mavlink/ut/test_mavlink_bindings.cc"],
+    testonly = True,
+    deps = [
+        ":bindings_lib",
+        "@com_google_googletest//:gtest_main",
+        "@srp_platform//ara/com/mavlink:link_manager",
+        "@srp_platform//ara/com/mavlink:link_transport_registry",
+        "@srp_platform//ara/com/mavlink:memory_transport",
+        "@srp_platform//ara/com/someip:someip_lib",
+        "@srp_platform//ara/core:model_db_lib",
+        "@srp_platform//ara/log",
     ],
 )

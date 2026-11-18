@@ -1,0 +1,9 @@
+{
+    "package": "srp.example",
+    "data_structure": {
+        "EngineTelemetry": {
+            "rpm": "uint16",
+            "temp": "float32"
+        }
+    }
+}

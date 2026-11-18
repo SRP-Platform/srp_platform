@@ -6,6 +6,8 @@ class Endpoint:
         self.id:int = id
         self.in_parm:data_type = in_parm
         self.out_parm:data_type = out_parm
+        self.desc = ""  # opis z modelu (service.json: "desc")
+        self.mavlink = None  # blok "mavlink" z service.json (dict) albo None
         
 class Method(Endpoint):
     def __init__(self, name: str, id: int, in_parm: data_type, out_parm: data_type) -> None:

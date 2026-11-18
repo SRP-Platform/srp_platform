@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sys
+from tools.model_generator.ara.mavlink.mavlink_errors import MavlinkModelError
 import os
 import json
 
@@ -37,14 +38,19 @@ if __name__ == "__main__":
                             raise Exception("Multiple Adaptive App model found!")
     
     if len(src_path) != 0:                
-        LoadJson(src_path)
+        try:
+            LoadJson(src_path)
+        except MavlinkModelError as e:
+            print(f"BŁĄD mavlink: {e}", file=sys.stderr)
+            sys.exit(1)
         temp_s = ""
         temp_s = DiagRuntimeEnv.CreateInitDB(list(AdaptiveApplicationDb().app_list.keys())[0].replace(".","/"),
                                              AdaptiveApplicationDb().app_list[list(AdaptiveApplicationDb().app_list.keys())[0]].GetDtcList(),
                                              AdaptiveApplicationDb().app_list[list(AdaptiveApplicationDb().app_list.keys())[0]].GetJobList())
         temp_s+="\n"
         temp_s+= SomeipRuntimeEnv.CreateInitDB(list(AdaptiveApplicationDb().app_list.keys())[0].replace(".","/"),
-                                               AdaptiveApplicationDb().app_list[list(AdaptiveApplicationDb().app_list.keys())[0]].GetServiceList())
+                                               AdaptiveApplicationDb().app_list[list(AdaptiveApplicationDb().app_list.keys())[0]].GetServiceList(),
+                                               AdaptiveApplicationDb().app_list[list(AdaptiveApplicationDb().app_list.keys())[0]])
         temp_s+="\n"
         temp_s+=AdaptiveApplicationRuntimeEnv.CreateLogerInit(AdaptiveApplicationDb().app_list[list(AdaptiveApplicationDb().app_list.keys())[0]])
         app_id = AdaptiveApplicationDb().app_list[list(AdaptiveApplicationDb().app_list.keys())[0]].id
@@ -107,6 +113,11 @@ Result<void> Deinitialize() noexcept {
 }
 
 """
+        if AdaptiveApplicationDb().app_list[list(AdaptiveApplicationDb().app_list.keys())[0]].GetMavlinkEntries():
+            file_content_core = file_content_core.replace('#include "ara/core/model/com_model_item.h"\n','#include "ara/core/model/com_model_item.h"\n#include "ara/core/model/mavlink_model_item.h"\n',1)
+            # Deinitialize zatrzymuje łącza MAVLink i czyści rejestr transportów (external).
+            file_content_core = file_content_core.replace('#include "ara/core/model/mavlink_model_item.h"\n','#include "ara/core/model/mavlink_model_item.h"\n#include "ara/com/mavlink/link_manager.h"\n#include "ara/com/mavlink/link_transport_registry.h"\n',1)
+            file_content_core = file_content_core.replace('  ara_stop_source_.request_stop();\n','  ara_stop_source_.request_stop();\n  ara::com::mavlink::LinkManager::Instance().Shutdown();\n  ara::com::mavlink::ClearLinkTransports();\n',1)
         with open(out_path+"/initialization.cc","w") as out_file:
             out_file.write(file_content_core+temp_s+file_content_core_end)
     else:

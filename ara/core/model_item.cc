@@ -37,5 +37,13 @@ std::optional<model::ModelUds> ModelItem::GetValue() const {
   return std::nullopt;
 }
 
+template <>
+std::optional<model::ModelMavlink> ModelItem::GetValue() const {
+  if (value_.index() == 3) {
+    return std::get<model::ModelMavlink>(value_);
+  }
+  return std::nullopt;
+}
+
 }  // namespace core
 }  // namespace ara

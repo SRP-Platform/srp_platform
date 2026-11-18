@@ -1,0 +1,14 @@
+{
+    "include": [
+        "tests/mavlink/peer_model/type_Info.json"
+    ],
+    "package": "srp.test",
+    "data_structure": {
+        "StatusData": {
+            "state": "uint8",
+            "temp": "float32",
+            "counter": "uint32",
+            "info": "Info"
+        }
+    }
+}
