@@ -35,6 +35,25 @@ cc_library(
     ],
 )
 
+# IPC between applications and the MavlinkDaemon: the message protocol and the SEQPACKET socket.
+cc_library(
+    name = "daemon_ipc",
+    srcs = [
+        "daemon_ipc.cc",
+        "daemon_protocol.cc",
+    ],
+    hdrs = [
+        "daemon_ipc.h",
+        "daemon_protocol.h",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":mavlink_core",
+        "@srp_platform//ara/com:com_error_domain",
+        "@srp_platform//ara/core:Result",
+    ],
+)
+
 # Radio driver API and the driver registry (static registration, SRP_MAVLINK_REGISTER_DRIVER).
 cc_library(
     name = "radio_driver",
@@ -167,6 +186,26 @@ cc_test(
     testonly = True,
     deps = [
         ":mavlink_core",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
+    name = "test_daemon_protocol",
+    srcs = ["ut/test_daemon_protocol.cc"],
+    testonly = True,
+    deps = [
+        ":daemon_ipc",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
+    name = "test_daemon_ipc",
+    srcs = ["ut/test_daemon_ipc.cc"],
+    testonly = True,
+    deps = [
+        ":daemon_ipc",
         "@com_google_googletest//:gtest_main",
     ],
 )
