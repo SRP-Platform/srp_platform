@@ -1,0 +1,17 @@
+{
+    "include": ["tools/model_generator/ara/mavlink/plain_app/types.json"],
+    "package": "srp.plain",
+    "someip": {
+        "Sensor": {
+            "service_id": 30,
+            "major_version": 1,
+            "minor_version": 0,
+            "events": {
+                "Reading": {
+                    "id": 32769,
+                    "data_structure": {"out": {"type": "Value"}}
+                }
+            }
+        }
+    }
+}

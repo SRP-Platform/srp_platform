@@ -5,6 +5,10 @@ from tools.model_generator.ara.common.data_structure_db import DataStructureDB
 
 import json
 
+# Keys allowed in a method/event of service.json; any other key is an error (a misspelled
+# "mavlink" would silently exclude the element from MAVLink).
+ELEMENT_KEYS = ("id", "data_structure", "desc", "mavlink")
+
 class SomeIpParser:
     def LoadJson(path:str):
         with open(path,"r") as json_file:
@@ -32,29 +36,42 @@ class SomeIpParser:
         temp_service.major = json_obj["someip"][temp_list[0]]["major_version"]
         temp_service.minor = json_obj["someip"][temp_list[0]]["minor_version"]
         if "methods" in json_obj["someip"][temp_list[0]]:
-            temp_service.methods.extend(SomeIpParser.ExportMethodsList(json_obj["package"],json_obj["someip"][temp_list[0]]["methods"],db_))
+            temp_service.methods.extend(SomeIpParser.ExportMethodsList(json_obj["package"],json_obj["someip"][temp_list[0]]["methods"],db_,name))
         if "events" in json_obj["someip"][temp_list[0]]:
-            temp_service.events.extend(SomeIpParser.ExportEventsList(json_obj["package"],json_obj["someip"][temp_list[0]]["events"],db_))
+            temp_service.events.extend(SomeIpParser.ExportEventsList(json_obj["package"],json_obj["someip"][temp_list[0]]["events"],db_,name))
         SomeIpDb().service_list[name] = temp_service
             
         
-    def ExportMethodsList(package:str,method_json_list,db_:SomeIpDb) -> list[Method]:
+    def CheckElementKeys(json_object, name:str, service:str):
+        for key in json_object:
+            if key not in ELEMENT_KEYS:
+                raise ValueError(f"{service}.{name}: unknown key '{key}' (allowed: {', '.join(ELEMENT_KEYS)})")
+
+    def ExportMethodsList(package:str,method_json_list,db_:SomeIpDb,service:str = "") -> list[Method]:
         res: list[Method] = []
         for key, json_object in method_json_list.items():
-            res.append(SomeIpParser.ExportMethod(key,package,json_object,db_))
+            res.append(SomeIpParser.ExportMethod(key,package,json_object,db_,service))
         return res
 
-    def ExportEventsList(package:str,method_json_list,db_:SomeIpDb) -> list[Event]:
+    def ExportEventsList(package:str,method_json_list,db_:SomeIpDb,service:str = "") -> list[Event]:
         res: list[Event] = []
         for key, json_object in method_json_list.items():
-            res.append(SomeIpParser.ExportEvent(key,package,json_object,db_))
+            res.append(SomeIpParser.ExportEvent(key,package,json_object,db_,service))
         return res
 
-    def ExportMethod(name:str,package:str,json_object,db_:SomeIpDb) -> Method:
+    def ExportMethod(name:str,package:str,json_object,db_:SomeIpDb,service:str = "") -> Method:
+        SomeIpParser.CheckElementKeys(json_object, name, service)
         input_parm = DataStructureDB().CreateVariable("in_parm",package,json_object["data_structure"]["in"]["type"])
         output_parm = DataStructureDB().CreateVariable("out",package,json_object["data_structure"]["out"]["type"])
-        return Method(name,json_object["id"],input_parm,output_parm)
+        method = Method(name,json_object["id"],input_parm,output_parm)
+        method.mavlink = json_object.get("mavlink")
+        method.desc = json_object.get("desc", "")
+        return method
     
-    def ExportEvent(name:str,package:str,json_object,db_:SomeIpDb) -> Event:
+    def ExportEvent(name:str,package:str,json_object,db_:SomeIpDb,service:str = "") -> Event:
+        SomeIpParser.CheckElementKeys(json_object, name, service)
         output_parm = DataStructureDB().CreateVariable("out",package,json_object["data_structure"]["out"]["type"])
-        return Event(name,json_object["id"],output_parm)
+        event = Event(name,json_object["id"],output_parm)
+        event.mavlink = json_object.get("mavlink")
+        event.desc = json_object.get("desc", "")
+        return event

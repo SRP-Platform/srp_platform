@@ -4,6 +4,7 @@ import hashlib
 
 from tools.model_generator.ara.diag.diag_db import *
 from tools.model_generator.ara.someip.lib.someip_db import *
+from tools.model_generator.ara.mavlink.mavlink_model import MavlinkItem
 
 class SomeipItem:
     def __init__(self,on:str,port:str,instance:int, item:Service, dir:str) -> None:
@@ -12,6 +13,7 @@ class SomeipItem:
         self.instance = instance
         self.item = item
         self.dir = dir
+        self.mavlink: MavlinkItem | None = None  # set for on == "mavlink"
         
 class DtcItem:
     def __init__(self, item:diag_dtc) -> None:
@@ -116,3 +118,11 @@ class AdaptiveApplication:
         return res
     def GetServiceList(self) -> dict[str,SomeipItem]:
         return {**self.provide_someip ,**self.require_someip}
+
+    def GetMavlinkEntries(self):
+        """on=mavlink entries: (name, direction, Service, instance, MavlinkItem)."""
+        res = []
+        for key, val in {**self.provide_someip, **self.require_someip}.items():
+            if val.mavlink is not None:
+                res.append((key, val.dir, val.item, val.instance, val.mavlink))
+        return res

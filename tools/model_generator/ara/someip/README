@@ -1,6 +1,6 @@
-Generator który tworzy klasy na podstawie definicji serwisu w pliku json. 
+Generator that creates classes from a service definition in a json file. 
 
-Predefiniowane typy danych:
+Predefined data types:
 ```
 uint8  -> uint8_t
 uint16 -> uint16_t
@@ -12,10 +12,10 @@ int32  -> int32_t
 int64  -> int64_t
 float32  -> float 
 float64  -> double
-bool     -> bool/uint8_t (jak mamy od 2 do 8 pod rząd to zostaną one potraktowane jako jeden uint8_t)
-string   -> string (na końcu zawsze będzie dodawany znak końca linit '\n' chyba że został dodany wcześniej)
+bool     -> bool/uint8_t (2 to 8 consecutive bools are treated as one uint8_t)
+string   -> string (a terminating '\n' is always appended unless it is already there)
 ```
-Definiowanie własnego typu danych:
+Defining your own data type:
 ```
 {
     "package":"<pacage_name>",
@@ -26,21 +26,21 @@ Definiowanie własnego typu danych:
     }
 }
 ```
-Przykładowa własna 
+Example of a custom 
 
-Definiowanie własnego serwis:
+Defining your own service:
 ```
 {
     "include":[],
     "package":"<pacage_name>",
     "someip":{
         "<service_name>":{
-            "service_id":<uint16 z id serwisu>,
+            "service_id":<uint16 service id>,
             "major_version":<uint8_t>,
             "minor_version":<uint32_t>,
             "methods":{
                 "<method_name>":{
-                    "id":<uint16 z id metody>,
+                    "id":<uint16 method id>,
                     "data_structure":{
                         "name":"<field_name>",
                         "type":"<data_type>"
@@ -49,7 +49,7 @@ Definiowanie własnego serwis:
             },
             "events":{
                 "<event_name>":{
-                    "id":<uint16 z id eventu>,
+                    "id":<uint16 event id>,
                     "data_structure":{
                         "name":"<field_name>",
                         "type":"<data_type>"
