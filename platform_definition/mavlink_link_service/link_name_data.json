@@ -1,0 +1,9 @@
+{
+    "package": "srp.platform.mavlink",
+    "data_structure": {
+        "LinkNameData": {
+            "link_name_lo": "uint64",
+            "link_name_hi": "uint64"
+        }
+    }
+}

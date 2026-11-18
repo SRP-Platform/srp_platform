@@ -1,0 +1,38 @@
+{
+    "include": [
+        "@(srp_platform)/platform_definition/mavlink_link_service/link_name_data.json",
+        "@(srp_platform)/platform_definition/mavlink_link_service/link_stats.json"
+    ],
+    "package": "srp.platform.mavlink",
+    "someip": {
+        "MavlinkLinkService": {
+            "service_id": 60,
+            "major_version": 1,
+            "minor_version": 0,
+            "methods": {
+                "GetLinkStats": {
+                    "id": 1,
+                    "data_structure": {
+                        "in": {
+                            "name": "link",
+                            "type": "LinkNameData"
+                        },
+                        "out": {
+                            "type": "LinkStatsData"
+                        }
+                    }
+                }
+            },
+            "events": {
+                "LinkStats": {
+                    "id": 32769,
+                    "data_structure": {
+                        "out": {
+                            "type": "LinkStatsData"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

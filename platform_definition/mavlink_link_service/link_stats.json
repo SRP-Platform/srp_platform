@@ -1,0 +1,24 @@
+{
+    "package": "srp.platform.mavlink",
+    "data_structure": {
+        "LinkStatsData": {
+            "link_index": "uint8",
+            "link_name_lo": "uint64",
+            "link_name_hi": "uint64",
+            "ready": "bool",
+            "age_ms": "uint32",
+            "valid": "uint8",
+            "rssi_dbm": "int16",
+            "noise_floor_dbm": "int16",
+            "snr_db": "int16",
+            "rx_ok": "uint32",
+            "rx_crc_err": "uint32",
+            "rx_sig_err": "uint32",
+            "tx_frames": "uint32",
+            "tx_busy": "uint32",
+            "tx_dropped": "uint32",
+            "tx_expired": "uint32",
+            "budget_pct": "uint8"
+        }
+    }
+}
