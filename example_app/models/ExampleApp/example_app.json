@@ -1,5 +1,6 @@
 {
     "include": [
+        "example_app/models/ExampleApp/engine_service.json",
         "example_app/models/ExampleApp/example_service.json"
     ],
     "package": "srp.example",
@@ -46,6 +47,30 @@
                     "on": "udp",
                     "port": "10001",
                     "instance": 1
+                },
+                {
+                    "name": "EngineService as Engine_red",
+                    "on": "mavlink",
+                    "instance": 2,
+                    "links": [
+                        "radio_a",
+                        "radio_b"
+                    ]
+                },
+                {
+                    "name": "EngineService as Engine_a",
+                    "on": "mavlink",
+                    "instance": 3,
+                    "links": [
+                        "radio_a"
+                    ],
+                    "exclude": [
+                        "SetMode",
+                        "DebugDump"
+                    ],
+                    "max_rate_hz": {
+                        "Telemetry": 1
+                    }
                 }
             ],
             "require": [
