@@ -1,0 +1,44 @@
+# Pre-run of itf-core-rpi: QEMU RPi (Alpine aarch64, :qemu_rpi) with the test
+# ECU flashed, ready for //tests:core_all. The guest is 192.168.10.101 on tap0,
+# root over ssh without a password (tools/rpi/provision.sh --qemu).
+- hosts: all
+  vars:
+    srp_ssh: >-
+      ssh -o BatchMode=yes -o ConnectTimeout=3 -o StrictHostKeyChecking=no
+      -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR root@192.168.10.101
+  tasks:
+    - name: Network configure (tap0 owned by the job user)
+      become: true
+      shell:
+        executable: /bin/bash
+        cmd: cd {{ zuul.project.src_dir }} && bash tools/qemu/no_root_network_configure.sh
+    - name: Build QEMU RPi image (network access to dl-cdn.alpinelinux.org)
+      shell:
+        executable: /bin/bash
+        cmd: cd {{ zuul.project.src_dir }} && bazel run //tools/qemu:build_rpi_image
+    - name: Run QEMU RPi
+      shell:
+        executable: /bin/bash
+        cmd: >-
+          cd {{ zuul.project.src_dir }} &&
+          nohup bazel run //tools/qemu:qemu_rpi -- --console
+          < /dev/null > qemu_rpi_console.log 2>&1
+      async: 10000
+      poll: 0
+    - name: Wait for ssh
+      shell:
+        executable: /bin/bash
+        cmd: >-
+          for i in $(seq 100); do {{ srp_ssh }} true && exit 0; sleep 3; done;
+          echo "no ssh to 192.168.10.101"; exit 1
+    - name: Flash ECU
+      shell:
+        executable: /bin/bash
+        cmd: cd {{ zuul.project.src_dir }} && bazel run --config=rpi-platform //test_cpu/cpu/ec:flash
+    - name: Wait for the ECU after flash (reboot, diag_demon running)
+      shell:
+        executable: /bin/bash
+        cmd: >-
+          sleep 15;
+          for i in $(seq 100); do {{ srp_ssh }} pidof diag_demon && exit 0; sleep 3; done;
+          echo "diag_demon not running after flash"; exit 1

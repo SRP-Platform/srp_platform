@@ -1,0 +1,19 @@
+# Post-run of itf-core-rpi: stop QEMU RPi and remove tap0.
+- hosts: all
+  tasks:
+    - name: QEMU RPi console log (tail)
+      shell:
+        executable: /bin/bash
+        cmd: tail -n 100 {{ zuul.project.src_dir }}/qemu_rpi_console.log
+      ignore_errors: true
+    - name: Stopping qemu
+      shell:
+        executable: /bin/bash
+        # [q]: do not match the shell running this command.
+        cmd: pkill -f "[q]emu-system-aarch64"
+      ignore_errors: true
+    - name: Network remove
+      become: true
+      shell:
+        executable: /bin/bash
+        cmd: cd {{ zuul.project.src_dir }} && bash tools/qemu/no_root_remove_network_configure.sh
