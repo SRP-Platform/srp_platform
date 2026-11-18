@@ -40,13 +40,15 @@ there is no GPIO, I2C, 1-Wire, WiFi or SD card - only the system, the SRP servic
 | Image | `@qemu_image` (srp-poky, downloaded by bazel) | built locally into a cache (below) |
 | Network | `tap0`, guest `eth0` = `192.168.10.101` | the same |
 | Disk | `snapshot=on` (changes are lost on exit) | the same |
-| Login | console and ssh `root` without password | console `root` without password, ssh `root` **with a key only** |
+| Login | console and ssh `root` without password | the same |
 
-The empty root password of the RPi image is meant only for the serial console of this local guest; sshd still
-accepts root with a key only (`PermitRootLogin prohibit-password`).
+Root without a password over ssh (`PermitRootLogin yes`, `PermitEmptyPasswords yes`) is set only by
+`provision.sh apply --qemu` for this local guest on `tap0`, like in the BBB image (srp-poky debug-tweaks), so
+`flash` and the ITF tests (`//tests:core_all`) need no key. The real board keeps ssh root with a key only.
 
 Extra host tools: `qemu-system-aarch64` (part of `qemu-system-arm` on Ubuntu), `curl`, `python3`, `debugfs`
-(`e2fsprogs`), and an ssh key in `~/.ssh/id_ed25519.pub`. No `sudo` is needed (except for `network_configure`).
+(`e2fsprogs`). An ssh key in `~/.ssh/id_ed25519.pub` is optional (also installed for root if present). No `sudo`
+is needed (except for `network_configure`).
 
 Build the image once (about 3-5 minutes; network access only to `dl-cdn.alpinelinux.org`):
 
@@ -69,9 +71,9 @@ In `--console` mode QEMU is closed with `CTRL+A X` (or `poweroff` in the guest).
 `qemu-system-aarch64` with user-mode networking. A boot overlay (apkovl) served from `127.0.0.1` runs a one-shot
 script in the guest: `setup-disk` installs Alpine in `sys` mode on a raw virtio disk, then
 `tools/rpi/provision.sh apply --qemu` adds the SRP part (packages `libstdc++ libgcc openssh`, the `/srp` tree,
-`/home/root`, OpenRC services `srp` and `srp-clock`, ssh root with a key only, static `eth0`
+`/home/root`, OpenRC services `srp` and `srp-clock`, ssh root without a password, static `eth0`
 `192.168.10.101/24`) - the same script that prepares the real board, without the hardware part. The host key
-`~/.ssh/id_ed25519.pub` becomes `/root/.ssh/authorized_keys`. Finally the kernel and initramfs of the installed
+`~/.ssh/id_ed25519.pub`, if present, becomes `/root/.ssh/authorized_keys`. Finally the kernel and initramfs of the installed
 system are copied out of the disk with `debugfs`.
 
 Installing inside the guest was chosen over `fakeroot` + `mke2fs -d`: package scripts and triggers (busybox

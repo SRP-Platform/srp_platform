@@ -85,7 +85,7 @@ Logi startu: `/logs/srp_net.log` (sieć) i `/logs/srp_start.log` (SRP, łącznie
 | `/etc/init.d/srp_start.sh` (sysvinit) | usługa OpenRC `srp` → `/usr/local/sbin/srp_start.sh` |
 | `/srp/{opt,platform,update,token}` | to samo, w RAM, utrwalane przez `lbu` |
 | `/home/root/` (logi FileLoggerApp) | dowiązanie `/home/root → /data` |
-| root po ssh bez hasła | root po ssh **tylko kluczem** |
+| root po ssh bez hasła | root po ssh **tylko kluczem** (gość QEMU `--qemu`: bez hasła, jak BBB) |
 | `eth0` (Ethernet) | `eth0` = karta WiFi albo atrapa (rozdział 6) |
 | `/dev/i2c-2`, `/dev/ttyS1` | `/dev/i2c-1`, `/dev/ttyAMA0` — **nie** mapowane; obsługa w kodzie platformą |
 

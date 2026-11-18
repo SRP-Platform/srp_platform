@@ -21,8 +21,9 @@
 #   Output (cache, outside bazel-out and /tmp):
 #     ${SRP_QEMU_RPI_CACHE:-~/.cache/srp_platform/qemu_rpi}/<alpine version>/
 #       disk.img  vmlinuz-virt  initramfs-virt  .complete
-#   The host public key (${SRP_QEMU_RPI_PUBKEY:-~/.ssh/id_ed25519.pub}) goes to
-#   /root/.ssh/authorized_keys of the guest.
+#   Root logs in without a password (console and ssh, provision.sh --qemu).
+#   The host public key (${SRP_QEMU_RPI_PUBKEY:-~/.ssh/id_ed25519.pub}), if it
+#   exists, also goes to /root/.ssh/authorized_keys of the guest.
 #
 ################################################################################
 set -euo pipefail
@@ -75,11 +76,12 @@ find_provision() {
 }
 
 PROVISION="$(find_provision)" || die "tools/rpi/provision.sh not found (set SRP_RPI_PROVISION)"
-[ -f "$PUBKEY" ] || die "no public key $PUBKEY (ssh-keygen -t ed25519 or set SRP_QEMU_RPI_PUBKEY)"
+# Optional - root logs in over ssh without a password anyway.
+[ -f "$PUBKEY" ] || PUBKEY=""
 
 # Everything that changes the image content: this script, provision.sh, the key.
 input_hash() {
-  cat "$0" "$PROVISION" "$PUBKEY" | sha256sum | cut -d' ' -f1
+  cat "$0" "$PROVISION" ${PUBKEY:+"$PUBKEY"} | sha256sum | cut -d' ' -f1
 }
 HASH="$(input_hash)"
 
@@ -140,7 +142,9 @@ printf '%s/%s/main\n%s/%s/community\n' "$MIRROR" "$ALPINE_BRANCH" "$MIRROR" "$AL
 touch "$OVL/etc/.default_boot_services"
 ln -s /etc/init.d/local "$OVL/etc/runlevels/default/local"
 cp "$PROVISION" "$OVL/srp-build/provision.sh"
-cp "$PUBKEY" "$OVL/srp-build/authorized_keys"
+if [ -n "$PUBKEY" ]; then
+  cp "$PUBKEY" "$OVL/srp-build/authorized_keys"
+fi
 cat > "$OVL/etc/local.d/srp-build.start" << 'EOF'
 #!/bin/sh
 # One-shot: install Alpine (sys mode) on /dev/vda for :qemu_rpi, then power off.
@@ -161,7 +165,9 @@ BOOTLOADER=none setup-disk -m sys -k virt /mnt || fail "setup-disk"
 rm -f /mnt/etc/local.d/srp-build.start /mnt/etc/runlevels/default/local
 
 install -d -m 700 /mnt/root/.ssh
-install -m 600 "$S/authorized_keys" /mnt/root/.ssh/authorized_keys
+if [ -f "$S/authorized_keys" ]; then
+  install -m 600 "$S/authorized_keys" /mnt/root/.ssh/authorized_keys
+fi
 install -m 755 "$S/provision.sh" /mnt/root/provision.sh
 cp /etc/resolv.conf /mnt/etc/resolv.conf
 mount -t proc proc /mnt/proc
@@ -174,9 +180,7 @@ grep -q "libstdc++ i libgcc sa" /tmp/apply.log || fail "provision.sh apply --qem
 # Host keys generated once here (TCG is slow, snapshot=on would redo it every boot).
 chroot /mnt ssh-keygen -A || fail "ssh-keygen -A"
 
-# Serial console (ttyAMA0): root without password, only on the console -
-# sshd allows root with a key only (provision.sh: prohibit-password).
-sed -i 's/^root:[^:]*:/root::/' /mnt/etc/shadow
+# Serial console (ttyAMA0); root without password is set by provision.sh --qemu.
 grep -q '^ttyAMA0::' /mnt/etc/inittab ||
   echo 'ttyAMA0::respawn:/sbin/getty -L 0 ttyAMA0 vt100' >> /mnt/etc/inittab
 grep -qx 'ttyAMA0' /mnt/etc/securetty || echo 'ttyAMA0' >> /mnt/etc/securetty

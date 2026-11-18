@@ -25,7 +25,8 @@
 #    --no-usb-console   bez konsoli serwisowej na porcie USB (ttyGS0)
 #    --qemu             gosc QEMU (machine virt, Alpine w trybie sys na dysku
 #                       virtio) zamiast plytki: tylko czesc programowa (pakiety,
-#                       /srp, /home/root, uslugi srp i srp-clock, ssh kluczem),
+#                       /srp, /home/root, uslugi srp i srp-clock, ssh root
+#                       bez hasla i klucza jak gosc BBB),
 #                       eth0 = virtio ze stalym adresem $QEMU_IP; bez
 #                       usercfg.txt, WiFi/srp-net, partycji, ttyGS0, 1-Wire/I2C.
 #                       `lbu commit` zapisuje kopie stanu do $QEMU_LBU_DIR.
@@ -151,7 +152,11 @@ check_system() {
   fi
   command -v ifconfig >/dev/null && ok "ifconfig jest (network_interface.sh)" || bad "brak ifconfig"
   command -v scp >/dev/null && ok "scp jest (flash_ecu)" || warn "brak scp (apk add openssh)"
-  [ -s /root/.ssh/authorized_keys ] && ok "root ma authorized_keys" || warn "root bez authorized_keys - flash_ecu nie zaloguje sie"
+  if [ "$QEMU" -eq 1 ]; then
+    grep -qx "PermitEmptyPasswords yes" /etc/ssh/sshd_config.d/10-srp.conf 2>/dev/null && ok "QEMU: root po ssh bez hasla" || warn "QEMU: sshd nie wpuszcza roota bez hasla (apply --qemu)"
+  else
+    [ -s /root/.ssh/authorized_keys ] && ok "root ma authorized_keys" || warn "root bez authorized_keys - flash_ecu nie zaloguje sie"
+  fi
   rc-update show default 2>/dev/null | grep -q '^ *srp ' && ok "usluga srp wlaczona" || warn "usluga srp nie jest wlaczona"
   if [ -e /sys/class/net/eth0 ]; then
     kind="przewodowy"; [ -d /sys/class/net/eth0/wireless ] && kind="WiFi"
@@ -322,12 +327,19 @@ apply_tree() {
 apply_ssh() {
   echo "=== SSH root (flash_ecu uzywa ssh/scp root@IP) ==="
   mkdir -p /etc/ssh/sshd_config.d
-  # Tylko klucz - bez pustego hasla roota jak w obrazie Yocto (debug-tweaks).
-  printf 'PermitRootLogin prohibit-password\nUseDNS no\n' > /etc/ssh/sshd_config.d/10-srp.conf
+  if [ "$QEMU" -eq 1 ]; then
+    # Tylko lokalny gosc QEMU na tap0: root bez hasla i bez klucza, jak gosc BBB
+    # (srp-poky, debug-tweaks) - flash_ecu i testy ITF (tests/core) bez klucza.
+    passwd -d root > /dev/null
+    printf 'PermitRootLogin yes\nPermitEmptyPasswords yes\nUseDNS no\n' > /etc/ssh/sshd_config.d/10-srp.conf
+  else
+    # Plytka: tylko klucz - bez pustego hasla roota jak w obrazie Yocto (debug-tweaks).
+    printf 'PermitRootLogin prohibit-password\nUseDNS no\n' > /etc/ssh/sshd_config.d/10-srp.conf
+  fi
   grep -q '^Include /etc/ssh/sshd_config.d/' /etc/ssh/sshd_config 2>/dev/null || \
     sed -i '1i Include /etc/ssh/sshd_config.d/*.conf' /etc/ssh/sshd_config
   rc-update add sshd default 2>/dev/null
-  [ -s /root/.ssh/authorized_keys ] || warn "dodaj klucz publiczny do /root/.ssh/authorized_keys"
+  [ "$QEMU" -eq 1 ] || [ -s /root/.ssh/authorized_keys ] || warn "dodaj klucz publiczny do /root/.ssh/authorized_keys"
 }
 
 apply_hw() {
