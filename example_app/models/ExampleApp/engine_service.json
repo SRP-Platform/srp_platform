@@ -1,0 +1,89 @@
+{
+    "include": [
+        "example_app/models/ExampleApp/engine_mode.json",
+        "example_app/models/ExampleApp/engine_telemetry.json"
+    ],
+    "package": "srp.example",
+    "someip": {
+        "EngineService": {
+            "service_id": 101,
+            "major_version": 1,
+            "minor_version": 0,
+            "methods": {
+                "SetMode": {
+                    "id": 1,
+                    "mavlink": {
+                        "req_id": 42110,
+                        "resp_id": 42111
+                    },
+                    "data_structure": {
+                        "in": {
+                            "type": "EngineMode"
+                        },
+                        "out": {
+                            "type": "EngineMode"
+                        }
+                    }
+                },
+                "DebugDump": {
+                    "id": 2,
+                    "mavlink": {
+                        "req_id": 42112
+                    },
+                    "data_structure": {
+                        "in": {
+                            "type": "void"
+                        },
+                        "out": {
+                            "type": "void"
+                        }
+                    }
+                },
+                "Reboot": {
+                    "id": 3,
+                    "data_structure": {
+                        "in": {
+                            "type": "void"
+                        },
+                        "out": {
+                            "type": "void"
+                        }
+                    }
+                }
+            },
+            "events": {
+                "CurrentMode": {
+                    "id": 32769,
+                    "mavlink": {
+                        "msg_id": 42100
+                    },
+                    "data_structure": {
+                        "out": {
+                            "type": "EngineMode"
+                        }
+                    }
+                },
+                "Telemetry": {
+                    "id": 32770,
+                    "mavlink": {
+                        "msg_id": 42101
+                    },
+                    "data_structure": {
+                        "out": {
+                            "type": "EngineTelemetry"
+                        }
+                    }
+                },
+                "Trace": {
+                    "id": 32771,
+                    "mavlink": false,
+                    "data_structure": {
+                        "out": {
+                            "type": "uint8"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

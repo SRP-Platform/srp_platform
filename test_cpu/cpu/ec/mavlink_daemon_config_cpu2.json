@@ -1,0 +1,17 @@
+{
+    "system_id": 1,
+    "component_id": 2,
+    "links": {
+        "radio_a": {
+            "driver": "serial_radio",
+            "driver_config": "/etc/srp/mavlink/radio_a.json"
+        },
+        "radio_b": {
+            "driver": "serial_radio",
+            "driver_config": "/etc/srp/mavlink/radio_b.json",
+            "air_rate_bps": 2400,
+            "max_utilization": 0.8,
+            "mtu": 100
+        }
+    }
+}

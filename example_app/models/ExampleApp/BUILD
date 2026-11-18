@@ -1,5 +1,7 @@
 load("@srp_platform//tools/model_generator/ara:adaptive_application.bzl", "adaptive_application")
 
+exports_files(["example_app.json"])
+
 filegroup(
     name = "instance",
     srcs = [
@@ -13,6 +15,9 @@ filegroup(
     name = "service_instance",
     srcs = [
         "example_data_type.json",
+        "engine_mode.json",
+        "engine_service.json",
+        "engine_telemetry.json",
         "example_data_type2.json",
         "example_service.json",
     ],

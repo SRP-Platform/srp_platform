@@ -1,5 +1,12 @@
 load("@srp_platform//tools/model_generator/ara:adaptive_application.bzl", "adaptive_application")
 
+exports_files(["example_app.json"])
+
+# The service definitions (EngineService, ExampleService) are shared with example_app: both
+# applications run on one CPU (test_cpu/cpu/ec) with one MavlinkDaemon, so the generator reads
+# one dialect and one definition per service. A second copy of the same service in this
+# directory would be a duplicate definition. ExampleApp2 is the client of the EngineService that
+# ExampleApp offers.
 filegroup(
     name = "instance",
     srcs = [
@@ -11,11 +18,7 @@ filegroup(
 
 filegroup(
     name = "service_instance",
-    srcs = [
-        "example_data_type.json",
-        "example_data_type2.json",
-        "example_service.json",
-    ],
+    srcs = ["//example_app/models/ExampleApp:service_instance"],
     visibility = ["//visibility:public"],
 )
 
