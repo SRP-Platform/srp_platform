@@ -18,6 +18,7 @@
 
 #include "ara/com/someip/bindings/i_bindings.h"
 #include "ara/core/model/com_model_item.h"
+#include "ara/core/model/mavlink_model_item.h"
 namespace ara {
 namespace com {
 namespace someip {
@@ -26,6 +27,9 @@ class BindingsFactory {
  public:
   static std::shared_ptr<ara::com::someip::bindings::IBindings> GetBindings(
       const ara::core::model::ModelSomeIp& model);
+  /// MAVLink: chosen by the model type (transport), not by port == 0.
+  static std::shared_ptr<ara::com::someip::bindings::IBindings> GetBindings(
+      const ara::core::model::ModelMavlink& model);
 };
 }  // namespace bindings
 }  // namespace someip
