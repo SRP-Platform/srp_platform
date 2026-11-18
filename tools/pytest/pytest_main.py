@@ -16,7 +16,9 @@ if __name__ == "__main__":
     qemu_thread = None
     logs = os.popen("ps -A").read()
 
-    if "qemu-system-arm" in logs:
+    # ps -A cuts process names to 15 characters:
+    # qemu-system-arm (BBB) and qemu-system-aarch64 -> qemu-system-aar (RPi).
+    if "qemu-system-arm" in logs or "qemu-system-aar" in logs:
         print("@@@@ Qemu already running @@@@")
     else:
         print("@@@@ Please Start qemu... @@@@")
