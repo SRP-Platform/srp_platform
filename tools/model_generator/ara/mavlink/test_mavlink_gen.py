@@ -5,6 +5,8 @@ import contextlib
 import importlib.util
 import io
 import os
+import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -183,7 +185,40 @@ class CliTest(unittest.TestCase):
     def test_model_error_exits_with_1(self):
         rc, err, _, _ = self.run_cli("--dialect", "cpu_a", daemon_config="missing")
         self.assertEqual(rc, 1)
-        self.assertIn("ERROR mavlink", err)
+        self.assertTrue(err.startswith("ERROR:"), err)
+
+
+class ModelErrorTest(unittest.TestCase):
+    """A SOME/IP model error ends every generator entry point as `ERROR: ...`, not a traceback."""
+    ARA = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+    def run_entry(self, script, svc_mut):
+        Reset()
+        models = Models(svc_mut=svc_mut)
+        with tempfile.TemporaryDirectory() as d:
+            models["service"]["include"] = [os.path.join(d, "types.json")]
+            models["app"]["include"] = [os.path.join(d, "service.json")]
+            p = Write(models, d)
+            env = dict(os.environ, PYTHONPATH=os.pathsep.join(sys.path))
+            return subprocess.run([sys.executable, os.path.join(self.ARA, script), d, p["app"]],
+                                  capture_output=True, text=True, env=env)
+
+    def test_malformed_service_exits_1_without_traceback(self):
+        def no_id(svc):
+            del svc["methods"]["SetName"]["id"]
+
+        def typo(svc):
+            svc["events"]["Position"]["mavlnk"] = {"msg_id": 200}
+
+        for script in ("json2config.py", "json2runtime_env.py", "json2someip_lib.py"):
+            for mut, text in ((no_id, "Radio.SetName: missing 'id'"),
+                              (typo, "Radio.Position: unknown key 'mavlnk'")):
+                with self.subTest(script=script, text=text):
+                    r = self.run_entry(script, mut)
+                    self.assertEqual(r.returncode, 1, r.stderr)
+                    self.assertTrue(r.stderr.startswith("ERROR: "), r.stderr)
+                    self.assertIn(text, r.stderr)
+                    self.assertNotIn("Traceback", r.stderr)
 
 
 class MavgenOutputTest(unittest.TestCase):

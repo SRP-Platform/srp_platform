@@ -4,6 +4,7 @@ import os
 import copy
 import json
 from tools.model_generator.ara.common.common_parser import CommonParser
+from tools.model_generator.ara.common.model_error import ModelError
 from tools.model_generator.ara.app.adaptive_application_db import AdaptiveApplicationDb
 from tools.model_generator.ara.app.adaptive_application_extractor import AdaptiveApplicationExtractor
 from tools.model_generator.ara.common.data_structure_extractor import *
@@ -27,8 +28,12 @@ def ExtractStructList(struct_list: dict[str,data_type],s:data_type):
             ExtractStructList(struct_list,d)
 if __name__ == "__main__":
     out_path = sys.argv[1]
-    for arg_id in range(2,len(sys.argv)):
-        LoadJson(sys.argv[arg_id])
+    try:
+        for arg_id in range(2,len(sys.argv)):
+            LoadJson(sys.argv[arg_id])
+    except ModelError as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        sys.exit(1)
     db_ = DataStructureDB()
     for name,v in db_.data_structure.items():
         CreateDir(copy.copy(out_path),name.replace(".","/").replace("/"+name.split(".")[-1], ""))
