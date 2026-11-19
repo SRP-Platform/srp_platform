@@ -1,6 +1,6 @@
 from __future__ import annotations
 import sys
-from tools.model_generator.ara.mavlink.mavlink_model import MavlinkModelError
+from tools.model_generator.ara.common.model_error import ModelError
 import os
 import copy
 import json
@@ -41,8 +41,8 @@ if __name__ == "__main__":
     if len(src_path) != 0:                
         try:
             LoadJson(src_path)
-        except MavlinkModelError as e:
-            print(f"ERROR mavlink: {e}", file=sys.stderr)
+        except ModelError as e:
+            print(f"ERROR: {e}", file=sys.stderr)
             sys.exit(1)
         app_name = list(AdaptiveApplicationDb().app_list.keys())[0]
         app = AdaptiveApplicationDb().app_list[list(AdaptiveApplicationDb().app_list.keys())[0]]

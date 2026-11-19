@@ -21,6 +21,12 @@ py_library(
 )
 
 py_library(
+    name = "model_error_lib",
+    srcs = ["model_error.py"],
+    visibility = ["@srp_platform//tools/model_generator/ara:__subpackages__"],
+)
+
+py_library(
     name = "common_parser",
     srcs = ["common_parser.py"],
     visibility = ["@srp_platform//tools/model_generator/ara:__subpackages__"],

@@ -9,7 +9,7 @@ Inputs:
     versions, signing mode). The daemon validates the rest when it starts.
 
 Every validation failure is a `MavlinkModelError` naming the application, service and element.
-This module imports nothing from the SOME/IP or application generators.
+This module imports nothing from the SOME/IP or application generators (only `ModelError`).
 """
 from __future__ import annotations
 
@@ -18,6 +18,8 @@ import json
 import keyword
 import re
 import sys
+
+from tools.model_generator.ara.common.model_error import ModelError
 
 V1_MAX_ID = 255
 MAX_PAYLOAD = 255
@@ -55,7 +57,7 @@ _TYPES = {
 }
 
 
-class MavlinkModelError(Exception):
+class MavlinkModelError(ModelError):
     """Model error; the message names the application, service and element."""
 
 

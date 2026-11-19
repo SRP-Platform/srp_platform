@@ -13,6 +13,7 @@ py_library(
     deps = [
         "@srp_platform//tools/model_generator/ara/common:common_lib",
         "@srp_platform//tools/model_generator/ara/common:data_structure_lib",
+        "@srp_platform//tools/model_generator/ara/common:model_error_lib",
     ],
     tags = ["no-cache"],
 )
