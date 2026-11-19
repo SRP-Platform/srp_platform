@@ -132,7 +132,8 @@ def ara_someip_lib(name, model_src, visibility = []):
         visibility = visibility,
     )
 
-def ara_runtime_lib(name, model_src, visibility = []):
+def ara_runtime_lib(name, model_src, mavlink = False, visibility = []):
+    # mavlink = True for an application with on: mavlink entries (links the MavlinkDaemon client)
     ara_json2runtime_env(
         name = "runtime_src",
         src = model_src,
@@ -141,7 +142,11 @@ def ara_runtime_lib(name, model_src, visibility = []):
 
     native.cc_library(
         name = name,
-        deps = ["@srp_platform//ara/core:ara_initialization_lib", "@srp_platform//ara/log", "@srp_platform//ara/com"],
+        deps = [
+            "@srp_platform//ara/core:ara_initialization_lib",
+            "@srp_platform//ara/log",
+            "@srp_platform//ara/com",
+        ] + (["@srp_platform//ara/com/mavlink/client:daemon_client_global"] if mavlink else []),
         srcs = [":runtime_src"],
         includes = ["."],
         visibility = visibility,
