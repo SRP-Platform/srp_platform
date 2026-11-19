@@ -1,0 +1,26 @@
+{
+    "include": [],
+    "package": "srp.platform.com",
+    "adaptive_application": {
+        "mavlink_daemon": {
+            "app": {
+                "functional_groups": [
+                    "Startup2",
+                    "Platform",
+                    "Running",
+                    "SafetyMode",
+                    "MW"
+                ],
+                "parms": "",
+                "logger": {
+                    "app_id": "MAVD",
+                    "app_des": "MAVLink Daemon",
+                    "log_level": "kInfo",
+                    "log_mode": "kRemote",
+                    "ctx": []
+                }
+            },
+            "provide": []
+        }
+    }
+}
