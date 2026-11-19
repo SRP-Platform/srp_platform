@@ -8,7 +8,10 @@ py_library(
     name = "mavlink_model_lib",
     srcs = ["mavlink_model.py"],
     visibility = ["@srp_platform//tools/model_generator/ara:__subpackages__"],
-    deps = ["@srp_platform//third_party/python:pymavlink"],
+    deps = [
+        "@srp_platform//third_party/python:pymavlink",
+        "@srp_platform//tools/model_generator/ara/common:model_error_lib",
+    ],
 )
 
 py_library(
@@ -19,6 +22,7 @@ py_library(
         ":mavlink_model_lib",
         "@srp_platform//third_party/python:pymavlink",
         "@srp_platform//tools/model_generator/ara/common:common_parser",
+        "@srp_platform//tools/model_generator/ara/common:model_error_lib",
     ],
 )
 
@@ -61,7 +65,12 @@ py_test(
 py_test(
     name = "test_mavlink_gen",
     srcs = ["test_mavlink_gen.py"],
-    data = glob(["testdata/**"]) + [":example_dialect"],
+    data = glob(["testdata/**"]) + [
+        ":example_dialect",
+        "@srp_platform//tools/model_generator/ara:json2config",
+        "@srp_platform//tools/model_generator/ara:json2runtime_env",
+        "@srp_platform//tools/model_generator/ara:json2someip_lib",
+    ],
     main = "test_mavlink_gen.py",
     deps = [":mavlink_testlib"],
 )

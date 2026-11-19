@@ -20,6 +20,7 @@ from xml.sax.saxutils import escape, quoteattr
 
 from tools.model_generator.ara.app.adaptive_application_db import AdaptiveApplicationDb
 from tools.model_generator.ara.common.common_parser import CommonParser
+from tools.model_generator.ara.common.model_error import ModelError
 from tools.model_generator.ara.mavlink.mavlink_model import (
     BuildElements, CheckCpu, CpuEntries, CpuMessages, DaemonConfig, ExcludedElements,
     IsExcluded, LoadDaemonConfig, MavlinkItem, MavlinkModelError, Message, ValidateApp)
@@ -238,8 +239,8 @@ def main(argv: list[str]) -> int:
             with open(base + suffix, "w", encoding="utf-8") as f:
                 f.write(text)
         RunMavgen(base + ".xml", base + ".lua", base + ".py")
-    except MavlinkModelError as e:
-        print(f"ERROR mavlink: {e}", file=sys.stderr)
+    except ModelError as e:
+        print(f"ERROR: {e}", file=sys.stderr)
         return 1
     return 0
 

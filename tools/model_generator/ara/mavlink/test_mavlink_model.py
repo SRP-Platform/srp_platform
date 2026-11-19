@@ -5,6 +5,7 @@ import contextlib
 import io
 import unittest
 
+from tools.model_generator.ara.common.model_error import ModelError
 from tools.model_generator.ara.mavlink.mavlink_model import (
     ComputeCrcExtra, Field, LoadDaemonConfig, MAVLINK_ITEM_KEYS, MavlinkModelError)
 from tools.model_generator.ara.mavlink.mavlink_testlib import (
@@ -186,7 +187,7 @@ class ServiceValidationTest(ModelTest):
     def test_unknown_element_key_names_it(self):
         def mut(svc):
             ev(svc)["mavlnk"] = {"msg_id": 5}
-        with self.assertRaises(ValueError) as cm:
+        with self.assertRaises(ModelError) as cm:
             Run(svc_mut=mut)
         self.assertIn("mavlnk", str(cm.exception))
         self.assertIn("Position", str(cm.exception))
