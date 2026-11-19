@@ -26,7 +26,7 @@ class MyExampleService : public srp::example::ExampleServiceSkeleton {
  protected:
   ara::core::Result<bool> SetStatus3() override { return true; }
   ara::core::Result<srp::example::ExampleDataStructure> SetStatus4() override {
-    ara::log::LogInfo() << "Działa !!";
+    ara::log::LogInfo() << "Works !!";
     srp::example::ExampleDataStructure res{1, 1};
     return res;
   }

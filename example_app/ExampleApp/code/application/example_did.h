@@ -21,11 +21,11 @@ namespace example {
 class ExampleDiD : public ara::diag::GenericDiD {
  private:
   ara::core::Result<ara::diag::OperationOutput> Read() noexcept override {
-    ara::log::LogInfo() << "Read dziala";
+    ara::log::LogInfo() << "Read works";
     return ara::diag::OperationOutput{{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}};
   }
   ara::core::Result<void> Write(const std::vector<uint8_t>&) noexcept override {
-    ara::log::LogInfo() << "Write dziala";
+    ara::log::LogInfo() << "Write works";
     return {};
   }
 

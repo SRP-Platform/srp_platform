@@ -1,6 +1,9 @@
 load("@srp_platform//tools/common:cpu_def.bzl", "cpu_def")
 load("@srp_platform//tools/common:flash_ecu.bzl", "flash_ecu")
 load("@srp_platform//tools/model_generator/ara:adaptive.bzl", "ara_json2sm_config")
+load("@srp_platform//tools/model_generator/ara/mavlink:mavlink.bzl", "ara_mavlink_dialect")
+
+exports_files(["mavlink_daemon_config.json"])
 
 flash_ecu(
     name = "flash",
@@ -20,6 +23,7 @@ cpu_def(
     etcs = [
         "diag_config.json",
         "logger_config.json",
+        "mavlink_daemon_config.json",
     ],
     platform_etcs = [
         "//test_cpu/cpu/ec:sm_config",
@@ -29,10 +33,11 @@ cpu_def(
         "//platform/common/diag_demon/model:diag_demon",
         "//platform/common/em/model:em",
         "//platform/common/logger/model:logger",
+        "//platform/common/mavlink_daemon/model:mavlink_daemon",
         "//platform/common/someip_demon/model:someip_demon",
         "//platform/common/state_manager/model:state_manager",
         "//example_app/models/ExampleApp",
-        # "//deployment/example_adaptive/ExampleApp2",
+        "//example_app2/models/ExampleApp2",
     ],
 )
 
@@ -40,4 +45,23 @@ filegroup(
     name = "config",
     srcs = ["platform_config.json"],
     visibility = ["//deployment/cpu:__subpackages__"],
+)
+
+# MAVLink dialect of the CPU: the models of ALL applications with `on: mavlink` plus the daemon config.
+# Outputs: srp_example.{xml,lua,py} and srp_example_links.md (the element x link matrix).
+ara_mavlink_dialect(
+    name = "dialect",
+    apps = [
+        "//example_app/models/ExampleApp:example_app.json",
+        "//example_app2/models/ExampleApp2:example_app.json",
+    ],
+    daemon_config = "mavlink_daemon_config.json",
+    data = [
+        "//example_app/models/ExampleApp:service_instance",
+    ],
+    dialect = "srp_example",
+    visibility = [
+        "//tests/mavlink:__pkg__",
+        "//tools/mavlink:__pkg__",
+    ],
 )
