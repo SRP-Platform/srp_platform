@@ -1,8 +1,8 @@
 """Interop C++ <-> pymavlink (the dialect is generated from the same model as the C++ codec).
 
-Direction 1: frames built by C++ (v1, v2, v2 signed) are decoded by pymavlink (with signature
-verification). Direction 2: frames packed by pymavlink (v1, v2, v2 signed) are decoded by C++
-(header, fields, signature).
+Direction 1: frames built by C++ (v2, v2 signed) are decoded by pymavlink (with signature
+verification). Direction 2: frames packed by pymavlink (v2, v2 signed) are decoded by C++
+(header, fields, signature); v1 frames packed by pymavlink are rejected by C++ (v1 is unsupported).
 """
 from __future__ import annotations
 
@@ -133,7 +133,7 @@ class CppToPymavlinkTest(unittest.TestCase):
     def test_tool_emitted_all_variants(self):
         names = {r["name"] for r in self.rows}
         self.assertGreaterEqual(len(names), 6)
-        self.assertEqual({r["fmt"] for r in self.rows}, {"v1", "v2", "v2s"})
+        self.assertEqual({r["fmt"] for r in self.rows}, {"v2", "v2s"})
 
     def _check(self, fmt: str):
         checked = 0
@@ -163,9 +163,6 @@ class CppToPymavlinkTest(unittest.TestCase):
                 self.assertEqual(msg.get_link_id(), 7)
             checked += 1
         self.assertGreaterEqual(checked, 6)
-
-    def test_v1_frames_decode_in_pymavlink(self):
-        self._check("v1")
 
     def test_v2_frames_decode_in_pymavlink(self):
         self._check("v2")
@@ -215,7 +212,8 @@ class PymavlinkToCppTest(unittest.TestCase):
                     mav.signing.timestamp = cls.ts
                 frame = bytes(msg.pack(mav, force_mavlink1=(fmt == "v1")))
                 cls.lines.append(f"FRAME {name} {fmt} {frame.hex()}")
-                cls.expected[(name, fmt)] = (kwargs, _someip_from_values(c, vals))
+                if fmt != "v1":
+                    cls.expected[(name, fmt)] = (kwargs, _someip_from_values(c, vals))
         with tempfile.NamedTemporaryFile("w", suffix=".txt", delete=False) as f:
             f.write("\n".join(cls.lines) + "\n")
             path = f.name
@@ -231,9 +229,16 @@ class PymavlinkToCppTest(unittest.TestCase):
                 cls.rows[(parts[1], parts[2])] = (parts[3] if "=" not in parts[3] else "ok", kv)
 
     def test_all_frames_decoded(self):
-        self.assertGreaterEqual(len(self.rows), 18)
-        for key, (status, kv) in self.rows.items():
+        ok_rows = {k: v for k, v in self.rows.items() if k[1] != "v1"}
+        self.assertGreaterEqual(len(ok_rows), 12)
+        for key, (status, kv) in ok_rows.items():
             self.assertEqual(status, "ok", key)
+
+    def test_v1_frames_are_rejected_by_cpp(self):
+        v1_rows = {k: v for k, v in self.rows.items() if k[1] == "v1"}
+        self.assertGreaterEqual(len(v1_rows), 6)
+        for key, (status, _) in v1_rows.items():
+            self.assertEqual(status, "parse_error", key)
 
     def test_header_and_payload_match_for_every_format(self):
         for (name, fmt), (kwargs, someip) in self.expected.items():
@@ -248,6 +253,8 @@ class PymavlinkToCppTest(unittest.TestCase):
 
     def test_signatures_verified_by_cpp(self):
         for (name, fmt), (_, kv) in self.rows.items():
+            if fmt == "v1":
+                continue
             self.assertEqual(kv["sig"], "ok" if fmt == "v2s" else "none", (name, fmt))
 
 

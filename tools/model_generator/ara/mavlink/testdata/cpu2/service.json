@@ -1,0 +1,17 @@
+{
+    "package": "srp.mav",
+    "someip": {
+        "Beacon": {
+            "service_id": 21,
+            "major_version": 1,
+            "minor_version": 0,
+            "events": {
+                "Ping": {
+                    "id": 32769,
+                    "data_structure": {"out": {"type": "uint32"}},
+                    "mavlink": {"msg_id": 201}
+                }
+            }
+        }
+    }
+}

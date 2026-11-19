@@ -1,14 +1,18 @@
 """Generator tests: golden artifacts, C++ emission, matrix, CPU generation, CLI and mavgen."""
 from __future__ import annotations
 
+import ast
 import contextlib
 import importlib.util
 import io
+import json
 import os
+import subprocess
+import sys
 import tempfile
 import unittest
 
-from tools.model_generator.ara.mavlink import mavlink_gen
+from tools.model_generator.ara.mavlink import mavlink_gen, monitor_meta
 from tools.model_generator.ara.mavlink.mavlink_testlib import (
     App2, Beacon, ComInit, Golden, Models, Reset, Run, Write)
 
@@ -46,9 +50,25 @@ class EmissionTest(unittest.TestCase):
         self.assertIn('CreatProxyItem("someip_mavlink_20_4", 4U, 2U, 1U, {"radio3"}, opts)',
                       self.init)
 
-    def test_exclude_and_rate_override_per_instance(self):
-        self.assertIn('opts.exclude = {"Reboot"};', self.init)
-        self.assertIn('opts.max_rate_hz["Position"] = 0.0;', self.init)
+    def test_links_and_rate_per_element(self):
+        self.assertIn('el1.links = {{"radio1", 2.0}, {"lora", 2.0}};', self.init)  # radio_out
+        self.assertIn('el1.links = {{"lora", 0.0}};', self.init)  # radio_lora: 0 = no limit
+        self.assertIn('el2.links = {{"radio1", 0.0}, {"lora", 0.0}};', self.init)  # SetMode
+        for gone in ("opts.exclude", "opts.max_rate_hz", ".max_rate_hz ="):
+            self.assertNotIn(gone, self.init)
+
+    def test_an_element_outside_elements_is_not_in_the_model_or_the_dialect(self):
+        def mut(a):
+            for e in a["provide"] + a["require"]:
+                e["elements"].pop("SetName", None)
+        res, apps = Run(app_mut=mut)
+        self.assertNotIn("SET_NAME", res.xml)
+        self.assertNotIn("SetName", res.links_md)
+        init = ComInit(apps[0])
+        self.assertIn('el5.name = "SetName";', init)  # the stub the runtime needs for Update()
+        self.assertIn('el5.enabled = false;', init)
+        self.assertNotIn("SET_NAME", init)
+        self.assertNotIn("213U", init)
 
     def test_source_ids_for_require_only(self):
         self.assertEqual(self.init.count("opts.source_system_id = 2U;"), 1)
@@ -59,14 +79,13 @@ class EmissionTest(unittest.TestCase):
         self.assertIn("el0.enabled = false;", self.init)
         self.assertNotIn("msg_id", block)
 
-    def test_method_with_response_has_status_and_timeout(self):
+    def test_method_with_response_has_status_and_no_timeout(self):
         self.assertIn("el2.has_resp = true;", self.init)
         self.assertIn('MF{"status", MT::kU8, 0U, MR::kStatus, false}', self.init)
-        self.assertIn("el2.timeout_ms = 500U;", self.init)
+        self.assertNotIn("timeout_ms", self.init)  # the timeout comes from the daemon at registration
 
-    def test_string_is_a_char_array_and_event_rate_comes_from_service_json(self):
+    def test_string_is_a_char_array(self):
         self.assertIn('MF{"value", MT::kChar, 32U, MR::kPayload, false}', self.init)
-        self.assertIn("el1.max_rate_hz = 2.0;", self.init)
 
 
 class LinksMdTest(unittest.TestCase):
@@ -98,19 +117,24 @@ class LinksMdTest(unittest.TestCase):
         self.assertIn("MavApp.3", lora)
         self.assertNotIn("MavApp.5", lora)
 
-    def test_excluded_elements_have_dashes_only(self):
-        cells = self.row("| srp.mav.Radio.LocalOnly").split("|")[2:-1]
-        self.assertEqual([c.strip() for c in cells], ["-"] * 5)
-
-    def test_exclusion_lists(self):
+    def test_an_element_listed_by_no_instance_is_not_in_the_matrix(self):
         text = "\n".join(self.lines)
-        self.assertIn("- srp.mav.Radio.DebugCounter\n- srp.mav.Radio.LocalOnly", text)
-        self.assertIn("- MavApp.radio_in (instance 4): SetName", text)
-        self.assertIn("- MavApp.radio_lora (instance 5): Reboot", text)
+        for name in ("LocalOnly", "DebugCounter"):
+            self.assertNotIn(name, text)
 
-    def test_nothing_but_matrix_and_exclusions(self):
+    def test_rate_is_per_radio(self):
+        cells = [c.strip() for c in self.row("| srp.mav.Radio.Position").split("|")]
+        self.assertIn("MavApp.6 @ 2 Hz", cells[3])  # radio2
+        self.assertIn("MavApp.6 @ 0.5 Hz", cells[4])  # radio3
+
+    def test_a_method_cell_names_only_the_radios_of_the_method(self):
+        cells = [c.strip() for c in self.row("| srp.mav.Radio.SetMode").split("|")]
+        self.assertEqual(cells[3], "MavApp.6")  # radio2 (radio_mix has SetMode on radio2 only)
+        self.assertNotIn("MavApp.6", cells[4])  # radio3
+
+    def test_nothing_but_the_matrix(self):
         headings = [l for l in self.lines if l.startswith("#")]
-        self.assertEqual(len(headings), 4)
+        self.assertEqual(len(headings), 2)
 
 
 class WarningTest(unittest.TestCase):
@@ -123,19 +147,15 @@ class WarningTest(unittest.TestCase):
     def test_unused_link_warns(self):
         self.assertIn("link 'spare' of the daemon config is used by no service", self.stderr())
 
-    def test_info_lists_excluded_elements_once_per_application(self):
-        out = self.stderr()
-        self.assertEqual(out.count("INFO mavlink: srp.mav.MavApp: 2 elements outside MAVLink"), 1)
+    def test_method_on_two_radios_warns(self):
+        self.assertIn("elements.SetMode: method on 2 radios (radio1, lora)", self.stderr())
 
-    def test_instance_without_any_element_warns(self):
-        def mut(a):
-            a["provide"][1]["exclude"] = ["Reboot", "SetMode", "SetName", "Position"]
-            del a["provide"][1]["max_rate_hz"]
-        self.assertIn("radio_lora (service srp.mav.Radio, instance 5): every element is excluded",
-                      self.stderr(app_mut=mut))
+    def test_a_method_on_one_radio_only_does_not_warn_for_that_instance(self):
+        self.assertNotIn("radio_lora: elements.SetMode: method on", self.stderr())
 
-    def test_normal_model_has_no_all_excluded_warning(self):
-        self.assertNotIn("every element", self.stderr())
+    def test_no_removed_info_line(self):
+        self.assertNotIn("outside MAVLink", self.stderr())
+
 
 
 class CpuTest(unittest.TestCase):
@@ -170,10 +190,36 @@ class CliTest(unittest.TestCase):
                     py = f.read()
         return rc, err.getvalue(), files, py
 
-    def test_writes_the_four_artifacts(self):
+    def test_monitor_metadata_lists_events_and_methods_with_rates(self):
+        meta = Run()[0].monitor_meta
+        self.assertEqual(meta["dialect"], "srp_radio")
+        cpu = meta["cpus"][0]
+        kinds = {e["element"]: (e["kind"], e["msg_id"], e["resp_msg_id"]) for e in cpu["elements"]}
+        self.assertTrue(kinds)
+        for element, (kind, msg_id, resp_id) in kinds.items():
+            self.assertEqual(cpu["messages"][str(msg_id)]["element"], element)
+            self.assertEqual(cpu["messages"][str(msg_id)]["role"],
+                             "event" if kind == "event" else "req")
+            if kind == "event":
+                self.assertIsNone(resp_id)  # a method may have no response either
+        for e in cpu["elements"]:
+            for inst in e["instances"]:
+                self.assertIn(inst["direction"], ("in", "out"))
+                self.assertTrue(all(r >= 0 for r in inst["links"].values()))
+
+    def test_the_monitor_script_embeds_the_metadata(self):
+        meta = Run()[0].monitor_meta
+        text = monitor_meta.RenderMonitorPy(meta)
+        compile(text, "monitor.py", "exec")
+        literal = text.split("\nMETA = ", 1)[1].split("\n\n\ndef _runtime", 1)[0]
+        self.assertEqual(ast.literal_eval(literal), meta)
+        self.assertEqual(json.loads(monitor_meta.RenderMetaJson(meta)), meta)
+
+    def test_writes_the_six_artifacts(self):
         rc, _, files, py = self.run_cli("--dialect", "cpu_a")
         self.assertEqual(rc, 0)
-        for name in ("cpu_a.xml", "cpu_a_links.md", "cpu_a.lua", "cpu_a.py"):
+        for name in ("cpu_a.xml", "cpu_a_links.md", "cpu_a.lua", "cpu_a.py", "cpu_a_monitor.json",
+                     "cpu_a_monitor.py"):
             self.assertIn(name, files)
         self.assertIn("MAVLink_srp_radio_position_message", py)
 
@@ -183,7 +229,40 @@ class CliTest(unittest.TestCase):
     def test_model_error_exits_with_1(self):
         rc, err, _, _ = self.run_cli("--dialect", "cpu_a", daemon_config="missing")
         self.assertEqual(rc, 1)
-        self.assertIn("ERROR mavlink", err)
+        self.assertTrue(err.startswith("ERROR:"), err)
+
+
+class ModelErrorTest(unittest.TestCase):
+    """A SOME/IP model error ends every generator entry point as `ERROR: ...`, not a traceback."""
+    ARA = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+    def run_entry(self, script, svc_mut):
+        Reset()
+        models = Models(svc_mut=svc_mut)
+        with tempfile.TemporaryDirectory() as d:
+            models["service"]["include"] = [os.path.join(d, "types.json")]
+            models["app"]["include"] = [os.path.join(d, "service.json")]
+            p = Write(models, d)
+            env = dict(os.environ, PYTHONPATH=os.pathsep.join(sys.path))
+            return subprocess.run([sys.executable, os.path.join(self.ARA, script), d, p["app"]],
+                                  capture_output=True, text=True, env=env)
+
+    def test_malformed_service_exits_1_without_traceback(self):
+        def no_id(svc):
+            del svc["methods"]["SetName"]["id"]
+
+        def typo(svc):
+            svc["events"]["Position"]["mavlnk"] = {"msg_id": 200}
+
+        for script in ("json2config.py", "json2runtime_env.py", "json2someip_lib.py"):
+            for mut, text in ((no_id, "Radio.SetName: missing 'id'"),
+                              (typo, "Radio.Position: unknown key 'mavlnk'")):
+                with self.subTest(script=script, text=text):
+                    r = self.run_entry(script, mut)
+                    self.assertEqual(r.returncode, 1, r.stderr)
+                    self.assertTrue(r.stderr.startswith("ERROR: "), r.stderr)
+                    self.assertIn(text, r.stderr)
+                    self.assertNotIn("Traceback", r.stderr)
 
 
 class MavgenOutputTest(unittest.TestCase):

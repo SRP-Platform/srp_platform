@@ -15,14 +15,14 @@
                 "Position": {
                     "id": 32769,
                     "data_structure": {"out": {"type": "Pos"}},
-                    "mavlink": {"msg_id": 200, "max_rate_hz": 2}
+                    "mavlink": {"msg_id": 200}
                 }
             },
             "methods": {
                 "SetMode": {
                     "id": 1,
                     "data_structure": {"in": {"type": "uint8"}, "out": {"type": "bool"}},
-                    "mavlink": {"req_id": 210, "resp_id": 211, "timeout_ms": 500}
+                    "mavlink": {"req_id": 210, "resp_id": 211}
                 },
                 "LocalOnly": {
                     "id": 4,

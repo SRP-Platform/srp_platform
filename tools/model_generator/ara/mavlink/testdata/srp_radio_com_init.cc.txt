@@ -4,7 +4,6 @@ Result<void> InitializeComDb(ModelDataBase& db_) noexcept {
     {
         ara::core::model::ModelMavlinkOptions opts;
         opts.service_name = "srp.mav.Radio";
-        opts.dedup_ttl_ms = 10000U;
         using MF = ara::core::model::ModelMavlinkField;
         using MT = MF::Type;
         using MR = MF::Role;
@@ -23,7 +22,7 @@ Result<void> InitializeComDb(ModelDataBase& db_) noexcept {
         el1.req.crc_extra = 212U;
         el1.req.name = "SRP_RADIO_POSITION";
         el1.req.fields = {MF{"seq", MT::kU16, 0U, MR::kSeq, false}, MF{"instance", MT::kU16, 0U, MR::kInstance, false}, MF{"lat", MT::kF32, 0U, MR::kPayload, false}, MF{"lon", MT::kF32, 0U, MR::kPayload, false}, MF{"fix_type", MT::kU8, 0U, MR::kPayload, false}};
-        el1.max_rate_hz = 2.0;
+        el1.links = {{"radio1", 2.0}, {"lora", 2.0}};
         opts.elements.push_back(el1);
         ara::core::model::ModelMavlinkElement el2;
         el2.id = 1U;
@@ -39,7 +38,7 @@ Result<void> InitializeComDb(ModelDataBase& db_) noexcept {
         el2.resp.crc_extra = 76U;
         el2.resp.name = "SRP_RADIO_SET_MODE_RESP";
         el2.resp.fields = {MF{"seq", MT::kU16, 0U, MR::kSeq, false}, MF{"instance", MT::kU16, 0U, MR::kInstance, false}, MF{"target_system", MT::kU8, 0U, MR::kTargetSystem, false}, MF{"target_component", MT::kU8, 0U, MR::kTargetComponent, false}, MF{"status", MT::kU8, 0U, MR::kStatus, false}, MF{"value", MT::kU8, 0U, MR::kPayload, false}};
-        el2.timeout_ms = 500U;
+        el2.links = {{"radio1", 0.0}, {"lora", 0.0}};
         opts.elements.push_back(el2);
         ara::core::model::ModelMavlinkElement el3;
         el3.id = 4U;
@@ -56,7 +55,7 @@ Result<void> InitializeComDb(ModelDataBase& db_) noexcept {
         el4.req.crc_extra = 170U;
         el4.req.name = "SRP_RADIO_REBOOT_REQ";
         el4.req.fields = {MF{"seq", MT::kU16, 0U, MR::kSeq, false}, MF{"instance", MT::kU16, 0U, MR::kInstance, false}, MF{"target_system", MT::kU8, 0U, MR::kTargetSystem, false}, MF{"target_component", MT::kU8, 0U, MR::kTargetComponent, false}};
-        el4.timeout_ms = 1000U;
+        el4.links = {{"radio1", 0.0}, {"lora", 0.0}};
         opts.elements.push_back(el4);
         ara::core::model::ModelMavlinkElement el5;
         el5.id = 3U;
@@ -72,7 +71,7 @@ Result<void> InitializeComDb(ModelDataBase& db_) noexcept {
         el5.resp.crc_extra = 99U;
         el5.resp.name = "SRP_RADIO_SET_NAME_RESP";
         el5.resp.fields = {MF{"seq", MT::kU16, 0U, MR::kSeq, false}, MF{"instance", MT::kU16, 0U, MR::kInstance, false}, MF{"target_system", MT::kU8, 0U, MR::kTargetSystem, false}, MF{"target_component", MT::kU8, 0U, MR::kTargetComponent, false}, MF{"status", MT::kU8, 0U, MR::kStatus, false}, MF{"value", MT::kU32, 0U, MR::kPayload, false}};
-        el5.timeout_ms = 1000U;
+        el5.links = {{"radio1", 0.0}, {"lora", 0.0}};
         opts.elements.push_back(el5);
         const auto res = ara::core::model::ModelMavlink::CreatSkeletonItem("someip_mavlink_20_3", 3U, 0U, 0U, {"radio1", "lora"}, opts);
         std::ignore = db_.AddNewItem("srp/mav/MavApp/radio_out", {res.Value()});
@@ -80,10 +79,7 @@ Result<void> InitializeComDb(ModelDataBase& db_) noexcept {
 
     {
         ara::core::model::ModelMavlinkOptions opts;
-        opts.exclude = {"Reboot"};
         opts.service_name = "srp.mav.Radio";
-        opts.dedup_ttl_ms = 10000U;
-        opts.max_rate_hz["Position"] = 0.0;
         using MF = ara::core::model::ModelMavlinkField;
         using MT = MF::Type;
         using MR = MF::Role;
@@ -102,7 +98,7 @@ Result<void> InitializeComDb(ModelDataBase& db_) noexcept {
         el1.req.crc_extra = 212U;
         el1.req.name = "SRP_RADIO_POSITION";
         el1.req.fields = {MF{"seq", MT::kU16, 0U, MR::kSeq, false}, MF{"instance", MT::kU16, 0U, MR::kInstance, false}, MF{"lat", MT::kF32, 0U, MR::kPayload, false}, MF{"lon", MT::kF32, 0U, MR::kPayload, false}, MF{"fix_type", MT::kU8, 0U, MR::kPayload, false}};
-        el1.max_rate_hz = 2.0;
+        el1.links = {{"lora", 0.0}};
         opts.elements.push_back(el1);
         ara::core::model::ModelMavlinkElement el2;
         el2.id = 1U;
@@ -118,7 +114,7 @@ Result<void> InitializeComDb(ModelDataBase& db_) noexcept {
         el2.resp.crc_extra = 76U;
         el2.resp.name = "SRP_RADIO_SET_MODE_RESP";
         el2.resp.fields = {MF{"seq", MT::kU16, 0U, MR::kSeq, false}, MF{"instance", MT::kU16, 0U, MR::kInstance, false}, MF{"target_system", MT::kU8, 0U, MR::kTargetSystem, false}, MF{"target_component", MT::kU8, 0U, MR::kTargetComponent, false}, MF{"status", MT::kU8, 0U, MR::kStatus, false}, MF{"value", MT::kU8, 0U, MR::kPayload, false}};
-        el2.timeout_ms = 500U;
+        el2.links = {{"lora", 0.0}};
         opts.elements.push_back(el2);
         ara::core::model::ModelMavlinkElement el3;
         el3.id = 4U;
@@ -129,13 +125,8 @@ Result<void> InitializeComDb(ModelDataBase& db_) noexcept {
         ara::core::model::ModelMavlinkElement el4;
         el4.id = 2U;
         el4.is_event = false;
-        el4.enabled = true;
+        el4.enabled = false;
         el4.name = "Reboot";
-        el4.req.msg_id = 212U;
-        el4.req.crc_extra = 170U;
-        el4.req.name = "SRP_RADIO_REBOOT_REQ";
-        el4.req.fields = {MF{"seq", MT::kU16, 0U, MR::kSeq, false}, MF{"instance", MT::kU16, 0U, MR::kInstance, false}, MF{"target_system", MT::kU8, 0U, MR::kTargetSystem, false}, MF{"target_component", MT::kU8, 0U, MR::kTargetComponent, false}};
-        el4.timeout_ms = 1000U;
         opts.elements.push_back(el4);
         ara::core::model::ModelMavlinkElement el5;
         el5.id = 3U;
@@ -151,7 +142,7 @@ Result<void> InitializeComDb(ModelDataBase& db_) noexcept {
         el5.resp.crc_extra = 99U;
         el5.resp.name = "SRP_RADIO_SET_NAME_RESP";
         el5.resp.fields = {MF{"seq", MT::kU16, 0U, MR::kSeq, false}, MF{"instance", MT::kU16, 0U, MR::kInstance, false}, MF{"target_system", MT::kU8, 0U, MR::kTargetSystem, false}, MF{"target_component", MT::kU8, 0U, MR::kTargetComponent, false}, MF{"status", MT::kU8, 0U, MR::kStatus, false}, MF{"value", MT::kU32, 0U, MR::kPayload, false}};
-        el5.timeout_ms = 1000U;
+        el5.links = {{"lora", 0.0}};
         opts.elements.push_back(el5);
         const auto res = ara::core::model::ModelMavlink::CreatSkeletonItem("someip_mavlink_20_5", 5U, 0U, 0U, {"lora"}, opts);
         std::ignore = db_.AddNewItem("srp/mav/MavApp/radio_lora", {res.Value()});
@@ -160,7 +151,6 @@ Result<void> InitializeComDb(ModelDataBase& db_) noexcept {
     {
         ara::core::model::ModelMavlinkOptions opts;
         opts.service_name = "srp.mav.Radio";
-        opts.dedup_ttl_ms = 10000U;
         using MF = ara::core::model::ModelMavlinkField;
         using MT = MF::Type;
         using MR = MF::Role;
@@ -179,7 +169,7 @@ Result<void> InitializeComDb(ModelDataBase& db_) noexcept {
         el1.req.crc_extra = 212U;
         el1.req.name = "SRP_RADIO_POSITION";
         el1.req.fields = {MF{"seq", MT::kU16, 0U, MR::kSeq, false}, MF{"instance", MT::kU16, 0U, MR::kInstance, false}, MF{"lat", MT::kF32, 0U, MR::kPayload, false}, MF{"lon", MT::kF32, 0U, MR::kPayload, false}, MF{"fix_type", MT::kU8, 0U, MR::kPayload, false}};
-        el1.max_rate_hz = 2.0;
+        el1.links = {{"radio2", 2.0}, {"radio3", 0.5}};
         opts.elements.push_back(el1);
         ara::core::model::ModelMavlinkElement el2;
         el2.id = 1U;
@@ -195,7 +185,7 @@ Result<void> InitializeComDb(ModelDataBase& db_) noexcept {
         el2.resp.crc_extra = 76U;
         el2.resp.name = "SRP_RADIO_SET_MODE_RESP";
         el2.resp.fields = {MF{"seq", MT::kU16, 0U, MR::kSeq, false}, MF{"instance", MT::kU16, 0U, MR::kInstance, false}, MF{"target_system", MT::kU8, 0U, MR::kTargetSystem, false}, MF{"target_component", MT::kU8, 0U, MR::kTargetComponent, false}, MF{"status", MT::kU8, 0U, MR::kStatus, false}, MF{"value", MT::kU8, 0U, MR::kPayload, false}};
-        el2.timeout_ms = 500U;
+        el2.links = {{"radio2", 0.0}};
         opts.elements.push_back(el2);
         ara::core::model::ModelMavlinkElement el3;
         el3.id = 4U;
@@ -212,7 +202,7 @@ Result<void> InitializeComDb(ModelDataBase& db_) noexcept {
         el4.req.crc_extra = 170U;
         el4.req.name = "SRP_RADIO_REBOOT_REQ";
         el4.req.fields = {MF{"seq", MT::kU16, 0U, MR::kSeq, false}, MF{"instance", MT::kU16, 0U, MR::kInstance, false}, MF{"target_system", MT::kU8, 0U, MR::kTargetSystem, false}, MF{"target_component", MT::kU8, 0U, MR::kTargetComponent, false}};
-        el4.timeout_ms = 1000U;
+        el4.links = {{"radio3", 0.0}};
         opts.elements.push_back(el4);
         ara::core::model::ModelMavlinkElement el5;
         el5.id = 3U;
@@ -228,7 +218,7 @@ Result<void> InitializeComDb(ModelDataBase& db_) noexcept {
         el5.resp.crc_extra = 99U;
         el5.resp.name = "SRP_RADIO_SET_NAME_RESP";
         el5.resp.fields = {MF{"seq", MT::kU16, 0U, MR::kSeq, false}, MF{"instance", MT::kU16, 0U, MR::kInstance, false}, MF{"target_system", MT::kU8, 0U, MR::kTargetSystem, false}, MF{"target_component", MT::kU8, 0U, MR::kTargetComponent, false}, MF{"status", MT::kU8, 0U, MR::kStatus, false}, MF{"value", MT::kU32, 0U, MR::kPayload, false}};
-        el5.timeout_ms = 1000U;
+        el5.links = {{"radio2", 0.0}, {"radio3", 0.0}};
         opts.elements.push_back(el5);
         const auto res = ara::core::model::ModelMavlink::CreatSkeletonItem("someip_mavlink_20_6", 6U, 0U, 0U, {"radio2", "radio3"}, opts);
         std::ignore = db_.AddNewItem("srp/mav/MavApp/radio_mix", {res.Value()});
@@ -236,9 +226,7 @@ Result<void> InitializeComDb(ModelDataBase& db_) noexcept {
 
     {
         ara::core::model::ModelMavlinkOptions opts;
-        opts.exclude = {"SetName"};
         opts.service_name = "srp.mav.Radio";
-        opts.dedup_ttl_ms = 10000U;
         opts.source_system_id = 2U;
         opts.source_component_id = 1U;
         using MF = ara::core::model::ModelMavlinkField;
@@ -259,7 +247,7 @@ Result<void> InitializeComDb(ModelDataBase& db_) noexcept {
         el1.req.crc_extra = 212U;
         el1.req.name = "SRP_RADIO_POSITION";
         el1.req.fields = {MF{"seq", MT::kU16, 0U, MR::kSeq, false}, MF{"instance", MT::kU16, 0U, MR::kInstance, false}, MF{"lat", MT::kF32, 0U, MR::kPayload, false}, MF{"lon", MT::kF32, 0U, MR::kPayload, false}, MF{"fix_type", MT::kU8, 0U, MR::kPayload, false}};
-        el1.max_rate_hz = 2.0;
+        el1.links = {{"radio3", 0.0}};
         opts.elements.push_back(el1);
         ara::core::model::ModelMavlinkElement el2;
         el2.id = 1U;
@@ -275,7 +263,7 @@ Result<void> InitializeComDb(ModelDataBase& db_) noexcept {
         el2.resp.crc_extra = 76U;
         el2.resp.name = "SRP_RADIO_SET_MODE_RESP";
         el2.resp.fields = {MF{"seq", MT::kU16, 0U, MR::kSeq, false}, MF{"instance", MT::kU16, 0U, MR::kInstance, false}, MF{"target_system", MT::kU8, 0U, MR::kTargetSystem, false}, MF{"target_component", MT::kU8, 0U, MR::kTargetComponent, false}, MF{"status", MT::kU8, 0U, MR::kStatus, false}, MF{"value", MT::kU8, 0U, MR::kPayload, false}};
-        el2.timeout_ms = 500U;
+        el2.links = {{"radio3", 0.0}};
         opts.elements.push_back(el2);
         ara::core::model::ModelMavlinkElement el3;
         el3.id = 4U;
@@ -292,23 +280,13 @@ Result<void> InitializeComDb(ModelDataBase& db_) noexcept {
         el4.req.crc_extra = 170U;
         el4.req.name = "SRP_RADIO_REBOOT_REQ";
         el4.req.fields = {MF{"seq", MT::kU16, 0U, MR::kSeq, false}, MF{"instance", MT::kU16, 0U, MR::kInstance, false}, MF{"target_system", MT::kU8, 0U, MR::kTargetSystem, false}, MF{"target_component", MT::kU8, 0U, MR::kTargetComponent, false}};
-        el4.timeout_ms = 1000U;
+        el4.links = {{"radio3", 0.0}};
         opts.elements.push_back(el4);
         ara::core::model::ModelMavlinkElement el5;
         el5.id = 3U;
         el5.is_event = false;
-        el5.enabled = true;
+        el5.enabled = false;
         el5.name = "SetName";
-        el5.req.msg_id = 213U;
-        el5.req.crc_extra = 71U;
-        el5.req.name = "SRP_RADIO_SET_NAME_REQ";
-        el5.req.fields = {MF{"seq", MT::kU16, 0U, MR::kSeq, false}, MF{"instance", MT::kU16, 0U, MR::kInstance, false}, MF{"target_system", MT::kU8, 0U, MR::kTargetSystem, false}, MF{"target_component", MT::kU8, 0U, MR::kTargetComponent, false}, MF{"value", MT::kChar, 32U, MR::kPayload, false}};
-        el5.has_resp = true;
-        el5.resp.msg_id = 214U;
-        el5.resp.crc_extra = 99U;
-        el5.resp.name = "SRP_RADIO_SET_NAME_RESP";
-        el5.resp.fields = {MF{"seq", MT::kU16, 0U, MR::kSeq, false}, MF{"instance", MT::kU16, 0U, MR::kInstance, false}, MF{"target_system", MT::kU8, 0U, MR::kTargetSystem, false}, MF{"target_component", MT::kU8, 0U, MR::kTargetComponent, false}, MF{"status", MT::kU8, 0U, MR::kStatus, false}, MF{"value", MT::kU32, 0U, MR::kPayload, false}};
-        el5.timeout_ms = 1000U;
         opts.elements.push_back(el5);
         const auto res = ara::core::model::ModelMavlink::CreatProxyItem("someip_mavlink_20_4", 4U, 2U, 1U, {"radio3"}, opts);
         std::ignore = db_.AddNewItem("srp/mav/MavApp/radio_in", {res.Value()});

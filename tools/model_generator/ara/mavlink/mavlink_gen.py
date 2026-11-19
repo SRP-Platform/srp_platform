@@ -3,11 +3,11 @@
 The input is the models of ALL applications with `on: mavlink` of one CPU (one MavlinkDaemon);
 the dialect, XML, Lua and pymavlink module are generated per CPU. A msg_id collision between
 applications is a generation error. The optional `--daemon-config` (mavlink_daemon_config.json)
-enables checks of link names, MAVLink versions and signing mode.
+enables checks of link names and signing mode.
 
 Usage: mavlink_gen.py <out_dir> --dialect NAME [--daemon-config cfg.json] model.json...
-Writes <out_dir>/<dialect>.xml, <dialect>_links.md, <dialect>.lua (Wireshark) and <dialect>.py
-(pymavlink). A model error exits with 1 and names the application, service and element.
+Writes <out_dir>/<dialect>.xml, <dialect>_links.md, <dialect>.lua (Wireshark), <dialect>.py
+(pymavlink), <dialect>_monitor.py (ground monitor) and <dialect>_monitor.json (its metadata). A model error exits with 1 and names the application, service and element.
 """
 from __future__ import annotations
 
@@ -20,15 +20,19 @@ from xml.sax.saxutils import escape, quoteattr
 
 from tools.model_generator.ara.app.adaptive_application_db import AdaptiveApplicationDb
 from tools.model_generator.ara.common.common_parser import CommonParser
+from tools.model_generator.ara.common.model_error import ModelError
+from tools.model_generator.ara.mavlink.monitor_meta import (
+    BuildCpuMeta, BuildMeta, RenderMetaJson, RenderMonitorPy)
 from tools.model_generator.ara.mavlink.mavlink_model import (
-    BuildElements, CheckCpu, CpuEntries, CpuMessages, DaemonConfig, ExcludedElements,
-    IsExcluded, LoadDaemonConfig, MavlinkItem, MavlinkModelError, Message, ValidateApp)
+    BudgetInfoLine, BuildElements, CheckCpu, CpuBudget, CpuEntries, CpuMessages, DaemonConfig,
+    LinkBudget, LoadDaemonConfig, MavlinkItem, MavlinkModelError, Message, ValidateApp)
 
 
 class Result:
-    def __init__(self, xml: str, links_md: str) -> None:
+    def __init__(self, xml: str, links_md: str, monitor_meta: dict) -> None:
         self.xml = xml
         self.links_md = links_md
+        self.monitor_meta = monitor_meta  # input of <dialect>_monitor.py and of the system rule
 
 
 def RenderXml(messages: list[Message]) -> str:
@@ -50,15 +54,6 @@ def RenderXml(messages: list[Message]) -> str:
 
 # ---------------------------------------------------------------- <dialect>_links.md
 
-def _effective_rate(element, item: MavlinkItem) -> float | None:
-    """Event rate limit of an instance: the instance override, else service.json; None = none."""
-    if element.name in item.max_rate_hz:
-        v = item.max_rate_hz[element.name]
-    else:
-        v = element.mavlink.get("max_rate_hz") if isinstance(element.mavlink, dict) else None
-    return float(v) if v else None
-
-
 def _labels(entries) -> dict[str, str]:
     """Application names in the tables: the last segment when it is unambiguous."""
     apps = sorted({e[0] for e in entries})
@@ -66,43 +61,78 @@ def _labels(entries) -> dict[str, str]:
     return {a: (s if shorts.count(s) == 1 else a) for a, s in zip(apps, shorts)}
 
 
-def RenderLinksMd(dialect: str, daemon: DaemonConfig | None, entries) -> str:
-    """The element x link matrix (instance and rate per cell) and the exclusion lists."""
+def _budget_md(budgets: dict[str, LinkBudget], label: dict[str, str]) -> list[str]:
+    """Per link: every (element, instance) the CPU transmits with its frame size, the event load
+    and the share of `air_rate_bps`. Methods have no frequency: listed, not summed."""
+    o = ["", "## Bandwidth budget", "",
+         "Frame = header 10 + CRC 2 (+ signature 13 on a signed link) + the full payload "
+         "(worst case). Load = frame x `max_rate_hz` of the events the CPU transmits; methods "
+         "are listed without a sum (no frequency)."]
+    for name, b in budgets.items():
+        lk = b.link
+        info = ["signed" if lk.signing_enabled else "unsigned"]
+        info.append(f"air_rate_bps {lk.air_rate_bps}, max_utilization {lk.max_utilization * 100:g}%"
+                    if lk.air_rate_bps else "no air_rate_bps (no budget, no TX pacing)")
+        if lk.mtu:
+            info.append(f"mtu {lk.mtu} B")
+        o += ["", f"### Link `{name}`: " + ", ".join(info), ""]
+        if not b.rows:
+            o.append("No element is transmitted on this link.")
+            continue
+        o += ["| element | instance | kind | frame [B] | max_rate_hz | load [B/s] | % of air_rate_bps |",
+              "|---|---|---|---|---|---|---|"]
+        for r in b.rows:
+            inst = f"{label[r.app]}.{r.inst}"
+            if r.kind == "event":
+                rate = f"{r.rate_hz:g}" if r.rate_hz else "unlimited"
+                load = f"{r.bytes_per_s:g}" if r.rate_hz else "-"
+                pct = (f"{r.bytes_per_s * 8 / lk.air_rate_bps * 100:.1f}%"
+                       if r.rate_hz and lk.air_rate_bps else "-")
+                o.append(f"| {r.element} | {inst} | event | {r.req_size} | {rate} | {load} | {pct} |")
+            else:
+                frame = f"REQ {r.req_size}" + (f" / RESP {r.resp_size}" if r.resp_size else "")
+                o.append(f"| {r.element} | {inst} | method | {frame} | - | - | - |")
+        pct = f"{b.utilization * 100:.1f}%" if b.utilization is not None else "-"
+        o.append(f"| **sum of events** | | | | | {b.bytes_per_s:g} | {pct} |")
+    return o
+
+
+def RenderLinksMd(dialect: str, daemon: DaemonConfig | None, entries,
+                  budgets: dict[str, LinkBudget] | None = None) -> str:
+    """The element x radio matrix (instance and rate per cell) of the `elements` whitelists,
+    plus the bandwidth table per link when the daemon config sets `air_rate_bps` or `mtu`."""
     label = _labels(entries)
     links = list(daemon.links) if daemon is not None else list(
         dict.fromkeys(ln for e in entries for ln in e[5].links))
     o = [f"# MAVLink links of the CPU: dialect `{dialect}`", "",
          "## Element x link matrix", "",
          "Cell: `application.instance` (+ the event rate limit of a sender); `-` = the link does "
-         "not carry the element.", "",
+         "not carry the element. Only elements listed in `elements` of some instance appear.", "",
          "| element | " + " | ".join(links) + " |", "|---|" + "---|" * len(links)]
     seen = set()
     for _a, _n, _d, service, _i, _it in entries:
         if service.name in seen:
             continue
         seen.add(service.name)
+        listed = {n for e in entries if e[3].name == service.name for n in e[5].elements}
         elements = [("event", e) for e in service.events] + [("method", m) for m in service.methods]
         for kind, el in elements:
+            if el.name not in listed:
+                continue  # on no radio: not in the matrix
             cells = []
             for ln in links:
                 parts = []
                 for app, _name, d, svc, inst, item in entries:
-                    if svc.name != service.name or ln not in item.links:
-                        continue
-                    if IsExcluded(el) or el.name in item.exclude:
+                    if svc.name != service.name or ln not in item.elements.get(el.name, {}):
                         continue
                     txt = f"{label[app]}.{inst}" + ("" if d == "kOut" else " (proxy)")
-                    rate = _effective_rate(el, item) if kind == "event" and d == "kOut" else None
-                    parts.append(txt + (f" @ {rate:g} Hz" if rate is not None else ""))
+                    rate = item.elements[el.name][ln]
+                    parts.append(txt + (f" @ {rate:g} Hz" if kind == "event" and d == "kOut"
+                                        and rate else ""))
                 cells.append(", ".join(parts) or "-")
             o.append(f"| {service.name}.{el.name} ({kind}) | " + " | ".join(cells) + " |")
-    excluded = sorted({x for e in entries for x in ExcludedElements(e[3])})
-    o += ["", "## Elements outside MAVLink (`\"mavlink\": false` or no block)", ""]
-    o += [f"- {x}" for x in excluded] or ["(none)"]
-    per_instance = sorted((a, n, inst, it) for a, n, _d, _s, inst, it in entries if it.exclude)
-    o += ["", "## Exclusions per instance (`exclude`)", ""]
-    o += [f"- {label[a]}.{n} (instance {inst}): {', '.join(it.exclude)}"
-          for a, n, inst, it in per_instance] or ["(none)"]
+    if budgets and any(b.link.air_rate_bps or b.link.mtu for b in budgets.values()):
+        o += _budget_md(budgets, label)
     return "\n".join(o) + "\n"
 
 
@@ -128,10 +158,10 @@ def _message_cpp(var: str, m: Message) -> list[str]:
             f"        {var}.fields = {{{fields}}};"]
 
 
-def _elements_cpp(service) -> list[str]:
+def _elements_cpp(service, item: MavlinkItem) -> list[str]:
     o = ["        using MF = ara::core::model::ModelMavlinkField;",
          "        using MT = MF::Type;", "        using MR = MF::Role;"]
-    for i, spec in enumerate(BuildElements(service)):
+    for i, spec in enumerate(BuildElements(service, set(item.elements))):
         v = f"el{i}"
         o += [f"        ara::core::model::ModelMavlinkElement {v};",
               f"        {v}.id = {spec.id}U;",
@@ -143,10 +173,9 @@ def _elements_cpp(service) -> list[str]:
             if spec.resp is not None:
                 o.append(f"        {v}.has_resp = true;")
                 o += _message_cpp(f"{v}.resp", spec.resp)
-            if spec.is_event and spec.max_rate_hz:
-                o.append(f"        {v}.max_rate_hz = {spec.max_rate_hz!r};")
-            if not spec.is_event:
-                o.append(f"        {v}.timeout_ms = {spec.timeout_ms}U;")
+            links = ", ".join(f"{{{_q(ln)}, {float(rate)!r}}}"
+                              for ln, rate in item.elements[spec.name].items())
+            o.append(f"        {v}.links = {{{links}}};")
         o.append(f"        opts.elements.push_back({v});")
     return o
 
@@ -156,17 +185,12 @@ def CreateItemCpp(app_name: str, key: str, direction: str, service, instance: in
     """The C++ block that adds a ModelMavlink to the ModelDataBase (inside InitializeComDb)."""
     ns = "ara::core::model::"
     o = ["    {", f"        {ns}ModelMavlinkOptions opts;"]
-    if item.exclude:
-        o.append(f"        opts.exclude = {{{', '.join(_q(x) for x in item.exclude)}}};")
-    o += [f"        opts.service_name = {_q(service.name)};",
-          f"        opts.dedup_ttl_ms = {item.dedup_ttl_ms}U;"]
+    o.append(f"        opts.service_name = {_q(service.name)};")
     if item.source_system_id:
         o.append(f"        opts.source_system_id = {item.source_system_id}U;")
     if item.source_component_id:
         o.append(f"        opts.source_component_id = {item.source_component_id}U;")
-    for k, v in sorted(item.max_rate_hz.items()):
-        o.append(f"        opts.max_rate_hz[{_q(k)}] = {float(v)!r};")
-    o += _elements_cpp(service)
+    o += _elements_cpp(service, item)
     fn = "CreatSkeletonItem" if direction == "kOut" else "CreatProxyItem"
     com_id = f"someip_mavlink_{service.id}_{instance}"
     links = ", ".join(_q(x) for x in item.links)
@@ -199,7 +223,14 @@ def GenerateAll(model_paths: list[str], dialect: str,
                 print(f"WARNING mavlink: link '{n}' of the daemon config is used by no service "
                       "of this CPU", file=sys.stderr)
     msgs = CpuMessages(entries, daemon)
-    return Result(RenderXml(msgs), RenderLinksMd(dialect, daemon, entries))
+    budgets, warnings = CpuBudget(entries, daemon)
+    if budgets:
+        print(BudgetInfoLine({n: (b.utilization, b.link.max_utilization)
+                              for n, b in budgets.items()}), file=sys.stderr)
+    for w in warnings:
+        print(f"WARNING mavlink: {w}", file=sys.stderr)
+    meta = BuildMeta(dialect, [BuildCpuMeta(dialect, daemon, entries)])
+    return Result(RenderXml(msgs), RenderLinksMd(dialect, daemon, entries, budgets), meta)
 
 
 def _minimal_xml() -> str:
@@ -234,12 +265,14 @@ def main(argv: list[str]) -> int:
     try:
         res = GenerateAll(args.models, args.dialect, args.daemon_config)
         base = os.path.join(args.out_dir, args.dialect)
-        for suffix, text in ((".xml", res.xml), ("_links.md", res.links_md)):
+        for suffix, text in ((".xml", res.xml), ("_links.md", res.links_md),
+                             ("_monitor.json", RenderMetaJson(res.monitor_meta)),
+                             ("_monitor.py", RenderMonitorPy(res.monitor_meta))):
             with open(base + suffix, "w", encoding="utf-8") as f:
                 f.write(text)
         RunMavgen(base + ".xml", base + ".lua", base + ".py")
-    except MavlinkModelError as e:
-        print(f"ERROR mavlink: {e}", file=sys.stderr)
+    except ModelError as e:
+        print(f"ERROR: {e}", file=sys.stderr)
         return 1
     return 0
 

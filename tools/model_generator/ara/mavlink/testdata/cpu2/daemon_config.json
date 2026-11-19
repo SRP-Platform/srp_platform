@@ -1,0 +1,9 @@
+{
+    "system_id": 1,
+    "component_id": 2,
+    "links": {
+        "radio1": {
+            "driver": "serial_radio"
+        }
+    }
+}

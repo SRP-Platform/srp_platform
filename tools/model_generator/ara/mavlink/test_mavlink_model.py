@@ -5,6 +5,7 @@ import contextlib
 import io
 import unittest
 
+from tools.model_generator.ara.common.model_error import ModelError
 from tools.model_generator.ara.mavlink.mavlink_model import (
     ComputeCrcExtra, Field, LoadDaemonConfig, MAVLINK_ITEM_KEYS, MavlinkModelError)
 from tools.model_generator.ara.mavlink.mavlink_testlib import (
@@ -90,17 +91,19 @@ class ServiceValidationTest(ModelTest):
             me(svc)["mavlink"]["req_id"] = 200
         self.fails("msg_id 200 collision", "Radio.Position", "Radio.SetMode", svc_mut=mut)
 
-    def test_collision_with_heartbeat(self):
+    def test_msg_id_0_is_rejected_naming_the_element(self):
         def mut(svc):
             ev(svc)["mavlink"]["msg_id"] = 0
-        self.fails("HEARTBEAT", svc_mut=mut)
+        text = self.fails("ID 0", "ordinary event", "Position", svc_mut=mut)
+        self.assertIn("Radio", text)
 
     def test_duplicate_message_name(self):
         def mut(svc):
             svc["events"]["position"] = {
                 "id": 32790, "data_structure": {"out": {"type": "uint8"}},
                 "mavlink": {"msg_id": 230}}
-        self.fails("duplicate message name SRP_RADIO_POSITION", svc_mut=mut)
+        listed = lambda a: a["provide"][0]["elements"].update({"position": {"lora": {}}})
+        self.fails("duplicate message name SRP_RADIO_POSITION", svc_mut=mut, app_mut=listed)
 
     def test_two_elements_with_the_same_someip_id(self):
         def mut(svc):
@@ -123,10 +126,10 @@ class ServiceValidationTest(ModelTest):
             del svc["methods"]["LocalOnly"]["mavlink"]
         self.assertEqual(Run(svc_mut=mut)[0].xml, Run()[0].xml)
 
-    def test_v1_link_rejects_ids_above_255(self):
+    def test_ids_above_255_are_accepted(self):
         def mut(svc):
-            ev(svc)["mavlink"]["msg_id"] = 300  # the service is used on radio2 (v1)
-        self.fails("> 255", svc_mut=mut)
+            ev(svc)["mavlink"]["msg_id"] = 300  # MAVLink v2 carries 24-bit ids
+        Run(svc_mut=mut)
 
     def test_payload_limit_includes_the_header(self):
         def mut(n):
@@ -157,15 +160,17 @@ class ServiceValidationTest(ModelTest):
             me(svc, "Reboot")["mavlink"]["resp_id"] = 230
         self.fails("resp_id", svc_mut=mut)
 
-    def test_timeout_must_be_positive_integer(self):
-        for bad in (0, -5, 1.5, "x"):
-            with self.subTest(bad=bad):
-                def mut(svc, bad=bad):
-                    me(svc)["mavlink"]["timeout_ms"] = bad
-                self.fails("timeout_ms", svc_mut=mut)
+    def test_timeout_ms_is_not_a_service_json_key_any_more(self):
+        for value in (500, 0, "x"):
+            with self.subTest(value=value):
+                def mut(svc, value=value):
+                    me(svc)["mavlink"]["timeout_ms"] = value
+                msg = self.fails("SetMode", "mavlink.timeout_ms is removed", "method_timeout_ms",
+                                 "daemon config", svc_mut=mut)
+                self.assertNotIn("unknown key", msg)
 
-    def test_event_rate_must_be_positive_number(self):
-        for bad in (0, -1, True, "x"):
+    def test_event_rate_is_not_a_service_json_key_any_more(self):
+        for bad in (0, -1, 2, True, "x"):
             with self.subTest(bad=bad):
                 def mut(svc, bad=bad):
                     ev(svc)["mavlink"]["max_rate_hz"] = bad
@@ -186,7 +191,7 @@ class ServiceValidationTest(ModelTest):
     def test_unknown_element_key_names_it(self):
         def mut(svc):
             ev(svc)["mavlnk"] = {"msg_id": 5}
-        with self.assertRaises(ValueError) as cm:
+        with self.assertRaises(ModelError) as cm:
             Run(svc_mut=mut)
         self.assertIn("mavlnk", str(cm.exception))
         self.assertIn("Position", str(cm.exception))
@@ -196,7 +201,8 @@ class ServiceValidationTest(ModelTest):
             svc["events"]["Café"] = {
                 "id": 32790, "data_structure": {"out": {"type": "uint8"}},
                 "mavlink": {"msg_id": 230}}
-        self.fails("Café", svc_mut=mut)
+        listed = lambda a: a["provide"][0]["elements"].update({"Café": {"lora": {}}})
+        self.fails("Café", svc_mut=mut, app_mut=listed)
 
     def test_excluded_element_with_an_odd_name_is_not_validated(self):
         def mut(svc):
@@ -265,7 +271,7 @@ class EntryTest(ModelTest):
     def test_the_allowed_entry_keys_are_the_documented_ones(self):
         self.assertEqual(
             set(MAVLINK_ITEM_KEYS),
-            {"name", "on", "instance", "links", "exclude", "max_rate_hz", "dedup_ttl_ms",
+            {"name", "on", "instance", "elements",
              "target_system_id", "target_component_id", "source_system_id",
              "source_component_id"})
 
@@ -276,52 +282,76 @@ class EntryTest(ModelTest):
                     a[key] = value
                 self.fails("MavApp", f"unknown key '{key}'", app_mut=mut)
 
-    def test_links_must_be_a_non_empty_list_of_names(self):
-        for bad in ([], "lora", [1], ["bad name"], ["lora", "lora"]):
+    def test_elements_must_be_a_non_empty_whitelist_of_radios(self):
+        for bad in ({}, [], "Position", {"Position": {}}, {"Position": []},
+                    {"Position": {"bad name": {}}}, {"Position": {"lora": []}},
+                    {"Position": {"lora": {"rate": 1}}}):
             with self.subTest(bad=bad):
-                self.fails("radio_out", app_mut=self.entry(links=bad))
+                self.fails("radio_out", app_mut=self.entry(elements=bad))
 
-    def test_missing_links(self):
+    def test_missing_elements_is_an_error_nothing_goes_over_a_radio_by_default(self):
         def mut(a):
-            del a["provide"][0]["links"]
-        self.fails("links", app_mut=mut)
+            del a["provide"][0]["elements"]
+        self.fails("MavApp.radio_out", "'elements'", app_mut=mut)
 
     def test_instance_range(self):
         for bad in (-1, 65536, True, "3"):
             with self.subTest(bad=bad):
                 self.fails("instance", app_mut=self.entry(instance=bad))
 
-    def test_exclude_unknown_name_not_list_and_duplicate(self):
-        self.fails("unknown element 'Nope'", app_mut=self.entry(exclude=["Nope"]))
-        self.fails("list of element names", app_mut=self.entry(exclude="Reboot"))
-        self.fails("duplicate", app_mut=self.entry(exclude=["Reboot", "Reboot"]))
+    def test_removed_keys_are_errors_with_a_hint(self):
+        for key, value in (("links", ["lora"]), ("exclude", ["Reboot"]),
+                           ("max_rate_hz", {"Position": 1})):
+            with self.subTest(key=key):
+                self.fails("MavApp.radio_out", f"the key '{key}' was removed",
+                           "\"elements\"", app_mut=self.entry(**{key: value}))
 
-    def test_rate_must_name_an_event(self):
-        self.fails("unknown element", app_mut=self.entry(max_rate_hz={"Nope": 1}))
-        self.fails("events only", app_mut=self.entry(max_rate_hz={"Reboot": 1}))
+    def test_elements_must_name_an_element_with_a_mavlink_block(self):
+        self.fails("elements.Nope", "unknown element", app_mut=self.entry(
+            elements={"Nope": {"lora": {}}}))
+        for name in ("LocalOnly", "DebugCounter"):  # `"mavlink": false`
+            with self.subTest(name=name):
+                self.fails(f"elements.{name}", "no 'mavlink' block", app_mut=self.entry(
+                    elements={name: {"lora": {}}}))
+
+    def test_rate_applies_to_events_only(self):
+        self.fails("events only", app_mut=self.entry(
+            elements={"Reboot": {"lora": {"max_rate_hz": 1}}}))
 
     def test_rate_must_not_be_negative_and_zero_means_unlimited(self):
-        self.fails("max_rate_hz.Position", app_mut=self.entry(max_rate_hz={"Position": -1}))
-        init = ComInit(Run(app_mut=self.entry(max_rate_hz={"Position": 0}))[1][0])
-        self.assertIn('opts.max_rate_hz["Position"] = 0.0;', init)
+        self.fails("max_rate_hz=-1", app_mut=self.entry(
+            elements={"Position": {"lora": {"max_rate_hz": -1}}}))
+        init = ComInit(Run(app_mut=self.entry(
+            elements={"Position": {"lora": {"max_rate_hz": 0}}}))[1][0])
+        self.assertIn('.links = {{"lora", 0.0}};', init)
 
-    def test_rate_for_an_excluded_element_warns_and_is_not_emitted(self):
+    def test_a_method_on_two_radios_warns_that_the_request_runs_twice(self):
         err = io.StringIO()
         with contextlib.redirect_stderr(err):
-            _, apps = Run(app_mut=self.entry(exclude=["Position"], max_rate_hz={"Position": 3}),
-                          quiet=False)
-        self.assertIn("max_rate_hz.Position ignored", err.getvalue())
-        first_block = ComInit(apps[0]).split("CreatSkeletonItem")[0]
-        self.assertFalse('max_rate_hz["Position"]' in first_block)
+            Run(app_mut=self.entry(elements={"SetMode": {"radio1": {}, "lora": {}}}), quiet=False)
+        self.assertIn("elements.SetMode: method on 2 radios (radio1, lora)", err.getvalue())
+        self.assertIn("executed 2 times", err.getvalue())
+
+    def test_a_method_on_one_radio_does_not_warn(self):
+        err = io.StringIO()
+        with contextlib.redirect_stderr(err):
+            Run(app_mut=self.entry(elements={"SetMode": {"lora": {}}}), quiet=False)
+        self.assertNotIn("elements.SetMode: method on", err.getvalue())
+
+    def test_a_rate_in_service_json_is_an_error_with_a_hint(self):
+        def mut(svc):
+            ev(svc)["mavlink"]["max_rate_hz"] = 2
+        self.fails("Radio.Position", "mavlink.max_rate_hz was removed", "app.json", svc_mut=mut)
 
     def test_rate_in_a_require_entry_warns_and_is_ignored(self):
         def mut(a):
-            a["require"][0]["max_rate_hz"] = {"Position": 9}
+            a["require"][0]["elements"]["Position"]["radio3"] = {"max_rate_hz": 9}
         err = io.StringIO()
         with contextlib.redirect_stderr(err):
             _, apps = Run(app_mut=mut, quiet=False)
         self.assertIn("no effect", err.getvalue())
-        self.assertEqual(apps[0].require_someip["radio_in"].mavlink.max_rate_hz, {})
+        self.assertEqual(apps[0].require_someip["radio_in"].mavlink.elements["Position"],
+                         {"radio3": 0.0})
 
     def test_source_ids_apply_to_require_only(self):
         self.fails("require entries only", app_mut=self.entry(source_system_id=2))
@@ -334,17 +364,14 @@ class EntryTest(ModelTest):
                 with self.subTest(key=key, bad=bad):
                     self.fails(key, app_mut=self.entry(**{key: bad}))
 
-    def test_dedup_ttl(self):
-        for bad in (0, -1, True, 1.5):
-            with self.subTest(bad=bad):
-                self.fails("dedup_ttl_ms", app_mut=self.entry(dedup_ttl_ms=bad))
-        init = ComInit(Run(app_mut=self.entry(dedup_ttl_ms=2500))[1][0])
-        self.assertIn("opts.dedup_ttl_ms = 2500U;", init)
-        self.assertIn("opts.dedup_ttl_ms = 10000U;", init)
+    def test_dedup_ttl_ms_is_an_unknown_key(self):
+        # the rocket side does not deduplicate (the ground station does, by `seq`)
+        self.fails("unknown key 'dedup_ttl_ms'", app_mut=self.entry(dedup_ttl_ms=2500))
+        self.assertNotIn("dedup", ComInit(Run()[1][0]))
 
     def test_ipc_and_udp_entries_reject_mavlink_only_keys(self):
         for on in ("ipc", "udp"):
-            for key, value in (("links", ["lora"]), ("exclude", []), ("dedup_ttl_ms", 5)):
+            for key, value in (("elements", {"Position": {"lora": {}}}),):
                 with self.subTest(on=on, key=key):
                     def mut(a, on=on, key=key, value=value):
                         a["provide"].append({"name": "Radio as other", "on": on, "instance": 9,
@@ -384,13 +411,9 @@ class CpuTest(ModelTest):
         res, _ = Run(app2=App2(service="Beacon", instance=1), svc2=Beacon(300))
         self.assertIn('name="SRP_BEACON_PING"', res.xml)
 
-    def test_v1_link_limits_ids_of_every_application(self):
-        self.fails("300", app2=App2(service="Beacon", instance=1, links=("radio2",)),
-                   svc2=Beacon(300))
-
     def test_links_of_one_instance_need_one_signing_mode(self):
         def mut(a):
-            a["provide"][0]["links"] = ["radio1", "radio3"]  # signed + unsigned
+            a["provide"][0]["elements"]["SetMode"] = {"radio1": {}, "radio3": {}}  # signed + unsigned
         self.fails("same signing.enabled", app_mut=mut)
 
         def mut2(d):
@@ -401,7 +424,8 @@ class CpuTest(ModelTest):
         Run()  # radio_out (signed links) and radio_in (unsigned) coexist in the fixture
 
     def test_names_are_not_checked_without_a_daemon_config(self):
-        res, _ = Run(with_daemon=False, app_mut=lambda a: a["provide"][0].update(links=["anything"]))
+        res, _ = Run(with_daemon=False, app_mut=lambda a: a["provide"][0].update(
+            elements={"Position": {"anything": {}}}))
         self.assertIn("| element | anything |", res.links_md)
 
     def test_no_application_with_a_mavlink_entry_is_an_error(self):
@@ -427,19 +451,159 @@ class CpuTest(ModelTest):
 
 
 class DaemonConfigTest(unittest.TestCase):
-    def test_reads_names_versions_and_signing(self):
+    def test_reads_names_and_signing(self):
         import os
         import tempfile
         with tempfile.TemporaryDirectory() as d:
             cfg = LoadDaemonConfig(Write({"c": Load("daemon_config.json")}, d)["c"])
         self.assertEqual(list(cfg.links), ["radio1", "radio2", "radio3", "lora", "spare"])
-        self.assertEqual(cfg.links["radio2"].version, 1)
         self.assertTrue(cfg.links["radio1"].signing_enabled)
         self.assertFalse(cfg.links["radio3"].signing_enabled)
 
     def test_unreadable_config(self):
         with self.assertRaises(MavlinkModelError):
             LoadDaemonConfig("/nonexistent/daemon.json")
+
+    def load(self, **link):
+        import tempfile
+        raw = Load("daemon_config.json")
+        raw["links"]["radio2"].update(link)
+        with tempfile.TemporaryDirectory() as d:
+            return LoadDaemonConfig(Write({"c": raw}, d)["c"])
+
+    def test_bandwidth_fields_and_defaults(self):
+        cfg = self.load(air_rate_bps=2400, max_utilization=0.5, mtu=200)
+        link = cfg.links["radio2"]
+        self.assertEqual((link.air_rate_bps, link.max_utilization, link.mtu), (2400, 0.5, 200))
+        other = cfg.links["radio3"]
+        self.assertEqual((other.air_rate_bps, other.max_utilization, other.mtu), (0, 0.8, 0))
+
+    def test_bad_bandwidth_fields_are_errors(self):
+        for bad in ({"air_rate_bps": 0}, {"air_rate_bps": 9.5}, {"air_rate_bps": "9600"},
+                    {"max_utilization": 0}, {"max_utilization": 1.5}, {"mtu": 11}, {"mtu": 281},
+                    {"mtu": True}):
+            with self.subTest(bad=bad), self.assertRaises(MavlinkModelError):
+                self.load(**bad)
+
+
+# Position with a 32 B payload (header seq+instance 4 B + a 28 B string): signed frame
+# 10 + 2 + 13 + 32 = 57 B; on the unsigned radio2 it is 44 B.
+def Payload32(svc):
+    ev(svc)["data_structure"] = {"out": {"type": "string"}}
+    ev(svc)["mavlink"] = {"msg_id": 200, "max_len": 28}
+
+
+def Link(name, **fields):
+    def mut(daemon):
+        daemon["links"][name].update(fields)
+    return mut
+
+
+def Rate(link, hz):
+    def mut(app):
+        app["provide"][0]["elements"]["Position"][link] = {"max_rate_hz": hz}
+    return mut
+
+
+class BudgetTest(ModelTest):
+    def test_overloaded_link_is_an_error_with_the_link_and_the_percent(self):
+        # radio1 is signed: 57 B x 10 Hz = 570 B/s = 4560 bit/s of 2400 bit/s = 190.0%
+        msg = self.fails("link 'radio1'", "570 B/s", "4560 bit/s", "190.0%", "> 100%",
+                         svc_mut=Payload32, app_mut=Rate("radio1", 10),
+                         daemon_mut=Link("radio1", air_rate_bps=2400))
+        self.assertIn("air_rate_bps=2400", msg)
+
+    def test_exactly_the_full_link_is_not_an_error(self):
+        res, _ = Run(svc_mut=Payload32, app_mut=Rate("radio1", 10),
+                     daemon_mut=Link("radio1", air_rate_bps=4560, max_utilization=1.0))
+        self.assertIn("| **sum of events** | | | | | 570 | 100.0% |", res.links_md)
+
+    def test_half_load_gives_the_table_with_hand_computed_values(self):
+        res, _ = Run(svc_mut=Payload32, app_mut=Rate("radio1", 10),
+                     daemon_mut=Link("radio1", air_rate_bps=9120))
+        lines = res.links_md.splitlines()
+        self.assertIn("### Link `radio1`: signed, air_rate_bps 9120, max_utilization 80%", lines)
+        self.assertIn("| srp.mav.Radio.Position | MavApp.3 | event | 57 | 10 | 570 | 50.0% |", lines)
+        self.assertIn("| **sum of events** | | | | | 570 | 50.0% |", lines)
+        # methods: REQ/RESP frame sizes (signed), no sum: SetMode 7 B / 8 B, Reboot 6 B,
+        # SetName 6+32 B / 6+1+4 B payload
+        self.assertIn("| srp.mav.Radio.SetMode | MavApp.3 | method | REQ 32 / RESP 33 | - | - | - |", lines)
+        self.assertIn("| srp.mav.Radio.Reboot | MavApp.3 | method | REQ 31 | - | - | - |", lines)
+        self.assertIn("| srp.mav.Radio.SetName | MavApp.3 | method | REQ 63 / RESP 36 | - | - | - |", lines)
+
+    def info_line(self, **kw):
+        err = io.StringIO()
+        with contextlib.redirect_stderr(err):
+            Run(quiet=False, **kw)
+        return [l for l in err.getvalue().splitlines() if l.startswith("INFO mavlink budget")]
+
+    def test_info_line_lists_the_percent_of_every_link_and_a_dash_without_budget(self):
+        # radio1: 570 B/s of 9120 bit/s = 50%; radio2 has air_rate_bps = no budget
+        lines = self.info_line(svc_mut=Payload32, app_mut=Rate("radio1", 10),
+                               daemon_mut=Link("radio1", air_rate_bps=9120))
+        self.assertEqual(lines, ["INFO mavlink budget: radio1 50.0% (max 80%), radio2 -, "
+                                 "radio3 -, lora -, spare -"])
+
+    def test_a_link_load_above_max_utilization_warns(self):
+        err = io.StringIO()
+        with contextlib.redirect_stderr(err):
+            Run(quiet=False, svc_mut=Payload32, app_mut=Rate("radio1", 10),
+                daemon_mut=Link("radio1", air_rate_bps=5000))
+        self.assertIn("WARNING mavlink: link 'radio1'", err.getvalue())
+        self.assertIn("91.2% of air_rate_bps=5000 (> max_utilization 80%)", err.getvalue())
+
+    def test_no_warning_below_max_utilization(self):
+        err = io.StringIO()
+        with contextlib.redirect_stderr(err):
+            Run(quiet=False, svc_mut=Payload32, app_mut=Rate("radio1", 10),
+                daemon_mut=Link("radio1", air_rate_bps=9120))
+        self.assertNotIn("max_utilization", err.getvalue())
+
+    def test_an_event_without_max_rate_on_a_link_with_a_budget_is_an_error(self):
+        # radio_lora (instance 5) sends Position on lora with max_rate_hz 0 = unlimited
+        self.fails("elements.Position", "link 'lora'", "max_rate_hz > 0",
+                   daemon_mut=Link("lora", air_rate_bps=100000))
+
+    def test_an_event_without_max_rate_is_fine_on_a_link_without_a_budget(self):
+        res, _ = Run(daemon_mut=Link("radio2", mtu=200))
+        self.assertIn("| srp.mav.Radio.Position | MavApp.5 | event | 38 | unlimited | - | - |",
+                      res.links_md)
+        self.assertIn("no air_rate_bps (no budget, no TX pacing)", res.links_md)
+
+    def test_a_frame_above_mtu_is_an_error_naming_element_link_and_size(self):
+        # unsigned radio2: 12 + 218 = 230 B
+        def big(svc):
+            ev(svc)["data_structure"] = {"out": {"type": "string"}}
+            ev(svc)["mavlink"] = {"msg_id": 200, "max_len": 214}
+        msg = self.fails("elements.Position", "link 'radio2'", "SRP_RADIO_POSITION", "230 B",
+                         "mtu 200 B", svc_mut=big, daemon_mut=Link("radio2", mtu=200))
+        self.assertNotIn("signature", msg)
+
+    def test_a_frame_exactly_at_mtu_passes(self):
+        def big(svc):
+            ev(svc)["data_structure"] = {"out": {"type": "string"}}
+            ev(svc)["mavlink"] = {"msg_id": 200, "max_len": 214}
+        Run(svc_mut=big, daemon_mut=Link("radio2", mtu=230))
+
+    def test_mtu_counts_the_signature_and_the_response_frames(self):
+        # signed radio1: SetName RESP = 12 + 13 + 11 = 36 B, REQ = 12 + 13 + 38 = 63 B
+        self.fails("link 'radio1'", "SRP_RADIO_SET_NAME_REQ", "63 B", "signature 13",
+                   daemon_mut=Link("radio1", mtu=62))
+        Run(daemon_mut=Link("radio1", mtu=63))
+
+    def test_a_received_event_is_not_counted_in_the_load(self):
+        # radio3: MavApp.6 sends Position @ 0.5 Hz (unsigned: 12 + 13 = 25 B); MavApp.4 requires it
+        res, _ = Run(daemon_mut=Link("radio3", air_rate_bps=9600))
+        lines = res.links_md.splitlines()
+        self.assertIn("| srp.mav.Radio.Position | MavApp.6 | event | 25 | 0.5 | 12.5 | 1.0% |", lines)
+        self.assertFalse([l for l in lines if "Position | MavApp.4 |" in l])
+        self.assertIn("| **sum of events** | | | | | 12.5 | 1.0% |", lines)
+
+    def test_without_air_rate_or_mtu_the_links_file_has_only_the_matrix(self):
+        self.assertNotIn("Bandwidth", Run()[0].links_md)
+
+    def test_without_a_daemon_config_there_is_no_budget(self):
+        self.assertNotIn("Bandwidth", Run(with_daemon=False)[0].links_md)
 
 
 if __name__ == "__main__":

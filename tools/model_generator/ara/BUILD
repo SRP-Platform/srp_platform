@@ -6,6 +6,7 @@ py_binary(
     data = ["@srp_platform//tools/model_generator/ara:example_res"],
     deps = [
         "@srp_platform//tools/model_generator/ara/common:common_parser",
+        "@srp_platform//tools/model_generator/ara/common:model_error_lib",
     ],
 )
 
@@ -16,6 +17,7 @@ py_binary(
     visibility = ["//visibility:public"],
     deps = [
         "@srp_platform//tools/model_generator/ara/common:common_parser",
+        "@srp_platform//tools/model_generator/ara/common:model_error_lib",
         "@srp_platform//tools/model_generator/ara/mavlink:mavlink_model_lib",
     ],
 )
@@ -27,6 +29,7 @@ py_binary(
     visibility = ["//visibility:public"],
     deps = [
         "@srp_platform//tools/model_generator/ara/common:common_parser",
+        "@srp_platform//tools/model_generator/ara/common:model_error_lib",
         "@srp_platform//tools/model_generator/ara/mavlink:mavlink_gen_lib",
     ],
 )
@@ -38,6 +41,7 @@ py_binary(
     visibility = ["//visibility:public"],
     deps = [
         "@srp_platform//tools/model_generator/ara/common:common_parser",
+        "@srp_platform//tools/model_generator/ara/common:model_error_lib",
         "@srp_platform//tools/model_generator/ara/mavlink:mavlink_model_lib",
     ],
 )
@@ -49,6 +53,7 @@ py_binary(
     visibility = ["//visibility:public"],
     deps = [
         "@srp_platform//tools/model_generator/ara/common:common_parser",
+        "@srp_platform//tools/model_generator/ara/common:model_error_lib",
     ],
 )
 

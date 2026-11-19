@@ -3,8 +3,6 @@
     "component_id": 1,
     "links": {
         "radio1": {
-            "version": 2,
-            "heartbeat_hz": 1,
             "signing": {
                 "enabled": true,
                 "key_file": "/etc/srp/mavlink/radio1.key",
@@ -14,16 +12,12 @@
             "driver": "serial_radio"
         },
         "radio2": {
-            "version": 1,
-            "heartbeat_hz": 0,
             "driver": "serial_radio"
         },
         "radio3": {
             "driver": "serial_radio"
         },
         "lora": {
-            "version": 2,
-            "heartbeat_hz": 1,
             "signing": {
                 "enabled": true,
                 "key_file": "/etc/srp/mavlink/lora.key",

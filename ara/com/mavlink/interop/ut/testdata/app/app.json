@@ -14,17 +14,31 @@
             },
             "provide": [
                 {"name": "Radio as radio_out", "on": "mavlink", "instance": 3,
-                 "links": ["radio1", "lora"]},
+                 "elements": {
+                     "Position": {"radio1": {"max_rate_hz": 2}, "lora": {"max_rate_hz": 2}},
+                     "SetMode": {"radio1": {}, "lora": {}},
+                     "Reboot": {"radio1": {}, "lora": {}},
+                     "SetName": {"radio1": {}, "lora": {}}}},
                 {"name": "Radio as radio_lora", "on": "mavlink", "instance": 5,
-                 "links": ["lora"], "exclude": ["Reboot"], "max_rate_hz": {"Position": 0}},
+                 "elements": {
+                     "Position": {"lora": {"max_rate_hz": 0}},
+                     "SetMode": {"lora": {}},
+                     "SetName": {"lora": {}}}},
                 {"name": "Radio as radio_mix", "on": "mavlink", "instance": 6,
-                 "links": ["radio2", "radio3"]}
+                 "elements": {
+                     "Position": {"radio2": {"max_rate_hz": 2}, "radio3": {"max_rate_hz": 0.5}},
+                     "SetMode": {"radio2": {}},
+                     "Reboot": {"radio3": {}},
+                     "SetName": {"radio2": {}, "radio3": {}}}}
             ],
             "require": [
                 {"name": "Radio as radio_in", "on": "mavlink", "instance": 4,
-                 "links": ["radio3"], "target_system_id": 2, "target_component_id": 1,
+                 "target_system_id": 2, "target_component_id": 1,
                  "source_system_id": 2, "source_component_id": 1,
-                 "exclude": ["SetName"], "max_rate_hz": {"Position": 5}}
+                 "elements": {
+                     "Position": {"radio3": {}},
+                     "SetMode": {"radio3": {}},
+                     "Reboot": {"radio3": {}}}}
             ]
         }
     }

@@ -6,7 +6,7 @@
  * descriptions come from the generated initialization.cc (the model of a test application),
  * i.e. from the same source as the XML dialect used by pymavlink.
  *
- *   emit   <ts>     -> lines `FRAME <name> <v1|v2|v2s> <frame hex> SOMEIP <hex>`
+ *   emit   <ts>     -> lines `FRAME <name> <v2|v2s> <frame hex> SOMEIP <hex>`
  *   decode <file>   -> for the frames of the file (`FRAME <name> <fmt> <hex>`) lines
  *                      `OUT <name> <fmt> seq=.. instance=.. tsys=.. tcomp=.. status=..
  *                      someip=<hex> sig=<ok|bad|none>`
@@ -144,13 +144,11 @@ int Emit(std::uint64_t ts) {
     const ara::com::mavlink::SigningParams sp{key, 7, ts};
     const struct {
       const char* fmt;
-      int version;
       const ara::com::mavlink::SigningParams* sign;
-    } variants[] = {{"v1", 1, nullptr}, {"v2", 2, nullptr}, {"v2s", 2, &sp}};
+    } variants[] = {{"v2", nullptr}, {"v2s", &sp}};
     for (const auto& v : variants) {
-      const auto frame = ara::com::mavlink::BuildFrame(
-          static_cast<std::uint8_t>(v.version), 9, 1, 1, e.codec->msg_id(), payload.Value(),
-          e.codec->crc_extra(), v.sign);
+      const auto frame = ara::com::mavlink::BuildFrame(9, 1, 1, e.codec->msg_id(), payload.Value(),
+                                                       e.codec->crc_extra(), v.sign);
       std::cout << "FRAME " << e.name << " " << v.fmt << " " << Hex(frame) << " SOMEIP "
                 << Hex(someip) << "\n";
     }

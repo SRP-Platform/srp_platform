@@ -46,8 +46,9 @@ def App2(instance=8, links=("lora",), service="Radio", name="MavApp2", direction
     a = app["adaptive_application"].pop("MavApp")
     a.pop("provide")
     a.pop("require")
+    names = {"Radio": ["Position", "SetMode", "Reboot", "SetName"], "Beacon": ["Ping"]}[service]
     a[direction] = [{"name": service, "on": "mavlink", "instance": instance,
-                     "links": list(links)}]
+                     "elements": {n: {ln: {} for ln in links} for n in names}}]
     app["adaptive_application"] = {name: a}
     return app
 
