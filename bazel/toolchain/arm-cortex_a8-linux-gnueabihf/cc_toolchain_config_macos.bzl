@@ -109,9 +109,18 @@ def _impl(ctx):
         ],
     )
 
+    # Without this feature Bazel does not build the PIC variant of the dependencies, so
+    # cc_binary(linkshared = True) (e.g. mavlink_driver_plugin) fails to link ("recompile with
+    # -fPIC"). Ordinary binaries stay without -fPIC.
+    supports_pic = feature(
+        name = "supports_pic",
+        enabled = True,
+    )
+
     features = [
         default_compiler_flags,
         default_linker_flags,
+        supports_pic,
     ]
 
     return cc_common.create_cc_toolchain_config_info(
