@@ -96,6 +96,7 @@ def _impl(ctx):
                         flags = [
                             "--sysroot=external/arm-cortex_a8-linux-gnueabihf-sysroot",
                             "-lstdc++",
+                            "-lm",
                         ],
                     ),
                 ]),
