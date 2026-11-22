@@ -97,6 +97,7 @@ def _impl(ctx):
                             # libstdc++, libgcc) - provision.sh instaluje je w obrazie.
                             # System dziala z RAM - bez informacji debug (symbole zostaja).
                             "-Wl,--strip-debug",
+                            "-lm",
                         ],
                     ),
                 ]),
