@@ -123,6 +123,27 @@ TEST_F(IpcRestart, ProxyReceivesTheEventsAfterAKilledSkeleton) {
   old_skeleton.release();  // leaked on purpose (a killed process runs no destructors)
 }
 
+// (c) Stop() ends the loop thread (it used to leak it): returns promptly, no events are delivered afterwards
+TEST_F(IpcRestart, StopJoinsTheShmLoop) {
+  IPCSkeletonBindings skeleton{Name("srp_ipc_restart_c")};
+  skeleton.Start(stop_.get_token());
+  IPCProxyBindings proxy{Name("srp_ipc_restart_c")};
+  StartProxy(&proxy);
+  ASSERT_TRUE(EventsArrive(&skeleton, received_, 3));
+
+  const auto t0 = std::chrono::steady_clock::now();
+  proxy.Stop();
+  EXPECT_LT(std::chrono::steady_clock::now() - t0, std::chrono::seconds(2));
+  std::this_thread::sleep_for(milliseconds(300));  // let a callback that was already started finish
+  const int after_stop = received_.load();
+  for (int i = 0; i < 10; ++i) {
+    skeleton.HandleEvent(7, std::vector<uint8_t>{1, 2, 3});
+    std::this_thread::sleep_for(milliseconds(20));
+  }
+  EXPECT_EQ(received_.load(), after_stop);
+  proxy.Stop();  // idempotent
+}
+
 // (b) the skeleton does not come back for 3 s: the client lives and does not burn the CPU; then it returns
 TEST_F(IpcRestart, ProxyIdlesWhileTheSkeletonIsAwayAndRecovers) {
   auto skeleton = std::make_unique<IPCSkeletonBindings>(Name("srp_ipc_restart_b"));
