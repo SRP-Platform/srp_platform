@@ -12,7 +12,7 @@
 #include <unistd.h>
 #include <atomic>
 #include <string>
-#include <chrono>
+#include <chrono>  // NOLINT
 #include <memory>
 #include <thread>  // NOLINT
 #include "ara/core/condition_variable.h"
