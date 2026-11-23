@@ -263,9 +263,12 @@ void IPCProxyBindings::Start(std::stop_token token) {
   }
 }
 void IPCProxyBindings::Stop() {
-  // shm_loop_thread_->request_stop();
-  // shm_loop_thread_->join();
-  shm_loop_thread_.release();
+  // Every wait of ShmLoop() is bounded (kPoll / backoff), so the join returns within about a second.
+  if (shm_loop_thread_ != nullptr) {
+    shm_loop_thread_->request_stop();
+    shm_loop_thread_->join();
+    shm_loop_thread_.reset();
+  }
 }
 ara::core::Result<std::vector<uint8_t>> IPCProxyBindings::HandleMethod(
     const uint16_t& method_id, const std::vector<uint8_t>& payload) {
