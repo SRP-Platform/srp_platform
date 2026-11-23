@@ -59,6 +59,9 @@ class IPCProxyBindings : public CommonBindings {
   uint16_t msg_id{0U};
   const ara::core::StringView main_path_;
   void ShmLoop(std::stop_token token);
+  /// Maps the segments that are not attached (after a restart of the skeleton); false = try again later.
+  /// Virtual only so that a test can inject a failure.
+  virtual bool TryAttach();
   srp::bindings::com::shm::ShmBufforProxy<1024> buffor_;
   ara::core::ConditionVariableProxy cv_;
   std::unique_ptr<std::jthread> shm_loop_thread_;

@@ -10,8 +10,10 @@
  */
 #include "ara/core/condition_variable.h"
 
-#include "ara/core/core_error_domain.h"
+#include <ctime>
 #include <thread>  // NOLINT
+
+#include "ara/core/core_error_domain.h"
 
 namespace ara {
 namespace core {
@@ -66,6 +68,40 @@ bool ConditionVariableProxy::Wait() {
     return true;
   }
   return false;
+}
+bool ConditionVariableProxy::Stale() const { return shm_object_ != nullptr && shm_.Stale(); }
+
+ara::core::Result<void> ConditionVariableProxy::Reattach() {
+  shm_object_ = nullptr;  // detached until the new segment is mapped
+  const auto res = shm_.Reattach();
+  if (!res.HasValue()) {
+    return res.Error();
+  }
+  const auto ptr = shm_.GetNewSamplesPointer();
+  if (!ptr.HasValue()) {
+    shm_.Detach();
+    return ptr.Error();
+  }
+  shm_object_ = ptr.Value();
+  return {};
+}
+
+bool ConditionVariableProxy::WaitFor(std::chrono::milliseconds timeout) {
+  if (shm_object_ == nullptr) {
+    return false;
+  }
+  timespec deadline{};
+  clock_gettime(CLOCK_REALTIME, &deadline);
+  const auto ns = static_cast<long>(deadline.tv_nsec) + static_cast<long>((timeout.count() % 1000) * 1000000);  // NOLINT
+  deadline.tv_sec += static_cast<time_t>(timeout.count() / 1000) + ns / 1000000000L;
+  deadline.tv_nsec = ns % 1000000000L;
+  // A timed lock: a daemon killed while holding the (non-robust) mutex must not block the waiter for ever.
+  if (pthread_mutex_timedlock(&shm_object_->mutex_, &deadline) != 0) {
+    return false;
+  }
+  const int rc = pthread_cond_timedwait(&shm_object_->cv_, &shm_object_->mutex_, &deadline);
+  pthread_mutex_unlock(&shm_object_->mutex_);
+  return rc == 0 && shm_object_->status_ == 0;
 }
 bool ConditionVariableProxy::Wait(CheckCallback callback) {
   if (shm_object_ == nullptr) {

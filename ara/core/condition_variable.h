@@ -59,6 +59,17 @@ class ConditionVariableProxy final {
 
   bool Wait(CheckCallback callback);
   bool Wait();
+  /// True when the skeleton was restarted (a new shared segment): Reattach() before waiting again.
+  bool Stale() const;
+  /// True when a segment is mapped; false after a failed Reattach() (WaitFor then returns false at once).
+  bool Attached() const { return shm_object_ != nullptr; }
+  /// Maps the segment of the restarted skeleton. On failure the proxy stays detached (Attached() == false)
+  /// and Reattach() can be called again.
+  ara::core::Result<void> Reattach();
+  /// Waits for a notification at most `timeout`; true = notified, false = timeout (or no service).
+  /// A waiter must use it (and re-check its condition) when the skeleton can be restarted: a restarted
+  /// skeleton re-initialises the shared condition variable and does not wake the waiters of the old one.
+  bool WaitFor(std::chrono::milliseconds timeout);
   template <class Rep, class Period>
   bool WaitFor(CheckCallback callback,
                TimeDuration<Rep, Period> time_duration) {
