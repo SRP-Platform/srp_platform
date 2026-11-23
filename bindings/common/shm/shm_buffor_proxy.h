@@ -48,19 +48,66 @@ class ShmBufforProxy final {
   ShmBufforProxy& operator=(ShmBufforProxy&&) = delete;
 
   ara::core::Result<void> FindService() noexcept {
-    shm_des = shm_open(instance_specifier_.ToString().c_str(), O_RDWR, mode);
-    if (shm_des <= 0) {
+    const int fd = shm_open(instance_specifier_.ToString().c_str(), O_RDWR, mode);
+    if (fd <= 0) {
       return MakeErrorCode(ara::com::ComErrc::kNetworkBindingFailure, "");
     }
-    if (ftruncate(shm_des, buff_size) == -1) {
+    if (ftruncate(fd, buff_size) == -1) {
+      close(fd);
       return MakeErrorCode(ara::com::ComErrc::kFieldValueIsNotValid, "");
     }
-    handler = reinterpret_cast<std::uint8_t*>(
-        mmap(NULL, buff_size, PROT_READ | PROT_WRITE, MAP_SHARED, shm_des, 0));
+    void* const mapped =
+        mmap(NULL, buff_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    if (mapped == MAP_FAILED) {
+      close(fd);
+      return MakeErrorCode(ara::com::ComErrc::kIllegalUseOfAllocate, "");
+    }
+    shm_des = fd;
+    handler = reinterpret_cast<std::uint8_t*>(mapped);
     return {};
   }
 
+  /// nullptr when not attached (never found, or the last Reattach() failed).
   uint8_t* GetNewSamplesPointer() { return handler; }
+  bool Attached() const noexcept { return handler != nullptr && shm_des > 0; }
+
+  /// True when the skeleton was restarted: its constructor unlinks the name and creates a NEW segment, so
+  /// the name now refers to another segment than the mapped one (this proxy would never see its data).
+  bool Stale() const noexcept {
+    if (handler == nullptr || shm_des <= 0) {
+      return false;
+    }
+    const int fd = shm_open(instance_specifier_.ToString().c_str(), O_RDWR, mode);
+    if (fd < 0) {
+      return false;  // not offered yet: nothing to attach to
+    }
+    struct stat now {};
+    struct stat mapped {};
+    const bool stale = fstat(fd, &now) == 0 && fstat(shm_des, &mapped) == 0 &&
+                       (now.st_ino != mapped.st_ino || now.st_dev != mapped.st_dev);
+    close(fd);
+    return stale;
+  }
+
+  /// Maps the current segment of the name instead of the stale one.
+  /// On failure the proxy is left detached (Attached() == false, GetNewSamplesPointer() == nullptr).
+  ara::core::Result<void> Reattach() noexcept {
+    Detach();
+    return FindService();
+  }
+
+  /// Unmaps and closes the segment (idempotent).
+  void Detach() noexcept {
+    if (handler != nullptr) {
+      munmap(handler, buff_size);
+    }
+    if (shm_des > 0) {
+      close(shm_des);
+    }
+    handler = nullptr;
+    shm_des = 0;
+  }
+
   ~ShmBufforProxy() { shm_unlink(instance_specifier_.ToString().c_str()); }
 };
 }  // namespace shm

@@ -12,7 +12,11 @@
 
 #include <algorithm>
 #include <array>
+#include <chrono>  // NOLINT
+#include <condition_variable>  // NOLINT
 #include <future>  // NOLINT
+#include <mutex>  // NOLINT
+#include <tuple>
 #include <memory>
 #include <string>
 #include <vector>
@@ -135,12 +139,66 @@ void IPCSkeletonBindings::SubscribeToEvent(const uint16_t& event_id) {}
 
 /////////////////////////  PROXY  ////////////////////////////////////
 
+bool IPCProxyBindings::TryAttach() {
+  if (!buffor_.Attached() && !buffor_.Reattach().HasValue()) {
+    return false;
+  }
+  if (!cv_.Attached() && !cv_.Reattach().HasValue()) {
+    return false;
+  }
+  return true;
+}
+
 void IPCProxyBindings::ShmLoop(std::stop_token token) {
-  std::stop_callback callback{token, [this]() { this->cv_.NotifyAll(); }};
+  // No stop_callback with cv_.NotifyAll(): it would race with cv_.Reattach() (unmap) from the other thread.
+  // Every wait below is bounded (kPoll / backoff), so a stop request is noticed within ~kPoll.
+  constexpr std::chrono::milliseconds kPoll{200};
+  constexpr std::chrono::milliseconds kBackoffMax{1000};
+  std::mutex sleep_mutex;
+  std::condition_variable_any sleep_cv;
+  const auto sleep_for = [&](std::chrono::milliseconds d) {
+    std::unique_lock lock{sleep_mutex};
+    sleep_cv.wait_for(lock, token, d, [] { return false; });
+  };
   ara::com::LogDebug() << "[IPCProxyBindings]: SHM loop Start";
+  bool attached = true;  // Start() found both segments before launching this loop
+  std::chrono::milliseconds backoff = kPoll;
   while (!token.stop_requested()) {
+    if (!attached) {
+      // Detached: a restart of the skeleton left no usable segment (the name is gone or mapping failed).
+      // Never touch the (unmapped) buffers; wait with a growing backoff and try to attach again.
+      sleep_for(backoff);
+      backoff = std::min(std::max(backoff * 2, kPoll), kBackoffMax);
+      if (token.stop_requested()) {
+        break;
+      }
+      if (!TryAttach()) {
+        continue;
+      }
+      ara::com::LogInfo() << "[IPCProxyBindings]: re-attached to the restarted skeleton";
+      attached = true;
+      backoff = kPoll;
+      last_msg_id = 0U;
+      continue;
+    }
+    if (!buffor_.Attached() || !cv_.Attached()) {
+      attached = false;
+      continue;
+    }
     if (*buffor_.GetNewSamplesPointer() == last_msg_id) {
-      cv_.Wait();
+      // Not an unbounded Wait(): a restarted daemon re-initialises the shared condition variable and
+      // does not wake a waiter of the old one, so re-check the counter periodically.
+      cv_.WaitFor(kPoll);
+      // A restarted skeleton creates NEW shared segments: attach to them (the old ones are dead).
+      if (buffor_.Stale() || cv_.Stale()) {
+        ara::com::LogInfo() << "[IPCProxyBindings]: the skeleton was restarted, re-attaching";
+        // Both segments are re-mapped together; on any failure the loop goes to the detached state above.
+        attached = false;
+        buffor_.Detach();
+        std::ignore = cv_.Reattach();  // leaves cv_ detached on failure; retried above
+        backoff = std::chrono::milliseconds{0};
+      }
+      continue;
     }
     if (token.stop_requested()) {
       break;

@@ -39,3 +39,14 @@ cc_library(
         "@srp_platform//ara/core/model:Model_lib",
     ],
 )
+
+# The ipc binding across a restart of the skeleton (a respawned application).
+cc_test(
+    name = "ipc_restart_test",
+    srcs = ["ut/ipc_restart_test.cc"],
+    deps = [
+        ":bindings_lib",
+        "@com_google_googletest//:gtest_main",
+        "@srp_platform//ara/log",
+    ],
+)
