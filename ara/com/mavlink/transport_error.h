@@ -1,7 +1,7 @@
 /**
  * @file transport_error.h
  * @brief Error codes of the MAVLink radio transport (an ara::core::ErrorDomain).
- * Code values are part of the plugin ABI; removed codes leave gaps.
+ * Code values are part of the driver API; removed codes leave gaps.
  * @copyright Copyright (c) 2024
  */
 #ifndef ARA_COM_MAVLINK_TRANSPORT_ERROR_H_
@@ -29,7 +29,7 @@ enum class TransportErrc : ara::core::ErrorDomain::CodeType {
   /// IRadioDriver::Send: the radio has no room for the frame (nothing written); wait for
   /// IRadioListener::OnTxReady.
   kBusy = 7,
-  /// Driver plugin loading: bad plugin / API version / duplicate id / unknown driver.
+  /// Driver registry: duplicate id / empty id / unknown driver / driver not created.
   kDriverRegistryError = 8
 };
 

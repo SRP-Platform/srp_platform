@@ -23,7 +23,7 @@ class TransportErrorDomain final : public ara::core::ErrorDomain {
       case TransportErrc::kClosed: return "Transport closed";
       case TransportErrc::kInvalidArgument: return "Invalid argument";
       case TransportErrc::kBusy: return "Radio busy";
-      case TransportErrc::kDriverRegistryError: return "Radio driver plugin error";
+      case TransportErrc::kDriverRegistryError: return "Radio driver registry error";
     }
     return "Unknown transport error";
   }
