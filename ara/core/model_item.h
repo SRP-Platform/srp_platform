@@ -15,12 +15,15 @@
 
 #include "ara/core/model/com_model_item.h"
 #include "ara/core/model/diag_model_item.h"
+#include "ara/core/model/mavlink_model_item.h"
 
 namespace ara {
 namespace core {
 class ModelItem {
  private:
-  std::variant<model::ModelSomeIp, model::ModelDtc, model::ModelUds> value_;
+  std::variant<model::ModelSomeIp, model::ModelDtc, model::ModelUds,
+               model::ModelMavlink>
+      value_;
 
  public:
   template <typename T>

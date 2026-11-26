@@ -4,3 +4,4 @@ MODULE.bazel.lock
 coverage-report
 .clwb
 .idea
+__pycache__/
