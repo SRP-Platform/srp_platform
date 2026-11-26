@@ -1,0 +1,14 @@
+{
+    "system_id": 1,
+    "component_id": 1,
+    "links": {
+        "radio_a": {
+            "driver": "test_serial_b",
+            "driver_config": "/etc/srp/mavlink/radio_a.json"
+        },
+        "radio_b": {
+            "driver": "test_serial_b",
+            "driver_config": "/etc/srp/mavlink/radio_b.json"
+        }
+    }
+}

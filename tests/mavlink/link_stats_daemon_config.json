@@ -1,0 +1,15 @@
+{
+    "system_id": 1,
+    "component_id": 1,
+    "stats_period_ms": 1000,
+    "links": {
+        "radio_a": {
+            "driver": "test_stats_a",
+            "driver_config": "/dev/null"
+        },
+        "radio_b": {
+            "driver": "test_stats_b",
+            "driver_config": "/dev/null"
+        }
+    }
+}

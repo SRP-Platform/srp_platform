@@ -250,16 +250,30 @@ wireshark -k -i lo -f "udp port 14550" -X lua_script:srp_example.lua
 ### Ground monitor
 
 The same build generates `<dialect>_monitor.py` (and `<dialect>_monitor.json`, the model of the
-CPU: events with their rate limits, methods with their REQ/RESP pairs, channel parameters). The
-monitor reads a UART or a UDP port and shows, per message: events with the measured and the
-configured frequency, methods with REQ/RESP counts, and channel errors (CRC, signature, unknown
-message id, duplicate sequence numbers).
+CPU: events with their rate limits, methods with their REQ/RESP pairs, channel parameters).
+`ara_mavlink_dialect` and `ara_mavlink_system` also create the target `<name>_monitor`, so the
+monitor is started like `//tools/uds:main`, with `bazel run` (arguments after `--`):
+
+```sh
+bazel run //test_cpu/cpu/ec:dialect_monitor -- --serial /dev/ttyUSB0 --baud 57600
+bazel run //test_cpu/cpu/ec:dialect_monitor -- --udp 14550 --key key.hex --link radio_a
+bazel run //test_cpu/cpu/ec:system_monitor -- --udp 14550    # the station: all CPUs of the rocket
+```
+
+`:dialect_monitor` is one CPU, `:system_monitor` the dialect of all CPUs (see "Several CPUs").
+`bazel run` starts in the runfiles directory: give `--key` and `--daemon-config` an absolute path
+(or run with `--run_under="cd $PWD &&"`). Alternatively build the dialect and start the script by hand (it needs
+`pymavlink` and finds the runtime `tools/mavlink/mavlink_monitor.py` in the srp_platform tree or
+in `$SRP_MAVLINK_TOOLS`):
 
 ```sh
 bazel build //test_cpu/cpu/ec:dialect
-python3 bazel-bin/test_cpu/cpu/ec/srp_example_monitor.py --serial /dev/ttyUSB0 --baud 57600
-python3 bazel-bin/test_cpu/cpu/ec/srp_example_monitor.py --udp 14550 --key key.hex --link radio_a
+python3 bazel-bin/test_cpu/cpu/ec/srp_example_monitor.py --udp 14550
 ```
+
+The monitor reads a UART or a UDP port and shows, per message: events with the measured and the
+configured frequency, methods with REQ/RESP counts, and channel errors (CRC, signature, unknown
+message id, duplicate sequence numbers).
 
 The default view is a curses table; `--plain` prints a text table every second and `--jsonl`
 one JSON object per second. `--key` verifies signatures, `--link` selects the radio link of the

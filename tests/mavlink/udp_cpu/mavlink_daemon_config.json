@@ -1,0 +1,17 @@
+{
+    "system_id": 1,
+    "component_id": 1,
+    "links": {
+        "radio_a": {
+            "driver": "example_udp_radio",
+            "driver_config": "/srp/opt/mavlink_daemon/etc/udp_ground.json"
+        },
+        "radio_b": {
+            "driver": "example_udp_radio",
+            "driver_config": "/srp/opt/mavlink_daemon/etc/udp_ground_b.json",
+            "air_rate_bps": 2400,
+            "max_utilization": 0.8,
+            "mtu": 100
+        }
+    }
+}

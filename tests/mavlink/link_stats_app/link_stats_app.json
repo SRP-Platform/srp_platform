@@ -1,0 +1,34 @@
+{
+    "include": [
+        "@(srp_platform)/platform_definition/mavlink_link_service/mavlink_link_service.json"
+    ],
+    "package": "srp.test",
+    "adaptive_application": {
+        "link_stats_app": {
+            "app": {
+                "functional_groups": [
+                    "Startup2",
+                    "Platform",
+                    "Running",
+                    "SafetyMode",
+                    "MW"
+                ],
+                "parms": "",
+                "logger": {
+                    "app_id": "LKST",
+                    "app_des": "MavlinkLinkService test client",
+                    "log_level": "kInfo",
+                    "log_mode": "kRemote|kConsole",
+                    "ctx": []
+                }
+            },
+            "require": [
+                {
+                    "name": "srp.platform.mavlink.MavlinkLinkService as LinkRPort",
+                    "on": "ipc",
+                    "instance": 1
+                }
+            ]
+        }
+    }
+}
