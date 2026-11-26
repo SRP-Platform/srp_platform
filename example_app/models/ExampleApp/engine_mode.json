@@ -1,0 +1,8 @@
+{
+    "package": "srp.example",
+    "data_structure": {
+        "EngineMode": {
+            "mode": "uint8"
+        }
+    }
+}

@@ -1,0 +1,10 @@
+{
+    "system_id": 1,
+    "component_id": 1,
+    "links": {
+        "udp_ground": {
+            "driver": "example_udp_radio",
+            "driver_config": "/etc/srp/mavlink/udp_ground.json"
+        }
+    }
+}

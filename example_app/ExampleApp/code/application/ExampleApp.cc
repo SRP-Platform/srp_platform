@@ -10,12 +10,11 @@
  */
 #include "example_app/ExampleApp/code/application/ExampleApp.h"
 
-#include <iostream>
 #include <map>
-#include <utility>
 
 #include "ara/log/log.h"
 #include "core/common/condition.h"
+#include "example_app/ExampleApp/code/application/engine_service.h"
 #include "example_app/ExampleApp/code/application/example_service.h"
 #include "srp/example/ExampleDataStructure.h"
 #include "srp/example/ExampleService/ExampleServiceHandler.h"
@@ -42,14 +41,21 @@ int ExampleApp::Run(const std::stop_token& token) {
       ara::core::InstanceSpecifier{"srp/example/ExampleApp/service2"}};
   serv.StartOffer();
 
+  // Two EngineService instances on `on: mavlink` (see example_app.json). The application is a
+  // client of the MavlinkDaemon: it registers the instances and hands over events and method
+  // calls. The links (radio_a, radio_b) are defined in the daemon config. Without the daemon
+  // Update() sends nothing and a method call fails at once; the application registers again by
+  // itself when the daemon returns.
+  EngineInstances engines;
 
-  // serv.StartOffer();
-  uint32_t i = 0;
+  uint32_t tick = 0;
   ara::log::LogInfo() << "App started";
   while (!token.stop_requested()) {
-    // ara::log::LogInfo() << "Value for I: " << i++;
-    core::condition::wait_for(std::chrono::milliseconds(100), token);
-    serv.Status.Update(10);
+    core::condition::wait_for(std::chrono::milliseconds(10), token);
+    engines.Tick(++tick);
+    if (tick % 10 == 0) {
+      serv.Status.Update(10);
+    }
   }
   ara::log::LogInfo() << "App Stop";
   serv.StopOffer();

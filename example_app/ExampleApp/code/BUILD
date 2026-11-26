@@ -2,6 +2,7 @@ load("@srp_platform//tools/model_generator/ara:adaptive_application.bzl", "ara_r
 
 ara_runtime_lib(
     name = "ara",
+    mavlink = True,
     model_src = ["//example_app/models/ExampleApp:instance"],
     visibility = ["//example_app/ExampleApp/code:__subpackages__"],
 )
