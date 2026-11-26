@@ -13,6 +13,7 @@
 #include <memory>
 
 #include "ara/com/someip/bindings/ipc_bindings.h"
+#include "ara/com/someip/bindings/mavlink/mavlink_bindings.h"
 #include "ara/com/someip/bindings/proxy/udp_proxy_bindings.h"
 #include "ara/com/someip/bindings/skeleton/udp_skeleton_bindings.h"
 namespace ara {
@@ -35,6 +36,13 @@ BindingsFactory::GetBindings(const ara::core::model::ModelSomeIp& model) {
     }
   }
   return nullptr;
+}
+std::shared_ptr<ara::com::someip::bindings::IBindings>
+BindingsFactory::GetBindings(const ara::core::model::ModelMavlink& model) {
+  if (model.dir_ == ara::core::model::ModelMavlink::Direction::kOut) {
+    return std::make_shared<MavlinkSkeletonBindings>(model);
+  }
+  return std::make_shared<MavlinkProxyBindings>(model);
 }
 }  // namespace bindings
 }  // namespace someip
