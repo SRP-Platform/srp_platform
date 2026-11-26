@@ -20,14 +20,21 @@ class CommonParser:
             print(path)
         return  path
     
-    def LoadJson(path:str):
+    def LoadJson(path:str, loaded:set|None=None):
+        # `loaded` (optional): paths already read; lets several application models (e.g. all
+        # applications of one CPU) with shared includes load without parsing them twice.
+        if loaded is not None:
+            key = os.path.abspath(path)
+            if key in loaded:
+                return
+            loaded.add(key)
         with open(path,"r") as json_file:
             json_object = json.load(json_file)
             
             if "include" in json_object:
                 for path_ in json_object["include"]:
                     
-                    CommonParser.LoadJson(CommonParser.PathR(path_))
+                    CommonParser.LoadJson(CommonParser.PathR(path_), loaded)
                     
             if "data_structure" in json_object:
                 DataStructureParser.LoadDataStructure(json_object)

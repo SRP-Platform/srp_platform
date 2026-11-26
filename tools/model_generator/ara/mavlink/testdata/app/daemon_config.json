@@ -1,0 +1,34 @@
+{
+    "system_id": 1,
+    "component_id": 1,
+    "links": {
+        "radio1": {
+            "signing": {
+                "enabled": true,
+                "key_file": "/etc/srp/mavlink/radio1.key",
+                "link_id": 1,
+                "accept_unsigned": false
+            },
+            "driver": "serial_radio"
+        },
+        "radio2": {
+            "driver": "serial_radio"
+        },
+        "radio3": {
+            "driver": "serial_radio"
+        },
+        "lora": {
+            "signing": {
+                "enabled": true,
+                "key_file": "/etc/srp/mavlink/lora.key",
+                "link_id": 2,
+                "accept_unsigned": false,
+                "state_file": "/var/lib/app/lora.ts"
+            },
+            "driver": "serial_radio"
+        },
+        "spare": {
+            "driver": "serial_radio"
+        }
+    }
+}

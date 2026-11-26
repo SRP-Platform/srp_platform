@@ -1,0 +1,10 @@
+{
+    "package": "srp.mav",
+    "data_structure": {
+        "Pos": {
+            "lat": "float32",
+            "lon": "float32",
+            "fixType": "uint8"
+        }
+    }
+}

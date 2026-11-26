@@ -1,0 +1,21 @@
+{
+    "include": ["tools/model_generator/ara/mavlink/testdata/cpu2/service.json"],
+    "package": "srp.mav",
+    "adaptive_application": {
+        "BeaconApp": {
+            "app": {
+                "functional_groups": ["Running"],
+                "logger": {
+                    "app_id": "BCN-",
+                    "app_des": "MAVLink second CPU",
+                    "log_level": "kInfo",
+                    "log_mode": "kRemote"
+                }
+            },
+            "provide": [
+                {"name": "Beacon", "on": "mavlink", "instance": 1,
+                 "elements": {"Ping": {"radio1": {"max_rate_hz": 1}}}}
+            ]
+        }
+    }
+}
